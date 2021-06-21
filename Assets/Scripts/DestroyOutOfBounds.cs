@@ -23,6 +23,7 @@ public class DestroyOutOfBounds : MonoBehaviour
         fPosYDeltaCam = camMainCamera.transform.position.y - transform.position.y;
         v3CamLowerLeft = camMainCamera.ViewportToWorldPoint(new Vector3(0, 0, fPosYDeltaCam));
         v3CamUpperRight = camMainCamera.ViewportToWorldPoint(new Vector3(1, 1, fPosYDeltaCam));
+
         v3ExistLimitLowerLeft = v3CamLowerLeft - v3ExistLimitCamOffset;
         v3ExistLimitUpperRight = v3CamUpperRight + v3ExistLimitCamOffset;
     }
