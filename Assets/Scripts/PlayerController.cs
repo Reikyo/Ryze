@@ -6,11 +6,7 @@ using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
-    // Camera:
-    private Camera camMainCamera;
-    private float fPosYDeltaCam;
-    private Vector3 v3CamLowerLeft;
-    private Vector3 v3CamUpperRight;
+    private GameManager gameManager;
 
     // Movement:
     private float fInputHorz;
@@ -40,14 +36,11 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
-        camMainCamera = GameObject.Find("Main Camera").GetComponent<Camera>();
-        fPosYDeltaCam = camMainCamera.transform.position.y - transform.position.y;
-        v3CamLowerLeft = camMainCamera.ViewportToWorldPoint(new Vector3(0, 0, fPosYDeltaCam));
-        v3CamUpperRight = camMainCamera.ViewportToWorldPoint(new Vector3(1, 1, fPosYDeltaCam));
+        gameManager = GameObject.Find("Game Manager").GetComponent<GameManager>();
 
         rbPlayer = GetComponent<Rigidbody>();
-        v3MoveLimitLowerLeft = v3CamLowerLeft + v3MoveLimitCamOffset;
-        v3MoveLimitUpperRight = v3CamUpperRight - v3MoveLimitCamOffset;
+        v3MoveLimitLowerLeft = gameManager.v3CamLowerLeft + v3MoveLimitCamOffset;
+        v3MoveLimitUpperRight = gameManager.v3CamUpperRight - v3MoveLimitCamOffset;
 
         iHealth = iHealthMax;
         bAlive = iHealth > 0;

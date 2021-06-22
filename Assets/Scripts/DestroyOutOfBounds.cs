@@ -4,28 +4,21 @@ using UnityEngine;
 
 public class DestroyOutOfBounds : MonoBehaviour
 {
-    // Camera:
-    private Camera camMainCamera;
-    private float fPosYDeltaCam;
-    private Vector3 v3CamLowerLeft;
-    private Vector3 v3CamUpperRight;
+    private GameManager gameManager;
 
     // Movement:
     private Vector3 v3ExistLimitLowerLeft;
     private Vector3 v3ExistLimitUpperRight;
-    private Vector3 v3ExistLimitCamOffset = new Vector3(5f, 0f, 5f);
+    private Vector3 v3ExistLimitCamOffset = new Vector3(20f, 0f, 20f);
 
     // ------------------------------------------------------------------------------------------------
 
     void Start()
     {
-        camMainCamera = GameObject.Find("Main Camera").GetComponent<Camera>();
-        fPosYDeltaCam = camMainCamera.transform.position.y - transform.position.y;
-        v3CamLowerLeft = camMainCamera.ViewportToWorldPoint(new Vector3(0, 0, fPosYDeltaCam));
-        v3CamUpperRight = camMainCamera.ViewportToWorldPoint(new Vector3(1, 1, fPosYDeltaCam));
+        gameManager = GameObject.Find("Game Manager").GetComponent<GameManager>();
 
-        v3ExistLimitLowerLeft = v3CamLowerLeft - v3ExistLimitCamOffset;
-        v3ExistLimitUpperRight = v3CamUpperRight + v3ExistLimitCamOffset;
+        v3ExistLimitLowerLeft = gameManager.v3CamLowerLeft - v3ExistLimitCamOffset;
+        v3ExistLimitUpperRight = gameManager.v3CamUpperRight + v3ExistLimitCamOffset;
     }
 
     // ------------------------------------------------------------------------------------------------
