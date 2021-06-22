@@ -329,6 +329,55 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
+--- !u!1 &1842339211
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1842339213}
+  - component: {fileID: 1842339212}
+  m_Layer: 0
+  m_Name: Asteroids
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1842339212
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1842339211}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 735e1514cade04b7c8ebe3b10b850f4f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  goArrAsteroids:
+  - {fileID: 8255462311475791699, guid: 79c5c151f8cd743808fd38fec2bb6172, type: 3}
+  - {fileID: 4049618612932931477, guid: 4c6222ec08f4848a38e54486ee1aa0f4, type: 3}
+  - {fileID: 8796981307068079281, guid: 341fee905cf804784974472e7409752f, type: 3}
+  - {fileID: 3846847276593214583, guid: 7e5c00b580c524ca282f11050ceb79a3, type: 3}
+  - {fileID: 3718482580738710056, guid: b0de720205efe4440b4a8bd50ef1d435, type: 3}
+--- !u!4 &1842339213
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1842339211}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 32.688747, y: -2.1181712, z: -18.733421}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!224 &17554370317258705
 RectTransform:
   m_ObjectHideFlags: 0
@@ -515,6 +564,10 @@ PrefabInstance:
     - target: {fileID: 2297487835270272509, guid: 303da5651d6944d028fe78dfbceafa06, type: 3}
       propertyPath: fMetresPerSecMoveDeltaBoost
       value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 5457155071179102228, guid: 303da5651d6944d028fe78dfbceafa06, type: 3}
+      propertyPath: m_Constraints
+      value: 116
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 303da5651d6944d028fe78dfbceafa06, type: 3}

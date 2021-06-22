@@ -13,10 +13,13 @@ public class PlayerController : MonoBehaviour
     private Vector3 v3CamUpperRight;
 
     // Movement:
-    public float fMetresPerSecMove = 100f;
-    public float fMetresPerSecMoveDeltaBoost = 20f;
     private float fInputHorz;
     private float fInputVert;
+    private Rigidbody rbPlayer;
+    public float fForceMove = 1e7f;
+    public float fForceMoveDeltaBoost = 1e4f;
+    // public float fMetresPerSecMove = 100f;
+    // public float fMetresPerSecMoveDeltaBoost = 20f;
     private Vector3 v3DirectionMove;
     private Vector3 v3MoveLimitLowerLeft;
     private Vector3 v3MoveLimitUpperRight;
@@ -42,6 +45,7 @@ public class PlayerController : MonoBehaviour
         v3CamLowerLeft = camMainCamera.ViewportToWorldPoint(new Vector3(0, 0, fPosYDeltaCam));
         v3CamUpperRight = camMainCamera.ViewportToWorldPoint(new Vector3(1, 1, fPosYDeltaCam));
 
+        rbPlayer = GetComponent<Rigidbody>();
         v3MoveLimitLowerLeft = v3CamLowerLeft + v3MoveLimitCamOffset;
         v3MoveLimitUpperRight = v3CamUpperRight - v3MoveLimitCamOffset;
 
@@ -57,21 +61,52 @@ public class PlayerController : MonoBehaviour
         fInputHorz = Input.GetAxis("Horizontal");
         fInputVert = Input.GetAxis("Vertical");
 
+        // Debug.LogFormat("{0} {1} {2}", fInputHorz, fInputVert, Math.Pow(Math.Pow(fInputHorz,2f) + Math.Pow(fInputVert,2f), 0.5f));
+
+        // if (    ((fInputHorz < 0) && (transform.position.x <= v3MoveLimitLowerLeft.x))
+        //     ||  ((fInputHorz > 0) && (transform.position.x >= v3MoveLimitUpperRight.x)) )
+        // {
+        //     fInputHorz = 0f;
+        // }
+        // if (    ((fInputVert < 0) && (transform.position.z <= v3MoveLimitLowerLeft.z))
+        //     ||  ((fInputVert > 0) && (transform.position.z >= v3MoveLimitUpperRight.z)) )
+        // {
+        //     fInputVert = 0f;
+        // }
+        // if (Math.Abs(fInputHorz) + Math.Abs(fInputVert) > 0f)
+        // {
+        //     v3DirectionMove = (fInputHorz * transform.right) + (fInputVert * transform.forward);
+        //     if (v3DirectionMove.magnitude > 1f)
+        //     {
+        //         v3DirectionMove = v3DirectionMove.normalized;
+        //     }
+        //     // transform.position = Vector3.MoveTowards(transform.position, transform.position + v3DirectionMove, fMetresPerSecMove * Time.deltaTime);
+        //     transform.Translate(fMetresPerSecMove * Time.deltaTime * v3DirectionMove);
+        // }
+
         if (    ((fInputHorz < 0) && (transform.position.x <= v3MoveLimitLowerLeft.x))
             ||  ((fInputHorz > 0) && (transform.position.x >= v3MoveLimitUpperRight.x)) )
         {
+            // fInputHorz *= -1f; // This doesn't work so well, gives bouncy behaviour at move limits
             fInputHorz = 0f;
+            rbPlayer.AddForce(20f * rbPlayer.mass * new Vector3(-rbPlayer.velocity.x, 0f, 0f));
         }
         if (    ((fInputVert < 0) && (transform.position.z <= v3MoveLimitLowerLeft.z))
             ||  ((fInputVert > 0) && (transform.position.z >= v3MoveLimitUpperRight.z)) )
         {
+            // fInputVert *= -1f; // This doesn't work so well, gives bouncy behaviour at move limits
             fInputVert = 0f;
+            rbPlayer.AddForce(20f * rbPlayer.mass * new Vector3(0f, 0f, -rbPlayer.velocity.z));
         }
+
         if (Math.Abs(fInputHorz) + Math.Abs(fInputVert) > 0f)
         {
-            v3DirectionMove = ((fInputHorz * transform.right) + (fInputVert * transform.forward)).normalized;
-            // transform.position = Vector3.MoveTowards(transform.position, transform.position + v3DirectionMove, fMetresPerSecMove * Time.deltaTime);
-            transform.Translate(fMetresPerSecMove * Time.deltaTime * v3DirectionMove);
+            v3DirectionMove = (fInputHorz * transform.right) + (fInputVert * transform.forward);
+            if (v3DirectionMove.magnitude > 1f)
+            {
+                v3DirectionMove = v3DirectionMove.normalized;
+            }
+            rbPlayer.AddForce(fForceMove * v3DirectionMove);
         }
 
         // ------------------------------------------------------------------------------------------------
