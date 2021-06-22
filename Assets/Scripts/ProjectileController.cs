@@ -4,13 +4,37 @@ using UnityEngine;
 
 public class ProjectileController : MonoBehaviour
 {
-    public float fMetresPerSecMove = 200f;
+    // Movement:
+    public float fForceMove = 500f;
+    private Rigidbody rbProjectile;
+
+    // Attack:
+    public int iDamage = 10;
+
+    // From other objects:
+    private Health healthCollision;
 
     // ------------------------------------------------------------------------------------------------
 
-    void Update()
+    void Start()
     {
-        transform.Translate(fMetresPerSecMove * Time.deltaTime * Vector3.forward);
+        rbProjectile = GetComponent<Rigidbody>();
+        rbProjectile.AddForce(fForceMove * Vector3.forward, ForceMode.Impulse);
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (!collision.gameObject.CompareTag("Player"))
+        {
+            healthCollision = collision.gameObject.GetComponent<Health>();
+            if (healthCollision)
+            {
+                healthCollision.Change(-iDamage);
+            }
+            Destroy(gameObject);
+        }
     }
 
     // ------------------------------------------------------------------------------------------------

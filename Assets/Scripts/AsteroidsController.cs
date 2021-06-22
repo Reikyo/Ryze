@@ -40,7 +40,7 @@ public class AsteroidsController : MonoBehaviour
             );
             rbAsteroid = goAsteroid.GetComponent<Rigidbody>();
             rbAsteroid.AddForce(
-                UnityEngine.Random.Range(-1e5f, +1e5f),
+                UnityEngine.Random.Range(-1e6f, +1e6f),
                 0f,
                 UnityEngine.Random.Range(-1e6f, -1e7f)
             );

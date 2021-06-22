@@ -520,6 +520,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -2532333422705903093, guid: 303da5651d6944d028fe78dfbceafa06, type: 3}
+      propertyPath: sliHealth
+      value: 
+      objectReference: {fileID: 6136079422221805424}
     - target: {fileID: 1911443224730620590, guid: 303da5651d6944d028fe78dfbceafa06, type: 3}
       propertyPath: m_RootOrder
       value: 4
@@ -870,11 +874,11 @@ RectTransform:
   m_Father: {fileID: 7969704152703885218}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 20, y: 20}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 15, y: -10}
   m_SizeDelta: {x: 160, y: 20}
-  m_Pivot: {x: 0, y: 0}
+  m_Pivot: {x: 0, y: 1}
 --- !u!114 &7818234083725399039
 MonoBehaviour:
   m_ObjectHideFlags: 0

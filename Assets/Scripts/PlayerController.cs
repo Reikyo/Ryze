@@ -22,10 +22,7 @@ public class PlayerController : MonoBehaviour
     private Vector3 v3MoveLimitCamOffset = new Vector3(5f, 0f, 5f);
 
     // Health:
-    public bool bAlive;
-    public int iHealth;
-    public int iHealthMax = 100;
-    public Slider sliHealth;
+    // private Health healthPlayer;
 
     // Attack:
     public GameObject goProjectile;
@@ -42,9 +39,7 @@ public class PlayerController : MonoBehaviour
         v3MoveLimitLowerLeft = gameManager.v3CamLowerLeft + v3MoveLimitCamOffset;
         v3MoveLimitUpperRight = gameManager.v3CamUpperRight - v3MoveLimitCamOffset;
 
-        iHealth = iHealthMax;
-        bAlive = iHealth > 0;
-        sliHealth.value = iHealth;
+        // healthPlayer = GetComponent<Health>();
     }
 
     // ------------------------------------------------------------------------------------------------
@@ -106,32 +101,22 @@ public class PlayerController : MonoBehaviour
 
         if (Input.GetButtonDown("Fire1"))
         {
-            Instantiate(goProjectile, goGunLeftProjectileSpawnPoint.transform.position, transform.rotation);
-            Instantiate(goProjectile, goGunRightProjectileSpawnPoint.transform.position, transform.rotation);
+            Instantiate(goProjectile, goGunLeftProjectileSpawnPoint.transform.position, goGunLeftProjectileSpawnPoint.transform.rotation);
+            Instantiate(goProjectile, goGunRightProjectileSpawnPoint.transform.position, goGunRightProjectileSpawnPoint.transform.rotation);
         }
-    }
 
-    // ------------------------------------------------------------------------------------------------
+        // ------------------------------------------------------------------------------------------------
 
-    public void Attacked(int iDamage)
-    {
-        if (    (iHealth == 0)
-            ||  (iDamage <= 0) )
-        {
-            return;
-        }
-        if (iHealth > iDamage)
-        {
-            iHealth -= iDamage;
-            sliHealth.value = iHealth;
-        }
-        else
-        {
-            iHealth = 0;
-            bAlive = false;
-            sliHealth.transform.Find("Fill Area").gameObject.SetActive(false);
-            gameObject.GetComponent<PlayerController>().enabled = false; // This line disables this script!
-        }
+        // Just to test the health component:
+
+        // if (Input.GetKeyDown(KeyCode.G))
+        // {
+        //     healthPlayer.Change(10);
+        // }
+        // if (Input.GetKeyDown(KeyCode.H))
+        // {
+        //     healthPlayer.Change(-10);
+        // }
     }
 
     // ------------------------------------------------------------------------------------------------

@@ -344,6 +344,7 @@ GameObject:
   - component: {fileID: 1911443224730620590}
   - component: {fileID: 4358449802852073832}
   - component: {fileID: 2297487835270272509}
+  - component: {fileID: -2532333422705903093}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -404,8 +405,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fForceMove: 10000000
-  fMetresPerSecMove: 100
-  fMetresPerSecMoveDeltaBoost: 20
+  fForceMoveDeltaBoost: 10000
   bAlive: 0
   iHealth: 0
   iHealthMax: 100
@@ -413,6 +413,21 @@ MonoBehaviour:
   goProjectile: {fileID: 3262308912846389460, guid: 208adb6eee28344738120012deccca3a, type: 3}
   goGunLeftProjectileSpawnPoint: {fileID: 1328950120243053460}
   goGunRightProjectileSpawnPoint: {fileID: 5781056758477327199}
+--- !u!114 &-2532333422705903093
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1913222272407158638}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 91da1451b34d1432e9d9ebbbc376e534, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  iHealth: 0
+  iHealthMax: 100
+  sliHealth: {fileID: 0}
 --- !u!1 &1913286069807940530
 GameObject:
   m_ObjectHideFlags: 0
