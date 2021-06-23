@@ -8,7 +8,7 @@ public class ProjectileController : MonoBehaviour
     public float fForceMove = 500f;
     private Rigidbody rbProjectile;
 
-    // Attack:
+    // Damage:
     public int iDamage = 10;
 
     // From other objects:

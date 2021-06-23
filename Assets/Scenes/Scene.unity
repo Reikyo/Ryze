@@ -355,7 +355,7 @@ GameObject:
   - component: {fileID: 1842339213}
   - component: {fileID: 1842339212}
   m_Layer: 0
-  m_Name: Asteroids
+  m_Name: AsteroidField
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -391,7 +391,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!224 &17554370317258705
 RectTransform:
@@ -526,7 +526,7 @@ PrefabInstance:
       objectReference: {fileID: 6136079422221805424}
     - target: {fileID: 1911443224730620590, guid: 303da5651d6944d028fe78dfbceafa06, type: 3}
       propertyPath: m_RootOrder
-      value: 4
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 1911443224730620590, guid: 303da5651d6944d028fe78dfbceafa06, type: 3}
       propertyPath: m_LocalPosition.x
@@ -922,7 +922,7 @@ RectTransform:
   m_Children:
   - {fileID: 7626230372357425240}
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}

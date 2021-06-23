@@ -22,7 +22,7 @@ public class PlayerController : MonoBehaviour
     private Vector3 v3MoveLimitCamOffset = new Vector3(5f, 0f, 5f);
 
     // Health:
-    // private Health healthPlayer;
+    private Health healthPlayer;
 
     // Attack:
     public GameObject goProjectile;
@@ -39,7 +39,7 @@ public class PlayerController : MonoBehaviour
         v3MoveLimitLowerLeft = gameManager.v3CamLowerLeft + v3MoveLimitCamOffset;
         v3MoveLimitUpperRight = gameManager.v3CamUpperRight - v3MoveLimitCamOffset;
 
-        // healthPlayer = GetComponent<Health>();
+        healthPlayer = GetComponent<Health>();
     }
 
     // ------------------------------------------------------------------------------------------------
@@ -109,14 +109,14 @@ public class PlayerController : MonoBehaviour
 
         // Just to test the health component:
 
-        // if (Input.GetKeyDown(KeyCode.G))
-        // {
-        //     healthPlayer.Change(10);
-        // }
-        // if (Input.GetKeyDown(KeyCode.H))
-        // {
-        //     healthPlayer.Change(-10);
-        // }
+        if (Input.GetKeyDown(KeyCode.G))
+        {
+            healthPlayer.Change(10);
+        }
+        if (Input.GetKeyDown(KeyCode.H))
+        {
+            healthPlayer.Change(-10);
+        }
     }
 
     // ------------------------------------------------------------------------------------------------

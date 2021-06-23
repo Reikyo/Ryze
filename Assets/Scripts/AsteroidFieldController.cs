@@ -2,16 +2,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AsteroidsController : MonoBehaviour
+public class AsteroidFieldController : MonoBehaviour
 {
     private GameManager gameManager;
 
     public GameObject[] goArrAsteroids;
-    private GameObject goAsteroidPrefab;
     private GameObject goAsteroid;
-    private Rigidbody rbAsteroid;
+    private int iNumAsteroids;
 
     private float fTimeNextSpawn;
+    private float fTimeNextSpawnDeltaMin = 0f;
+    private float fTimeNextSpawnDeltaMax = 2f;
 
     // ------------------------------------------------------------------------------------------------
 
@@ -19,7 +20,9 @@ public class AsteroidsController : MonoBehaviour
     {
         gameManager = GameObject.Find("Game Manager").GetComponent<GameManager>();
 
-        fTimeNextSpawn = Time.time + UnityEngine.Random.Range(0f, 2f);
+        iNumAsteroids = goArrAsteroids.Length;
+
+        fTimeNextSpawn = Time.time + UnityEngine.Random.Range(fTimeNextSpawnDeltaMin, fTimeNextSpawnDeltaMax);
     }
 
     // ------------------------------------------------------------------------------------------------
@@ -28,28 +31,17 @@ public class AsteroidsController : MonoBehaviour
     {
         if (Time.time >= fTimeNextSpawn)
         {
-            goAsteroidPrefab = goArrAsteroids[UnityEngine.Random.Range(0, 5)];
-            goAsteroid = Instantiate(
-                goAsteroidPrefab,
+            goAsteroid = goArrAsteroids[UnityEngine.Random.Range(0, iNumAsteroids)];
+            Instantiate(
+                goAsteroid,
                 new Vector3(
                     UnityEngine.Random.Range(gameManager.v3CamLowerLeft.x + 10f, gameManager.v3CamUpperRight.x - 10f),
                     0f,
                     gameManager.v3CamUpperRight.z + 10f
                 ),
-                goAsteroidPrefab.transform.rotation
+                goAsteroid.transform.rotation
             );
-            rbAsteroid = goAsteroid.GetComponent<Rigidbody>();
-            rbAsteroid.AddForce(
-                UnityEngine.Random.Range(-1e6f, +1e6f),
-                0f,
-                UnityEngine.Random.Range(-1e6f, -1e7f)
-            );
-            rbAsteroid.AddTorque(
-                UnityEngine.Random.Range(-1e6f, +1e6f),
-                UnityEngine.Random.Range(-1e6f, +1e6f),
-                UnityEngine.Random.Range(-1e6f, +1e6f)
-            );
-            fTimeNextSpawn = Time.time + UnityEngine.Random.Range(0f, 2f);
+            fTimeNextSpawn = Time.time + UnityEngine.Random.Range(fTimeNextSpawnDeltaMin, fTimeNextSpawnDeltaMax);
         }
     }
 
