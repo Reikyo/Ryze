@@ -406,10 +406,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   fForceMove: 10000000
   fForceMoveDeltaBoost: 10000
-  bAlive: 0
-  iHealth: 0
-  iHealthMax: 100
-  sliHealth: {fileID: 0}
   goProjectile: {fileID: 3262308912846389460, guid: 208adb6eee28344738120012deccca3a, type: 3}
   goGunLeftProjectileSpawnPoint: {fileID: 1328950120243053460}
   goGunRightProjectileSpawnPoint: {fileID: 5781056758477327199}

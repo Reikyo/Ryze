@@ -23,6 +23,8 @@ public class AsteroidFieldController : MonoBehaviour
         iNumAsteroids = goArrAsteroids.Length;
 
         fTimeNextSpawn = Time.time + UnityEngine.Random.Range(fTimeNextSpawnDeltaMin, fTimeNextSpawnDeltaMax);
+
+        // Instantiate(goArrAsteroids[4], new Vector3(0f, 0f, 50f), goArrAsteroids[4].transform.rotation);
     }
 
     // ------------------------------------------------------------------------------------------------

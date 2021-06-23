@@ -18,7 +18,7 @@ GameObject:
   - component: {fileID: 460794243644629557}
   m_Layer: 0
   m_Name: Asteroid_03_L
-  m_TagString: Untagged
+  m_TagString: Asteroid
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -64,7 +64,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 78d155265852bea4e909fdcd7d995b0e, type: 2}
+  - {fileID: 2100000, guid: 393e1b87e3aff4b30b8fb059d4f418ac, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -127,6 +127,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: abb07250e4e8b49c592c0c054364894a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  fTimeFlashDamaged: 0.1
   iDamage: 10
 --- !u!114 &-4217020075111381955
 MonoBehaviour:

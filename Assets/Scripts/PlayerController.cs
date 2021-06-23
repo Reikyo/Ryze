@@ -23,6 +23,9 @@ public class PlayerController : MonoBehaviour
 
     // Health:
     private Health healthPlayer;
+    public float fTimeFlashDamaged = 0.1f;
+    private float fRelativeMomentum;
+    public float fRelativeMomentumBenchmark = 250000f;
 
     // Attack:
     public GameObject goProjectile;
@@ -116,6 +119,34 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.H))
         {
             healthPlayer.Change(-10);
+        }
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
+    // IEnumerator FlashDamaged()
+    // {
+    //     matPlayer.EnableKeyword("_EMISSION");
+    //     yield return new WaitForSeconds(fTimeFlashDamaged);
+    //     matPlayer.DisableKeyword("_EMISSION");
+    // }
+
+    // ------------------------------------------------------------------------------------------------
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Asteroid"))
+        {
+            // The approximate extremes we are looking at here for a stationary player are:
+            //   1,000 kg asteroid with relative speed of 1 ms^-1 => relative momentum = 1 kg ms^-1
+            //   5,000 kg asteroid with relative speed of 50 ms^-1 => relative momentum = 250,000 kg ms^-1
+            fRelativeMomentum = collision.rigidbody.mass * collision.relativeVelocity.magnitude;
+            healthPlayer.Change(-(int)Math.Ceiling(collision.gameObject.GetComponent<AsteroidController>().iDamage * fRelativeMomentum / fRelativeMomentumBenchmark));
+            // if (healthPlayer.iHealth == 0)
+            // {
+            //     Destroy(gameObject);
+            // }
+            // StartCoroutine(FlashDamaged());
         }
     }
 

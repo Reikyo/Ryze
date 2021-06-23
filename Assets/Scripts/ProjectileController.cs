@@ -11,9 +11,6 @@ public class ProjectileController : MonoBehaviour
     // Damage:
     public int iDamage = 10;
 
-    // From other objects:
-    private Health healthCollision;
-
     // ------------------------------------------------------------------------------------------------
 
     void Start()
@@ -28,11 +25,6 @@ public class ProjectileController : MonoBehaviour
     {
         if (!collision.gameObject.CompareTag("Player"))
         {
-            healthCollision = collision.gameObject.GetComponent<Health>();
-            if (healthCollision)
-            {
-                healthCollision.Change(-iDamage);
-            }
             Destroy(gameObject);
         }
     }
