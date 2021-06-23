@@ -31,6 +31,8 @@ public class PlayerController : MonoBehaviour
     public GameObject goProjectile;
     public GameObject goGunLeftProjectileSpawnPoint;
     public GameObject goGunRightProjectileSpawnPoint;
+    private float fTimeNextFire;
+    public float fTimeNextFireDelta = 0.1f;
 
     // ------------------------------------------------------------------------------------------------
 
@@ -43,6 +45,8 @@ public class PlayerController : MonoBehaviour
         v3MoveLimitUpperRight = gameManager.v3CamUpperRight - v3MoveLimitCamOffset;
 
         healthPlayer = GetComponent<Health>();
+
+        fTimeNextFire = Time.time;
     }
 
     // ------------------------------------------------------------------------------------------------
@@ -102,10 +106,14 @@ public class PlayerController : MonoBehaviour
 
         // ------------------------------------------------------------------------------------------------
 
-        if (Input.GetButtonDown("Fire1"))
+        if (Input.GetButton("Fire1"))
         {
-            Instantiate(goProjectile, goGunLeftProjectileSpawnPoint.transform.position, goGunLeftProjectileSpawnPoint.transform.rotation);
-            Instantiate(goProjectile, goGunRightProjectileSpawnPoint.transform.position, goGunRightProjectileSpawnPoint.transform.rotation);
+            if (Time.time >= fTimeNextFire)
+            {
+                Instantiate(goProjectile, goGunLeftProjectileSpawnPoint.transform.position, goGunLeftProjectileSpawnPoint.transform.rotation);
+                Instantiate(goProjectile, goGunRightProjectileSpawnPoint.transform.position, goGunRightProjectileSpawnPoint.transform.rotation);
+                fTimeNextFire = Time.time + fTimeNextFireDelta;
+            }
         }
 
         // ------------------------------------------------------------------------------------------------

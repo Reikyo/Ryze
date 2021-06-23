@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3234627300156425885}
   m_Layer: 0
-  m_Name: ProjectileSpawnPoint
+  m_Name: GunLeftProjectileSpawnPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -406,9 +406,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   fForceMove: 10000000
   fForceMoveDeltaBoost: 10000
+  fTimeFlashDamaged: 0.1
+  fRelativeMomentumBenchmark: 250000
   goProjectile: {fileID: 3262308912846389460, guid: 208adb6eee28344738120012deccca3a, type: 3}
   goGunLeftProjectileSpawnPoint: {fileID: 1328950120243053460}
   goGunRightProjectileSpawnPoint: {fileID: 5781056758477327199}
+  fTimeNextFireDelta: 0.1
 --- !u!114 &-2532333422705903093
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1149,7 +1152,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8543139620061184175}
   m_Layer: 0
-  m_Name: ProjectileSpawnPoint
+  m_Name: GunRightProjectileSpawnPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

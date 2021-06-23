@@ -11,8 +11,8 @@ public class AsteroidFieldController : MonoBehaviour
     private int iNumAsteroids;
 
     private float fTimeNextSpawn;
-    private float fTimeNextSpawnDeltaMin = 0f;
-    private float fTimeNextSpawnDeltaMax = 2f;
+    public float fTimeNextSpawnDeltaMin = 0f;
+    public float fTimeNextSpawnDeltaMax = 2f;
 
     // ------------------------------------------------------------------------------------------------
 
