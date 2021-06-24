@@ -21,16 +21,20 @@ public class PlayerController : MonoBehaviour
     private Vector3 v3MoveLimitUpperRight;
     private Vector3 v3MoveLimitCamOffset = new Vector3(5f, 0f, 5f);
 
+    // Appearance:
+    private List<Material> matListChildren = new List<Material>();
+
     // Health:
     private Health healthPlayer;
+    private GameObject goShield;
     public float fTimeFlashDamaged = 0.1f;
     private float fRelativeMomentum;
     public float fRelativeMomentumBenchmark = 250000f;
 
-    // Attack:
+    // Damage:
     public GameObject goProjectile;
-    public GameObject goGunLeftProjectileSpawnPoint;
-    public GameObject goGunRightProjectileSpawnPoint;
+    private GameObject goGunLeftProjectileSpawnPoint;
+    private GameObject goGunRightProjectileSpawnPoint;
     private float fTimeNextFire;
     public float fTimeNextFireDelta = 0.1f;
 
@@ -44,8 +48,16 @@ public class PlayerController : MonoBehaviour
         v3MoveLimitLowerLeft = gameManager.v3CamLowerLeft + v3MoveLimitCamOffset;
         v3MoveLimitUpperRight = gameManager.v3CamUpperRight - v3MoveLimitCamOffset;
 
-        healthPlayer = GetComponent<Health>();
+        foreach (Renderer rendChild in GetComponentsInChildren<Renderer>())
+        {
+            matListChildren.Add(rendChild.material);
+        }
 
+        healthPlayer = GetComponent<Health>();
+        goShield = transform.Find("Shield").gameObject;
+
+        goGunLeftProjectileSpawnPoint = transform.Find("08_Gun_L/GunLeftProjectileSpawnPoint").gameObject;
+        goGunRightProjectileSpawnPoint = transform.Find("08_Gun_R/GunRightProjectileSpawnPoint").gameObject;
         fTimeNextFire = Time.time;
     }
 
@@ -84,14 +96,14 @@ public class PlayerController : MonoBehaviour
         {
             // fInputHorz *= -1f; // This doesn't work so well, gives bouncy behaviour at move limits
             fInputHorz = 0f;
-            rbPlayer.AddForce(20f * rbPlayer.mass * new Vector3(-rbPlayer.velocity.x, 0f, 0f));
+            rbPlayer.AddForce(30f * rbPlayer.mass * new Vector3(-rbPlayer.velocity.x, 0f, 0f));
         }
         if (    ((fInputVert < 0) && (transform.position.z <= v3MoveLimitLowerLeft.z))
             ||  ((fInputVert > 0) && (transform.position.z >= v3MoveLimitUpperRight.z)) )
         {
             // fInputVert *= -1f; // This doesn't work so well, gives bouncy behaviour at move limits
             fInputVert = 0f;
-            rbPlayer.AddForce(20f * rbPlayer.mass * new Vector3(0f, 0f, -rbPlayer.velocity.z));
+            rbPlayer.AddForce(30f * rbPlayer.mass * new Vector3(0f, 0f, -rbPlayer.velocity.z));
         }
 
         if (Math.Abs(fInputHorz) + Math.Abs(fInputVert) > 0f)
@@ -132,12 +144,28 @@ public class PlayerController : MonoBehaviour
 
     // ------------------------------------------------------------------------------------------------
 
-    // IEnumerator FlashDamaged()
-    // {
-    //     matPlayer.EnableKeyword("_EMISSION");
-    //     yield return new WaitForSeconds(fTimeFlashDamaged);
-    //     matPlayer.DisableKeyword("_EMISSION");
-    // }
+    IEnumerator FlashDamaged()
+    {
+        // goShield.SetActive(true);
+        // yield return new WaitForSeconds(fTimeFlashDamaged);
+        // goShield.SetActive(false);
+        // yield return new WaitForSeconds(fTimeFlashDamaged);
+        // goShield.SetActive(true);
+        // yield return new WaitForSeconds(fTimeFlashDamaged);
+        // goShield.SetActive(false);
+
+        foreach (Material matChild in matListChildren)
+        {
+            matChild.EnableKeyword("_EMISSION");
+        }
+
+        yield return new WaitForSeconds(fTimeFlashDamaged);
+
+        foreach (Material matChild in matListChildren)
+        {
+            matChild.DisableKeyword("_EMISSION");
+        }
+    }
 
     // ------------------------------------------------------------------------------------------------
 
@@ -154,7 +182,7 @@ public class PlayerController : MonoBehaviour
             // {
             //     Destroy(gameObject);
             // }
-            // StartCoroutine(FlashDamaged());
+            StartCoroutine(FlashDamaged());
         }
     }
 
