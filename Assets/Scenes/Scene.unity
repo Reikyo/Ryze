@@ -264,6 +264,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   v3CamLowerLeft: {x: 0, y: 0, z: 0}
   v3CamUpperRight: {x: 0, y: 0, z: 0}
+  v3MoveLimitLowerLeft: {x: 0, y: 0, z: 0}
+  v3MoveLimitUpperRight: {x: 0, y: 0, z: 0}
+  v3ExistLimitLowerLeft: {x: 0, y: 0, z: 0}
+  v3ExistLimitUpperRight: {x: 0, y: 0, z: 0}
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0

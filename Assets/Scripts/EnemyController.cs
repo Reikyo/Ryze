@@ -5,6 +5,8 @@ using UnityEngine.AI;
 
 public class EnemyController : MonoBehaviour
 {
+    private GameManager gameManager;
+
     // Movement:
     private NavMeshAgent navEnemy;
     public float fAngSpeedMove = 5f;
@@ -29,6 +31,8 @@ public class EnemyController : MonoBehaviour
 
     void Start()
     {
+        gameManager = GameObject.Find("Game Manager").GetComponent<GameManager>();
+
         navEnemy = GetComponent<NavMeshAgent>();
         navEnemy.SetDestination(new Vector3(-50f, 0f, 20f));
 
@@ -46,9 +50,37 @@ public class EnemyController : MonoBehaviour
 
     void Update()
     {
+        // Movement:
+
+        if (navEnemy.remainingDistance <= navEnemy.stoppingDistance)
+        {
+            Vector3 v3PositionRandom = new Vector3(gameManager.v3MoveLimitLowerLeft.x-10f, 0f, gameManager.v3MoveLimitLowerLeft.z-10f);
+
+            while ( (   (v3PositionRandom.x < gameManager.v3MoveLimitLowerLeft.x)
+                    ||  (v3PositionRandom.x > gameManager.v3MoveLimitUpperRight.x) )
+                &&  (   (v3PositionRandom.z < gameManager.v3MoveLimitLowerLeft.z)
+                    ||  (v3PositionRandom.z > gameManager.v3MoveLimitUpperRight.z) ) )
+            {
+                Vector2 v2PositionRandom = Random.insideUnitCircle;
+                v3PositionRandom =
+                    goPlayer.transform.position
+                    + Random.Range(20f, 80f) * (new Vector3(v2PositionRandom.x, 0f, v2PositionRandom.y));
+            }
+
+            navEnemy.SetDestination(v3PositionRandom);
+        }
+
+        // ------------------------------------------------------------------------------------------------
+
+        // Look:
+
         Vector3 v3PositionRelativeLook = goPlayer.transform.position - transform.position;
         Vector3 v3PositionRelativeLookNow = Vector3.RotateTowards(transform.forward, v3PositionRelativeLook, fAngSpeedMove * Time.deltaTime, 0f);
         transform.rotation = Quaternion.LookRotation(v3PositionRelativeLookNow);
+
+        // ------------------------------------------------------------------------------------------------
+
+        // Attack:
 
         if (v3PositionRelativeLook.magnitude <= 200f)
         {

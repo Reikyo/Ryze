@@ -20,9 +20,6 @@ public class PlayerController : MonoBehaviour
     // public float fMetresPerSecMove = 100f;
     // public float fMetresPerSecMoveDeltaBoost = 20f;
     private Vector3 v3DirectionMove;
-    private Vector3 v3MoveLimitLowerLeft;
-    private Vector3 v3MoveLimitUpperRight;
-    private Vector3 v3MoveLimitCamOffset = new Vector3(5f, 0f, 5f);
 
     // Appearance:
     private List<Material> matListChildren = new List<Material>();
@@ -48,8 +45,6 @@ public class PlayerController : MonoBehaviour
         gameManager = GameObject.Find("Game Manager").GetComponent<GameManager>();
 
         rbPlayer = GetComponent<Rigidbody>();
-        v3MoveLimitLowerLeft = gameManager.v3CamLowerLeft + v3MoveLimitCamOffset;
-        v3MoveLimitUpperRight = gameManager.v3CamUpperRight - v3MoveLimitCamOffset;
 
         foreach (Renderer rendChild in GetComponentsInChildren<Renderer>())
         {
@@ -68,18 +63,20 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        // Movement:
+
         fInputHorzMove = Input.GetAxis("Horizontal Move");
         fInputVertMove = Input.GetAxis("Vertical Move");
 
         // Debug.LogFormat("{0} {1} {2}", fInputHorzMove, fInputVertMove, Math.Pow(Math.Pow(fInputHorzMove,2f) + Math.Pow(fInputVertMove,2f), 0.5f));
 
-        // if (    ((fInputHorzMove < 0) && (transform.position.x <= v3MoveLimitLowerLeft.x))
-        //     ||  ((fInputHorzMove > 0) && (transform.position.x >= v3MoveLimitUpperRight.x)) )
+        // if (    ((fInputHorzMove < 0) && (transform.position.x <= gameManager.v3MoveLimitLowerLeft.x))
+        //     ||  ((fInputHorzMove > 0) && (transform.position.x >= gameManager.v3MoveLimitUpperRight.x)) )
         // {
         //     fInputHorzMove = 0f;
         // }
-        // if (    ((fInputVertMove < 0) && (transform.position.z <= v3MoveLimitLowerLeft.z))
-        //     ||  ((fInputVertMove > 0) && (transform.position.z >= v3MoveLimitUpperRight.z)) )
+        // if (    ((fInputVertMove < 0) && (transform.position.z <= gameManager.v3MoveLimitLowerLeft.z))
+        //     ||  ((fInputVertMove > 0) && (transform.position.z >= gameManager.v3MoveLimitUpperRight.z)) )
         // {
         //     fInputVertMove = 0f;
         // }
@@ -94,15 +91,15 @@ public class PlayerController : MonoBehaviour
         //     transform.Translate(fMetresPerSecMove * Time.deltaTime * v3DirectionMove);
         // }
 
-        if (    ((fInputHorzMove < 0) && (transform.position.x <= v3MoveLimitLowerLeft.x))
-            ||  ((fInputHorzMove > 0) && (transform.position.x >= v3MoveLimitUpperRight.x)) )
+        if (    ((fInputHorzMove < 0) && (transform.position.x <= gameManager.v3MoveLimitLowerLeft.x))
+            ||  ((fInputHorzMove > 0) && (transform.position.x >= gameManager.v3MoveLimitUpperRight.x)) )
         {
             // fInputHorzMove *= -1f; // This doesn't work so well, gives bouncy behaviour at move limits
             fInputHorzMove = 0f;
             rbPlayer.AddForce(30f * rbPlayer.mass * new Vector3(-rbPlayer.velocity.x, 0f, 0f));
         }
-        if (    ((fInputVertMove < 0) && (transform.position.z <= v3MoveLimitLowerLeft.z))
-            ||  ((fInputVertMove > 0) && (transform.position.z >= v3MoveLimitUpperRight.z)) )
+        if (    ((fInputVertMove < 0) && (transform.position.z <= gameManager.v3MoveLimitLowerLeft.z))
+            ||  ((fInputVertMove > 0) && (transform.position.z >= gameManager.v3MoveLimitUpperRight.z)) )
         {
             // fInputVertMove *= -1f; // This doesn't work so well, gives bouncy behaviour at move limits
             fInputVertMove = 0f;
@@ -121,6 +118,8 @@ public class PlayerController : MonoBehaviour
 
         // ------------------------------------------------------------------------------------------------
 
+        // Look:
+
         fInputHorzLook = Input.GetAxis("Horizontal Look");
         fInputVertLook = Input.GetAxis("Vertical Look");
 
@@ -132,6 +131,8 @@ public class PlayerController : MonoBehaviour
         }
 
         // ------------------------------------------------------------------------------------------------
+
+        // Attack:
 
         if (Input.GetButton("Fire1"))
         {
