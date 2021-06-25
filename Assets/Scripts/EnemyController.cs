@@ -7,6 +7,7 @@ public class EnemyController : MonoBehaviour
 {
     // Movement:
     private NavMeshAgent navEnemy;
+    public float fAngSpeedMove = 5f;
 
     // Appearance:
     private Material matEnemy;
@@ -19,7 +20,7 @@ public class EnemyController : MonoBehaviour
     public GameObject goProjectile;
     private GameObject goGunMiddleProjectileSpawnPoint;
     private float fTimeNextFire;
-    public float fTimeNextFireDelta = 0.2f;
+    public float fTimeNextFireDelta = 0.5f;
 
     // From other objects:
     private GameObject goPlayer;
@@ -45,11 +46,11 @@ public class EnemyController : MonoBehaviour
 
     void Update()
     {
-        Vector3 v3PosRelativePlayer = goPlayer.transform.position - transform.position;
-        Vector3 v3DirectionLook = Vector3.RotateTowards(transform.forward, v3PosRelativePlayer, 180f * Time.deltaTime, 0f);
-        transform.rotation = Quaternion.LookRotation(v3DirectionLook);
+        Vector3 v3PositionRelativeLook = goPlayer.transform.position - transform.position;
+        Vector3 v3PositionRelativeLookNow = Vector3.RotateTowards(transform.forward, v3PositionRelativeLook, fAngSpeedMove * Time.deltaTime, 0f);
+        transform.rotation = Quaternion.LookRotation(v3PositionRelativeLookNow);
 
-        if (v3PosRelativePlayer.magnitude <= 200f)
+        if (v3PositionRelativeLook.magnitude <= 200f)
         {
             if (Time.time >= fTimeNextFire)
             {

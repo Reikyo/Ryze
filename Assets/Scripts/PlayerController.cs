@@ -9,11 +9,14 @@ public class PlayerController : MonoBehaviour
     private GameManager gameManager;
 
     // Movement:
-    private float fInputHorz;
-    private float fInputVert;
+    private float fInputHorzMove;
+    private float fInputVertMove;
+    private float fInputHorzLook;
+    private float fInputVertLook;
     private Rigidbody rbPlayer;
     public float fForceMove = 1e7f;
     public float fForceMoveDeltaBoost = 1e4f;
+    public float fAngSpeedMove = 5f;
     // public float fMetresPerSecMove = 100f;
     // public float fMetresPerSecMoveDeltaBoost = 20f;
     private Vector3 v3DirectionMove;
@@ -65,24 +68,24 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        fInputHorz = Input.GetAxis("Horizontal");
-        fInputVert = Input.GetAxis("Vertical");
+        fInputHorzMove = Input.GetAxis("Horizontal Move");
+        fInputVertMove = Input.GetAxis("Vertical Move");
 
-        // Debug.LogFormat("{0} {1} {2}", fInputHorz, fInputVert, Math.Pow(Math.Pow(fInputHorz,2f) + Math.Pow(fInputVert,2f), 0.5f));
+        // Debug.LogFormat("{0} {1} {2}", fInputHorzMove, fInputVertMove, Math.Pow(Math.Pow(fInputHorzMove,2f) + Math.Pow(fInputVertMove,2f), 0.5f));
 
-        // if (    ((fInputHorz < 0) && (transform.position.x <= v3MoveLimitLowerLeft.x))
-        //     ||  ((fInputHorz > 0) && (transform.position.x >= v3MoveLimitUpperRight.x)) )
+        // if (    ((fInputHorzMove < 0) && (transform.position.x <= v3MoveLimitLowerLeft.x))
+        //     ||  ((fInputHorzMove > 0) && (transform.position.x >= v3MoveLimitUpperRight.x)) )
         // {
-        //     fInputHorz = 0f;
+        //     fInputHorzMove = 0f;
         // }
-        // if (    ((fInputVert < 0) && (transform.position.z <= v3MoveLimitLowerLeft.z))
-        //     ||  ((fInputVert > 0) && (transform.position.z >= v3MoveLimitUpperRight.z)) )
+        // if (    ((fInputVertMove < 0) && (transform.position.z <= v3MoveLimitLowerLeft.z))
+        //     ||  ((fInputVertMove > 0) && (transform.position.z >= v3MoveLimitUpperRight.z)) )
         // {
-        //     fInputVert = 0f;
+        //     fInputVertMove = 0f;
         // }
-        // if (Math.Abs(fInputHorz) + Math.Abs(fInputVert) > 0f)
+        // if (Math.Abs(fInputHorzMove) + Math.Abs(fInputVertMove) > 0f)
         // {
-        //     v3DirectionMove = (fInputHorz * transform.right) + (fInputVert * transform.forward);
+        //     v3DirectionMove = (fInputHorzMove * transform.right) + (fInputVertMove * transform.forward);
         //     if (v3DirectionMove.magnitude > 1f)
         //     {
         //         v3DirectionMove = v3DirectionMove.normalized;
@@ -91,29 +94,41 @@ public class PlayerController : MonoBehaviour
         //     transform.Translate(fMetresPerSecMove * Time.deltaTime * v3DirectionMove);
         // }
 
-        if (    ((fInputHorz < 0) && (transform.position.x <= v3MoveLimitLowerLeft.x))
-            ||  ((fInputHorz > 0) && (transform.position.x >= v3MoveLimitUpperRight.x)) )
+        if (    ((fInputHorzMove < 0) && (transform.position.x <= v3MoveLimitLowerLeft.x))
+            ||  ((fInputHorzMove > 0) && (transform.position.x >= v3MoveLimitUpperRight.x)) )
         {
-            // fInputHorz *= -1f; // This doesn't work so well, gives bouncy behaviour at move limits
-            fInputHorz = 0f;
+            // fInputHorzMove *= -1f; // This doesn't work so well, gives bouncy behaviour at move limits
+            fInputHorzMove = 0f;
             rbPlayer.AddForce(30f * rbPlayer.mass * new Vector3(-rbPlayer.velocity.x, 0f, 0f));
         }
-        if (    ((fInputVert < 0) && (transform.position.z <= v3MoveLimitLowerLeft.z))
-            ||  ((fInputVert > 0) && (transform.position.z >= v3MoveLimitUpperRight.z)) )
+        if (    ((fInputVertMove < 0) && (transform.position.z <= v3MoveLimitLowerLeft.z))
+            ||  ((fInputVertMove > 0) && (transform.position.z >= v3MoveLimitUpperRight.z)) )
         {
-            // fInputVert *= -1f; // This doesn't work so well, gives bouncy behaviour at move limits
-            fInputVert = 0f;
+            // fInputVertMove *= -1f; // This doesn't work so well, gives bouncy behaviour at move limits
+            fInputVertMove = 0f;
             rbPlayer.AddForce(30f * rbPlayer.mass * new Vector3(0f, 0f, -rbPlayer.velocity.z));
         }
 
-        if (Math.Abs(fInputHorz) + Math.Abs(fInputVert) > 0f)
+        if (Math.Abs(fInputHorzMove) + Math.Abs(fInputVertMove) > 0f)
         {
-            v3DirectionMove = (fInputHorz * transform.right) + (fInputVert * transform.forward);
+            v3DirectionMove = (fInputHorzMove * Vector3.right) + (fInputVertMove * Vector3.forward);
             if (v3DirectionMove.magnitude > 1f)
             {
                 v3DirectionMove = v3DirectionMove.normalized;
             }
             rbPlayer.AddForce(fForceMove * v3DirectionMove);
+        }
+
+        // ------------------------------------------------------------------------------------------------
+
+        fInputHorzLook = Input.GetAxis("Horizontal Look");
+        fInputVertLook = Input.GetAxis("Vertical Look");
+
+        if (Math.Abs(fInputHorzLook) + Math.Abs(fInputVertLook) > 0f)
+        {
+            Vector3 v3PositionRelativeLook = (new Vector3(fInputHorzLook, 0f, fInputVertLook).normalized);
+            Vector3 v3PositionRelativeLookNow = Vector3.RotateTowards(transform.forward, v3PositionRelativeLook, fAngSpeedMove * Time.deltaTime, 0f);
+            transform.rotation = Quaternion.LookRotation(v3PositionRelativeLookNow);
         }
 
         // ------------------------------------------------------------------------------------------------

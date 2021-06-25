@@ -181,9 +181,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 217f46a4132184e61b2817a966096218, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  fAngSpeedMove: 5
   fTimeFlashDamaged: 0.1
   goProjectile: {fileID: 3262308912846389460, guid: 92040474b5c7e457092c19efa9a9bd77, type: 3}
-  fTimeNextFireDelta: 0.2
+  fTimeNextFireDelta: 0.5
 --- !u!114 &639748323724216929
 MonoBehaviour:
   m_ObjectHideFlags: 0
