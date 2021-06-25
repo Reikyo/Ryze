@@ -183,6 +183,17 @@ public class PlayerController : MonoBehaviour
             //     Destroy(gameObject);
             // }
             StartCoroutine(FlashDamaged());
+            return;
+        }
+        if (collision.gameObject.CompareTag("EnemyProjectile"))
+        {
+            healthPlayer.Change(-collision.gameObject.GetComponent<ProjectileController>().iDamage);
+            // if (healthPlayer.iHealth == 0)
+            // {
+            //     Destroy(gameObject);
+            // }
+            StartCoroutine(FlashDamaged());
+            return;
         }
     }
 

@@ -52,7 +52,8 @@ public class AsteroidController : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.CompareTag("Projectile"))
+        if (    collision.gameObject.CompareTag("PlayerProjectile")
+            ||  collision.gameObject.CompareTag("EnemyProjectile") )
         {
             healthAsteroid.Change(-collision.gameObject.GetComponent<ProjectileController>().iDamage);
             if (healthAsteroid.iHealth == 0)

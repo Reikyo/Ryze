@@ -10,20 +10,21 @@ public class ProjectileController : MonoBehaviour
 
     // Damage:
     public int iDamage = 10;
+    public string sNameOwner;
 
     // ------------------------------------------------------------------------------------------------
 
     void Start()
     {
         rbProjectile = GetComponent<Rigidbody>();
-        rbProjectile.AddForce(fForceMove * Vector3.forward, ForceMode.Impulse);
+        rbProjectile.AddRelativeForce(fForceMove * Vector3.forward, ForceMode.Impulse);
     }
 
     // ------------------------------------------------------------------------------------------------
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (!collision.gameObject.CompareTag("Player"))
+        if (!collision.gameObject.CompareTag(sNameOwner))
         {
             Destroy(gameObject);
         }
