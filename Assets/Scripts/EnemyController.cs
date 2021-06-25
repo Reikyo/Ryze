@@ -21,8 +21,13 @@ public class EnemyController : MonoBehaviour
     // Damage:
     public GameObject goProjectile;
     private GameObject goGunMiddleProjectileSpawnPoint;
+    private int iNumFire = 0;
+    private int iNumFireBurst;
+    public int iNumFireBurstMax = 5;
     private float fTimeNextFire;
     public float fTimeNextFireDelta = 0.5f;
+    public float fTimeNextFireDeltaBurstMin = 2f;
+    public float fTimeNextFireDeltaBurstMax = 5f;
 
     // From other objects:
     private GameObject goPlayer;
@@ -41,7 +46,8 @@ public class EnemyController : MonoBehaviour
         healthEnemy = GetComponent<Health>();
 
         goGunMiddleProjectileSpawnPoint = transform.Find("Chasis/GunMiddleProjectileSpawnPoint").gameObject;
-        fTimeNextFire = Time.time;
+        iNumFireBurst = Random.Range(1, iNumFireBurstMax+1);
+        fTimeNextFire = Time.time + Random.Range(fTimeNextFireDeltaBurstMin, fTimeNextFireDeltaBurstMax);
 
         goPlayer = GameObject.FindWithTag("Player");
     }
@@ -80,14 +86,24 @@ public class EnemyController : MonoBehaviour
 
         // ------------------------------------------------------------------------------------------------
 
-        // Attack:
+        // Damage:
 
         if (v3PositionRelativeLook.magnitude <= 200f)
         {
             if (Time.time >= fTimeNextFire)
             {
                 Instantiate(goProjectile, goGunMiddleProjectileSpawnPoint.transform.position, goGunMiddleProjectileSpawnPoint.transform.rotation);
-                fTimeNextFire = Time.time + fTimeNextFireDelta;
+                iNumFire += 1;
+                if (iNumFire < iNumFireBurst)
+                {
+                    fTimeNextFire = Time.time + fTimeNextFireDelta;
+                }
+                else
+                {
+                    iNumFire = 0;
+                    iNumFireBurst = Random.Range(1, iNumFireBurstMax+1);
+                    fTimeNextFire = Time.time + Random.Range(fTimeNextFireDeltaBurstMin, fTimeNextFireDeltaBurstMax);
+                }
             }
         }
     }

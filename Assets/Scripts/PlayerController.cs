@@ -132,7 +132,7 @@ public class PlayerController : MonoBehaviour
 
         // ------------------------------------------------------------------------------------------------
 
-        // Attack:
+        // Damage:
 
         if (Input.GetButton("Fire1"))
         {
