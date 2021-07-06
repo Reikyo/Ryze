@@ -9,6 +9,8 @@ public class EnemyController : MonoBehaviour
 
     // Movement:
     private NavMeshAgent navEnemy;
+    private Vector2 v2PositionRandom;
+    private Vector3 v3PositionRandom;
     public float fAngSpeedMove = 5f;
 
     // Appearance:
@@ -39,7 +41,6 @@ public class EnemyController : MonoBehaviour
         gameManager = GameObject.Find("Game Manager").GetComponent<GameManager>();
 
         navEnemy = GetComponent<NavMeshAgent>();
-        navEnemy.SetDestination(new Vector3(-50f, 0f, 20f));
 
         matEnemy = transform.Find("Chasis").gameObject.GetComponent<Renderer>().material;
 
@@ -50,6 +51,8 @@ public class EnemyController : MonoBehaviour
         fTimeNextFire = Time.time + Random.Range(fTimeNextFireDeltaBurstMin, fTimeNextFireDeltaBurstMax);
 
         goPlayer = GameObject.FindWithTag("Player");
+
+        SetDestination();
     }
 
     // ------------------------------------------------------------------------------------------------
@@ -60,20 +63,7 @@ public class EnemyController : MonoBehaviour
 
         if (navEnemy.remainingDistance <= navEnemy.stoppingDistance)
         {
-            Vector3 v3PositionRandom = new Vector3(gameManager.v3MoveLimitLowerLeft.x-10f, 0f, gameManager.v3MoveLimitLowerLeft.z-10f);
-
-            while ( (   (v3PositionRandom.x < gameManager.v3MoveLimitLowerLeft.x)
-                    ||  (v3PositionRandom.x > gameManager.v3MoveLimitUpperRight.x) )
-                &&  (   (v3PositionRandom.z < gameManager.v3MoveLimitLowerLeft.z)
-                    ||  (v3PositionRandom.z > gameManager.v3MoveLimitUpperRight.z) ) )
-            {
-                Vector2 v2PositionRandom = Random.insideUnitCircle;
-                v3PositionRandom =
-                    goPlayer.transform.position
-                    + Random.Range(20f, 80f) * (new Vector3(v2PositionRandom.x, 0f, v2PositionRandom.y));
-            }
-
-            navEnemy.SetDestination(v3PositionRandom);
+            SetDestination();
         }
 
         // ------------------------------------------------------------------------------------------------
@@ -110,6 +100,26 @@ public class EnemyController : MonoBehaviour
 
     // ------------------------------------------------------------------------------------------------
 
+    private void SetDestination()
+    {
+        v3PositionRandom = new Vector3(gameManager.v3MoveLimitLowerLeft.x-10f, 0f, gameManager.v3MoveLimitLowerLeft.z-10f);
+
+        while ( (v3PositionRandom.x < gameManager.v3MoveLimitLowerLeft.x)
+            ||  (v3PositionRandom.x > gameManager.v3MoveLimitUpperRight.x)
+            ||  (v3PositionRandom.z < gameManager.v3MoveLimitLowerLeft.z)
+            ||  (v3PositionRandom.z > gameManager.v3MoveLimitUpperRight.z) )
+        {
+            v2PositionRandom = Random.insideUnitCircle.normalized;
+            v3PositionRandom =
+                goPlayer.transform.position
+                + Random.Range(20f, 80f) * (new Vector3(v2PositionRandom.x, 0f, v2PositionRandom.y));
+        }
+
+        navEnemy.SetDestination(v3PositionRandom);
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
     IEnumerator FlashDamaged()
     {
         matEnemy.EnableKeyword("_EMISSION");
@@ -131,6 +141,14 @@ public class EnemyController : MonoBehaviour
             StartCoroutine(FlashDamaged());
         }
     }
+
+    // ------------------------------------------------------------------------------------------------
+
+    // void OnDrawGizmos()
+    // {
+    //     Gizmos.color = Color.yellow;
+    //     Gizmos.DrawSphere(v3PositionRandom, 2);
+    // }
 
     // ------------------------------------------------------------------------------------------------
 
