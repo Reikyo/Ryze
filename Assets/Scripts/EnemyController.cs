@@ -6,6 +6,7 @@ using UnityEngine.AI;
 public class EnemyController : MonoBehaviour
 {
     private GameManager gameManager;
+    private SpawnManager spawnManager;
 
     // Movement:
     private NavMeshAgent navEnemy;
@@ -13,7 +14,7 @@ public class EnemyController : MonoBehaviour
     private Vector2 v2PositionRandom;
     private Vector3 v3PositionRandom;
     private bool bDirectionLowerLeft = true;
-    public enum MoveMode {random, constant, oscillatehorz, oscillatevert};
+    public enum MoveMode {random, constant, constanthover, oscillatehorz, oscillatevert};
     public MoveMode moveMode;
     public float fAngSpeedMove = 5f;
 
@@ -23,6 +24,7 @@ public class EnemyController : MonoBehaviour
     // Health:
     private Health healthEnemy;
     public float fTimeFlashDamaged = 0.1f;
+    private bool bDestroyTriggered = false;
 
     // Damage:
     public GameObject goProjectile;
@@ -43,6 +45,7 @@ public class EnemyController : MonoBehaviour
     void Start()
     {
         gameManager = GameObject.Find("Game Manager").GetComponent<GameManager>();
+        spawnManager = GameObject.Find("Spawn Manager").GetComponent<SpawnManager>();
 
         navEnemy = GetComponent<NavMeshAgent>();
 
@@ -115,6 +118,15 @@ public class EnemyController : MonoBehaviour
             navEnemy.SetDestination(v3PositionConstant);
             return;
         }
+        if (moveMode == MoveMode.constanthover)
+        {
+            v2PositionRandom = Random.insideUnitCircle.normalized;
+            v3PositionRandom =
+                v3PositionConstant
+                + Random.Range(0f, 11f) * (new Vector3(v2PositionRandom.x, 0f, v2PositionRandom.y));
+            navEnemy.SetDestination(v3PositionRandom);
+            return;
+        }
         if (moveMode == MoveMode.oscillatehorz)
         {
             if (bDirectionLowerLeft)
@@ -177,8 +189,11 @@ public class EnemyController : MonoBehaviour
         if (collision.gameObject.CompareTag("PlayerProjectile"))
         {
             healthEnemy.Change(-collision.gameObject.GetComponent<ProjectileController>().iDamage);
-            if (healthEnemy.iHealth == 0)
+            if (    (healthEnemy.iHealth == 0)
+                &&  (!bDestroyTriggered) )
             {
+                bDestroyTriggered = true;
+                spawnManager.iNumEnemy -= 1;
                 Destroy(gameObject);
             }
             StartCoroutine(FlashDamaged());

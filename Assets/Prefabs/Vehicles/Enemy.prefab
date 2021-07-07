@@ -156,7 +156,7 @@ NavMeshAgent:
   m_GameObject: {fileID: 1550699715972293678}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 20
+  m_Radius: 10
   m_Speed: 100
   m_Acceleration: 100
   avoidancePriority: 0
@@ -181,10 +181,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 217f46a4132184e61b2817a966096218, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  v3PositionConstant: {x: 0, y: 0, z: 0}
+  moveMode: 0
   fAngSpeedMove: 5
   fTimeFlashDamaged: 0.1
   goProjectile: {fileID: 3262308912846389460, guid: 92040474b5c7e457092c19efa9a9bd77, type: 3}
+  iNumFireBurstMax: 5
   fTimeNextFireDelta: 0.5
+  fTimeNextFireDeltaBurstMin: 2
+  fTimeNextFireDeltaBurstMax: 5
 --- !u!114 &639748323724216929
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -359,7 +359,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
 --- !u!1 &963194225
 GameObject:
@@ -442,7 +442,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
 --- !u!1001 &1267065384
 PrefabInstance:
@@ -457,7 +457,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1550699715972293678, guid: 54ff2ebfae43f4e98a4d2f6d04652920, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1550699715972474944, guid: 54ff2ebfae43f4e98a4d2f6d04652920, type: 3}
       propertyPath: m_RootOrder
@@ -588,12 +588,12 @@ GameObject:
   - component: {fileID: 1842339213}
   - component: {fileID: 1842339212}
   m_Layer: 0
-  m_Name: Asteroid Field
+  m_Name: Spawn Manager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1842339212
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -603,17 +603,21 @@ MonoBehaviour:
   m_GameObject: {fileID: 1842339211}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 735e1514cade04b7c8ebe3b10b850f4f, type: 3}
+  m_Script: {fileID: 11500000, guid: 6528f4a649bc8400fa41b6695f975d1d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  bSpawnAsteroids: 1
+  bSpawnEnemies: 1
   goArrAsteroids:
   - {fileID: 8255462311475791699, guid: 79c5c151f8cd743808fd38fec2bb6172, type: 3}
   - {fileID: 4049618612932931477, guid: 4c6222ec08f4848a38e54486ee1aa0f4, type: 3}
   - {fileID: 8796981307068079281, guid: 341fee905cf804784974472e7409752f, type: 3}
   - {fileID: 3846847276593214583, guid: 7e5c00b580c524ca282f11050ceb79a3, type: 3}
   - {fileID: 3718482580738710056, guid: b0de720205efe4440b4a8bd50ef1d435, type: 3}
-  fTimeNextSpawnDeltaMin: 0
-  fTimeNextSpawnDeltaMax: 2
+  fTimeNextSpawnAsteroidDeltaMin: 0
+  fTimeNextSpawnAsteroidDeltaMax: 2
+  goEnemy: {fileID: 1550699715972293678, guid: 54ff2ebfae43f4e98a4d2f6d04652920, type: 3}
+  iNumEnemy: 0
 --- !u!4 &1842339213
 Transform:
   m_ObjectHideFlags: 0
@@ -626,7 +630,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!224 &17554370317258705
 RectTransform:
