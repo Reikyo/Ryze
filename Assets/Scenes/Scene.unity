@@ -503,6 +503,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2677698288876191318, guid: 54ff2ebfae43f4e98a4d2f6d04652920, type: 3}
+      propertyPath: moveMode
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 9011988410261696467, guid: 54ff2ebfae43f4e98a4d2f6d04652920, type: 3}
       propertyPath: m_Speed
       value: 100
@@ -589,7 +593,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1842339212
 MonoBehaviour:
   m_ObjectHideFlags: 0

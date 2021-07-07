@@ -9,8 +9,12 @@ public class EnemyController : MonoBehaviour
 
     // Movement:
     private NavMeshAgent navEnemy;
+    public Vector3 v3PositionConstant = new Vector3(0f, 0f, 0f);
     private Vector2 v2PositionRandom;
     private Vector3 v3PositionRandom;
+    private bool bDirectionLowerLeft = true;
+    public enum MoveMode {random, constant, oscillatehorz, oscillatevert};
+    public MoveMode moveMode;
     public float fAngSpeedMove = 5f;
 
     // Appearance:
@@ -61,7 +65,8 @@ public class EnemyController : MonoBehaviour
     {
         // Movement:
 
-        if (navEnemy.remainingDistance <= navEnemy.stoppingDistance)
+        if (    (moveMode != MoveMode.constant)
+            &&  (navEnemy.remainingDistance <= navEnemy.stoppingDistance) )
         {
             SetDestination();
         }
@@ -96,26 +101,64 @@ public class EnemyController : MonoBehaviour
                 }
             }
         }
+
+        // ------------------------------------------------------------------------------------------------
+
     }
 
     // ------------------------------------------------------------------------------------------------
 
     private void SetDestination()
     {
-        v3PositionRandom = new Vector3(gameManager.v3MoveLimitLowerLeft.x-10f, 0f, gameManager.v3MoveLimitLowerLeft.z-10f);
-
-        while ( (v3PositionRandom.x < gameManager.v3MoveLimitLowerLeft.x)
-            ||  (v3PositionRandom.x > gameManager.v3MoveLimitUpperRight.x)
-            ||  (v3PositionRandom.z < gameManager.v3MoveLimitLowerLeft.z)
-            ||  (v3PositionRandom.z > gameManager.v3MoveLimitUpperRight.z) )
+        if (moveMode == MoveMode.constant)
         {
-            v2PositionRandom = Random.insideUnitCircle.normalized;
-            v3PositionRandom =
-                goPlayer.transform.position
-                + Random.Range(20f, 80f) * (new Vector3(v2PositionRandom.x, 0f, v2PositionRandom.y));
+            navEnemy.SetDestination(v3PositionConstant);
+            return;
         }
+        if (moveMode == MoveMode.oscillatehorz)
+        {
+            if (bDirectionLowerLeft)
+            {
+                navEnemy.SetDestination(new Vector3(gameManager.v3MoveLimitLowerLeft.x, 0f, v3PositionConstant.z));
+            }
+            else
+            {
+                navEnemy.SetDestination(new Vector3(gameManager.v3MoveLimitUpperRight.x, 0f, v3PositionConstant.z));
+            }
+            bDirectionLowerLeft = !bDirectionLowerLeft;
+            return;
+        }
+        if (moveMode == MoveMode.oscillatevert)
+        {
+            if (bDirectionLowerLeft)
+            {
+                navEnemy.SetDestination(new Vector3(v3PositionConstant.x, 0f, gameManager.v3MoveLimitLowerLeft.z));
+            }
+            else
+            {
+                navEnemy.SetDestination(new Vector3(v3PositionConstant.x, 0f, gameManager.v3MoveLimitUpperRight.z));
+            }
+            bDirectionLowerLeft = !bDirectionLowerLeft;
+            return;
+        }
+        if (moveMode == MoveMode.random)
+        {
+            v3PositionRandom = new Vector3(gameManager.v3MoveLimitLowerLeft.x-10f, 0f, gameManager.v3MoveLimitLowerLeft.z-10f);
 
-        navEnemy.SetDestination(v3PositionRandom);
+            while ( (v3PositionRandom.x < gameManager.v3MoveLimitLowerLeft.x)
+                ||  (v3PositionRandom.x > gameManager.v3MoveLimitUpperRight.x)
+                ||  (v3PositionRandom.z < gameManager.v3MoveLimitLowerLeft.z)
+                ||  (v3PositionRandom.z > gameManager.v3MoveLimitUpperRight.z) )
+            {
+                v2PositionRandom = Random.insideUnitCircle.normalized;
+                v3PositionRandom =
+                    goPlayer.transform.position
+                    + Random.Range(20f, 80f) * (new Vector3(v2PositionRandom.x, 0f, v2PositionRandom.y));
+            }
+
+            navEnemy.SetDestination(v3PositionRandom);
+            return;
+        }
     }
 
     // ------------------------------------------------------------------------------------------------
