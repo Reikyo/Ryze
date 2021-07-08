@@ -9,6 +9,7 @@ TagManager:
   - Enemy
   - PlayerProjectile
   - EnemyProjectile
+  - Star
   layers:
   - Default
   - TransparentFX

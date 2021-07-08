@@ -6,8 +6,15 @@ public class SpawnManager : MonoBehaviour
 {
     private GameManager gameManager;
 
+    public bool bSpawnStars = true;
     public bool bSpawnAsteroids = true;
     public bool bSpawnEnemies = true;
+
+    public GameObject[] goArrStars;
+    private GameObject goStar;
+    private float fTimeNextSpawnStar;
+    public float fTimeNextSpawnStarDeltaMin = 0f;
+    public float fTimeNextSpawnStarDeltaMax = 5f;
 
     public GameObject[] goArrAsteroids;
     private GameObject goAsteroid;
@@ -25,9 +32,11 @@ public class SpawnManager : MonoBehaviour
     {
         gameManager = GameObject.Find("Game Manager").GetComponent<GameManager>();
 
-        bSpawnAsteroids = false;
+        // bSpawnStars = false;
+        // bSpawnAsteroids = false;
         // bSpawnEnemies = false;
 
+        fTimeNextSpawnStar = Time.time + UnityEngine.Random.Range(fTimeNextSpawnStarDeltaMin, fTimeNextSpawnStarDeltaMax);
         fTimeNextSpawnAsteroid = Time.time + UnityEngine.Random.Range(fTimeNextSpawnAsteroidDeltaMin, fTimeNextSpawnAsteroidDeltaMax);
         fTimeNextSpawnEnemy = Time.time + 3f;
 
@@ -38,6 +47,12 @@ public class SpawnManager : MonoBehaviour
 
     void Update()
     {
+        if (    (bSpawnStars)
+            &&  (Time.time >= fTimeNextSpawnStar) )
+        {
+            bSpawnStars = false;
+            SpawnStars();
+        }
         if (    (bSpawnAsteroids)
             &&  (Time.time >= fTimeNextSpawnAsteroid) )
         {
@@ -51,6 +66,24 @@ public class SpawnManager : MonoBehaviour
             bSpawnEnemies = false;
             SpawnEnemies();
         }
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
+    private void SpawnStars()
+    {
+        goStar = goArrStars[UnityEngine.Random.Range(0, goArrStars.Length)];
+        Instantiate(
+            goStar,
+            new Vector3(
+                UnityEngine.Random.Range(gameManager.v3CamLowerLeftStars.x + 10f, gameManager.v3CamUpperRightStars.x - 10f),
+                gameManager.fPositionYSpawnStars,
+                gameManager.v3CamUpperRightStars.z + 10f
+            ),
+            goStar.transform.rotation
+        );
+        fTimeNextSpawnStar = Time.time + UnityEngine.Random.Range(fTimeNextSpawnStarDeltaMin, fTimeNextSpawnStarDeltaMax);
+        bSpawnStars = true;
     }
 
     // ------------------------------------------------------------------------------------------------
@@ -75,11 +108,11 @@ public class SpawnManager : MonoBehaviour
 
     private void SpawnEnemies()
     {
-        for (int i=0; i<5; i++)
+        for (int i=0; i<3; i++)
         {
             Vector3 v3PositionSpawn = new Vector3(0f, 0f, 0f);
             Vector3 v3PositionConstant = new Vector3(0f, 0f, 0f);
-            EnemyController.MoveMode moveMode = EnemyController.MoveMode.constanthover;
+            EnemyController.MoveMode moveMode = EnemyController.MoveMode.random;
 
             switch(i)
             {
