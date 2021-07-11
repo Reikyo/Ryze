@@ -37,6 +37,9 @@ public class EnemyController : MonoBehaviour
     public float fTimeNextFireDeltaBurstMin = 2f;
     public float fTimeNextFireDeltaBurstMax = 5f;
 
+    // Score:
+    public int iScoreDelta = 10;
+
     // From other objects:
     private GameObject goPlayer;
 
@@ -194,6 +197,18 @@ public class EnemyController : MonoBehaviour
             {
                 bDestroyTriggered = true;
                 spawnManager.iNumEnemy -= 1;
+                gameManager.ChangeScore(iScoreDelta);
+                if (Random.Range(0, 10) >= 5)
+                {
+                    if (Random.Range(0, 10) >= 5)
+                    {
+                        spawnManager.SpawnPowerUpHealth(transform.position);
+                    }
+                    else
+                    {
+                        spawnManager.SpawnPowerUpCharge(transform.position);
+                    }
+                }
                 Destroy(gameObject);
             }
             StartCoroutine(FlashDamaged());

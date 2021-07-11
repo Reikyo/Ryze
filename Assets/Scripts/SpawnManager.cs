@@ -26,6 +26,9 @@ public class SpawnManager : MonoBehaviour
     public int iNumEnemy = 0;
     private float fTimeNextSpawnEnemy;
 
+    public GameObject goPowerUpHealth;
+    public GameObject goPowerUpCharge;
+
     // ------------------------------------------------------------------------------------------------
 
     void Start()
@@ -147,6 +150,28 @@ public class SpawnManager : MonoBehaviour
         }
         fTimeNextSpawnEnemy = Time.time + 3f;
         bSpawnEnemies = true;
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
+    public void SpawnPowerUpHealth(Vector3 v3PositionSpawn)
+    {
+        Instantiate(
+            goPowerUpHealth,
+            v3PositionSpawn,
+            goPowerUpHealth.transform.rotation
+        );
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
+    public void SpawnPowerUpCharge(Vector3 v3PositionSpawn)
+    {
+        Instantiate(
+            goPowerUpCharge,
+            v3PositionSpawn,
+            goPowerUpCharge.transform.rotation
+        );
     }
 
     // ------------------------------------------------------------------------------------------------

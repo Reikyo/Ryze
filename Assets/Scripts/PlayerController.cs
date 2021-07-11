@@ -32,6 +32,7 @@ public class PlayerController : MonoBehaviour
     public float fRelativeMomentumBenchmark = 250000f;
 
     // Damage:
+    private Charge chargePlayer;
     public GameObject goProjectile;
     private GameObject goGunLeftProjectileSpawnPoint;
     private GameObject goGunRightProjectileSpawnPoint;
@@ -54,6 +55,7 @@ public class PlayerController : MonoBehaviour
         healthPlayer = GetComponent<Health>();
         goShield = transform.Find("Shield").gameObject;
 
+        chargePlayer = GetComponent<Charge>();
         goGunLeftProjectileSpawnPoint = transform.Find("08_Gun_L/GunLeftProjectileSpawnPoint").gameObject;
         goGunRightProjectileSpawnPoint = transform.Find("08_Gun_R/GunRightProjectileSpawnPoint").gameObject;
         fTimeNextFire = Time.time;
@@ -159,6 +161,19 @@ public class PlayerController : MonoBehaviour
 
         // ------------------------------------------------------------------------------------------------
 
+        // Just to test the charge component:
+
+        if (Input.GetKeyDown(KeyCode.J))
+        {
+            chargePlayer.Change(10);
+        }
+        if (Input.GetKeyDown(KeyCode.K))
+        {
+            chargePlayer.Change(-10);
+        }
+
+        // ------------------------------------------------------------------------------------------------
+
     }
 
     // ------------------------------------------------------------------------------------------------
@@ -212,6 +227,24 @@ public class PlayerController : MonoBehaviour
             //     Destroy(gameObject);
             // }
             StartCoroutine(FlashDamaged());
+            return;
+        }
+        if (collision.gameObject.CompareTag("PowerUpHealth"))
+        {
+            if (healthPlayer.iHealth < healthPlayer.iHealthMax)
+            {
+                healthPlayer.Change(collision.gameObject.GetComponent<PowerUpController>().iValue);
+                Destroy(collision.gameObject);
+            }
+            return;
+        }
+        if (collision.gameObject.CompareTag("PowerUpCharge"))
+        {
+            if (chargePlayer.iCharge < chargePlayer.iChargeMax)
+            {
+                chargePlayer.Change(collision.gameObject.GetComponent<PowerUpController>().iValue);
+                Destroy(collision.gameObject);
+            }
             return;
         }
     }

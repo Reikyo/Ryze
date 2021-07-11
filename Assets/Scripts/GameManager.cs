@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class GameManager : MonoBehaviour
 {
@@ -25,6 +26,11 @@ public class GameManager : MonoBehaviour
 
     public float fPositionYSpawnStars = -500f;
 
+    // Score:
+    public int iScore = 0;
+    public int iScoreMax = 99999;
+    public TextMeshProUGUI guiScore;
+
     // ------------------------------------------------------------------------------------------------
 
     void Start()
@@ -42,6 +48,30 @@ public class GameManager : MonoBehaviour
         v3ExistLimitUpperRight = v3CamUpperRight + v3ExistLimitCamOffset;
         v3ExistLimitLowerLeftStars = v3CamLowerLeftStars - v3ExistLimitCamOffset;
         v3ExistLimitUpperRightStars = v3CamUpperRightStars + v3ExistLimitCamOffset;
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
+    public void ChangeScore(int iScoreDelta)
+    {
+        if (    ((iScoreDelta > 0) && (iScore == iScoreMax))
+            ||  ((iScoreDelta < 0) && (iScore == 0)) )
+        {
+            return;
+        }
+
+        iScore += iScoreDelta;
+
+        if (iScore > iScoreMax)
+        {
+            iScore = iScoreMax;
+        }
+        else if (iScore < 0)
+        {
+            iScore = 0;
+        }
+
+        guiScore.text = iScore.ToString("D5");
     }
 
     // ------------------------------------------------------------------------------------------------

@@ -10,6 +10,9 @@ TagManager:
   - PlayerProjectile
   - EnemyProjectile
   - Star
+  - PowerUp
+  - PowerUpHealth
+  - PowerUpCharge
   layers:
   - Default
   - TransparentFX
