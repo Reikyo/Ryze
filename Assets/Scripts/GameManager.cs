@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour
 
     // UI:
     public GameObject goUICanvasTitle;
+    public GameObject goUICanvasCredits;
     public GameObject goUICanvasGameOver;
     public GameObject goUICanvasHUD;
 
@@ -67,7 +68,7 @@ public class GameManager : MonoBehaviour
         {
             case "Button : Start": StartGame(); break;
             // case "Button : Options": (); break;
-            // case "Button : Credits": (); break;
+            case "Button : Credits": StartCredits(); break;
         }
     }
 
@@ -75,10 +76,25 @@ public class GameManager : MonoBehaviour
 
     public void StartGame()
     {
-        // sfxsrcGameManager.PlayOneShot(sfxclpButton);
         goUICanvasTitle.SetActive(false);
         goUICanvasHUD.SetActive(true);
         bInPlay = true;
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
+    public void StartCredits()
+    {
+        goUICanvasTitle.SetActive(false);
+        goUICanvasCredits.SetActive(true);
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
+    public void StopCredits()
+    {
+        goUICanvasCredits.SetActive(false);
+        goUICanvasTitle.SetActive(true);
     }
 
     // ------------------------------------------------------------------------------------------------
