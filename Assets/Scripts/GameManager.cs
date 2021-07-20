@@ -5,6 +5,13 @@ using TMPro;
 
 public class GameManager : MonoBehaviour
 {
+    public bool bInPlay = false;
+
+    // UI:
+    public GameObject goUICanvasTitle;
+    public GameObject goUICanvasGameOver;
+    public GameObject goUICanvasHUD;
+
     // Camera:
     private Camera camMainCamera;
     public Vector3 v3CamLowerLeft;
@@ -35,6 +42,8 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+        goUICanvasTitle.SetActive(true);
+
         camMainCamera = GameObject.Find("Main Camera").GetComponent<Camera>();
         v3CamLowerLeft = camMainCamera.ViewportToWorldPoint(new Vector3(0, 0, camMainCamera.transform.position.y));
         v3CamUpperRight = camMainCamera.ViewportToWorldPoint(new Vector3(1, 1, camMainCamera.transform.position.y));
@@ -48,6 +57,28 @@ public class GameManager : MonoBehaviour
         v3ExistLimitUpperRight = v3CamUpperRight + v3ExistLimitCamOffset;
         v3ExistLimitLowerLeftStars = v3CamLowerLeftStars - v3ExistLimitCamOffset;
         v3ExistLimitUpperRightStars = v3CamUpperRightStars + v3ExistLimitCamOffset;
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
+    public void HandleUIButton(string sNameUIButton)
+    {
+        switch(sNameUIButton)
+        {
+            case "Button : Start": StartGame(); break;
+            // case "Button : Options": (); break;
+            // case "Button : Credits": (); break;
+        }
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
+    public void StartGame()
+    {
+        // sfxsrcGameManager.PlayOneShot(sfxclpButton);
+        goUICanvasTitle.SetActive(false);
+        goUICanvasHUD.SetActive(true);
+        bInPlay = true;
     }
 
     // ------------------------------------------------------------------------------------------------
