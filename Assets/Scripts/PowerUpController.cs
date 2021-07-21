@@ -10,6 +10,7 @@ public class PowerUpController : MonoBehaviour
     public TextMeshProUGUI guiLabel2;
     public TextMeshProUGUI guiLabel3;
 
+    // Movement:
     private float fDegreesPerSecond = 90f;
     private float fDegreesPerFrame;
 

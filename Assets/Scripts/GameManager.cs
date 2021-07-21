@@ -8,10 +8,12 @@ public class GameManager : MonoBehaviour
     public bool bInPlay = false;
 
     // UI:
-    public GameObject goUICanvasTitle;
-    public GameObject goUICanvasCredits;
-    public GameObject goUICanvasGameOver;
-    public GameObject goUICanvasHUD;
+    private GameObject goUICanvasTitle;
+    private GameObject goUICanvasControls;
+    private GameObject goUICanvasCredits;
+    private GameObject goUICanvasGameOver;
+    private GameObject goUICanvasHUD;
+    private GameObject goUICanvasActive = null;
 
     // Camera:
     private Camera camMainCamera;
@@ -43,7 +45,17 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+        goUICanvasTitle = GameObject.Find("Canvas : Title");
+        goUICanvasControls = GameObject.Find("Canvas : Controls");
+        goUICanvasCredits = GameObject.Find("Canvas : Credits");
+        goUICanvasGameOver = GameObject.Find("Canvas : Game Over");
+        goUICanvasHUD = GameObject.Find("Canvas : HUD");
+
         goUICanvasTitle.SetActive(true);
+        goUICanvasControls.SetActive(false);
+        goUICanvasCredits.SetActive(false);
+        goUICanvasGameOver.SetActive(false);
+        goUICanvasHUD.SetActive(false);
 
         camMainCamera = GameObject.Find("Main Camera").GetComponent<Camera>();
         v3CamLowerLeft = camMainCamera.ViewportToWorldPoint(new Vector3(0, 0, camMainCamera.transform.position.y));
@@ -62,13 +74,24 @@ public class GameManager : MonoBehaviour
 
     // ------------------------------------------------------------------------------------------------
 
+    void Update()
+    {
+        if (    goUICanvasActive
+            &&  Input.GetButtonDown("Cancel") )
+        {
+            ToggleUICanvas();
+        }
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
     public void HandleUIButton(string sNameUIButton)
     {
         switch(sNameUIButton)
         {
             case "Button : Start": StartGame(); break;
-            // case "Button : Options": (); break;
-            case "Button : Credits": StartCredits(); break;
+            case "Button : Controls": ToggleUICanvas(goUICanvasControls); break;
+            case "Button : Credits": ToggleUICanvas(goUICanvasCredits); break;
         }
     }
 
@@ -83,18 +106,25 @@ public class GameManager : MonoBehaviour
 
     // ------------------------------------------------------------------------------------------------
 
-    public void StartCredits()
+    public void ToggleUICanvas(GameObject goUICanvas = null)
     {
-        goUICanvasTitle.SetActive(false);
-        goUICanvasCredits.SetActive(true);
-    }
+        if (    !goUICanvas
+            &&  goUICanvasActive )
+        {
+            goUICanvas = goUICanvasActive;
+        }
 
-    // ------------------------------------------------------------------------------------------------
+        goUICanvasTitle.SetActive(!goUICanvasTitle.activeSelf);
+        goUICanvas.SetActive(!goUICanvas.activeSelf);
 
-    public void StopCredits()
-    {
-        goUICanvasCredits.SetActive(false);
-        goUICanvasTitle.SetActive(true);
+        if (goUICanvas.activeSelf)
+        {
+            goUICanvasActive = goUICanvas;
+        }
+        else
+        {
+            goUICanvasActive = null;
+        }
     }
 
     // ------------------------------------------------------------------------------------------------

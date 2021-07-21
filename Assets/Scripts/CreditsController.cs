@@ -7,12 +7,14 @@ public class CreditsController : MonoBehaviour
     private GameManager gameManager;
     private Camera camMainCamera;
 
+    // Movement:
     private float fMetresPositionYStart = -400f;
     private float fMetresPositionYFinish = 1100f;
     private float fMetresPerSecReference = 50f;
     private float fMetresPerSec;
     private int iDirection;
 
+    // Appearance:
     private int iPixelWidthMainCameraReference = 1000;
     private int iPixelWidthMainCameraLastFrame;
 
@@ -62,7 +64,7 @@ public class CreditsController : MonoBehaviour
             return;
         }
 
-        gameManager.StopCredits();
+        gameManager.ToggleUICanvas();
     }
 
     // ------------------------------------------------------------------------------------------------
