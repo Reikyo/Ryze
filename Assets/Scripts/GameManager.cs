@@ -6,11 +6,13 @@ using TMPro;
 public class GameManager : MonoBehaviour
 {
     public bool bInPlay = false;
+    public bool bPaused = false;
 
     // UI:
     private GameObject goUICanvasTitle;
     private GameObject goUICanvasControls;
     private GameObject goUICanvasCredits;
+    private GameObject goUICanvasPaused;
     private GameObject goUICanvasGameOver;
     private GameObject goUICanvasHUD;
     private GameObject goUICanvasActive = null;
@@ -48,12 +50,14 @@ public class GameManager : MonoBehaviour
         goUICanvasTitle = GameObject.Find("Canvas : Title");
         goUICanvasControls = GameObject.Find("Canvas : Controls");
         goUICanvasCredits = GameObject.Find("Canvas : Credits");
+        goUICanvasPaused = GameObject.Find("Canvas : Paused");
         goUICanvasGameOver = GameObject.Find("Canvas : Game Over");
         goUICanvasHUD = GameObject.Find("Canvas : HUD");
 
         goUICanvasTitle.SetActive(true);
         goUICanvasControls.SetActive(false);
         goUICanvasCredits.SetActive(false);
+        goUICanvasPaused.SetActive(false);
         goUICanvasGameOver.SetActive(false);
         goUICanvasHUD.SetActive(false);
 
@@ -80,6 +84,28 @@ public class GameManager : MonoBehaviour
             &&  Input.GetButtonDown("Cancel") )
         {
             ToggleUICanvas();
+            return;
+        }
+
+        if (    bInPlay
+            &&  !bPaused
+            &&  Input.GetButtonDown("Pause") )
+        {
+            Time.timeScale = 0f;
+            bPaused = true;
+            goUICanvasPaused.SetActive(true);
+            return;
+        }
+
+        if (    bInPlay
+            &&  bPaused
+            &&  (   Input.GetButtonDown("Pause")
+                ||  Input.GetButtonDown("Cancel") ) )
+        {
+            Time.timeScale = 1f;
+            bPaused = false;
+            goUICanvasPaused.SetActive(false);
+            return;
         }
     }
 
