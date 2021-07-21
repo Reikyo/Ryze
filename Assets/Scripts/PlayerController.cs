@@ -53,9 +53,11 @@ public class PlayerController : MonoBehaviour
         }
 
         healthPlayer = GetComponent<Health>();
+        healthPlayer.sliHealth = GameObject.Find("Slider : Health").GetComponent<Slider>();
         goShield = transform.Find("Shield").gameObject;
 
         chargePlayer = GetComponent<Charge>();
+        chargePlayer.sliCharge = GameObject.Find("Slider : Charge").GetComponent<Slider>();
         goGunLeftProjectileSpawnPoint = transform.Find("08_Gun_L/GunLeftProjectileSpawnPoint").gameObject;
         goGunRightProjectileSpawnPoint = transform.Find("08_Gun_R/GunRightProjectileSpawnPoint").gameObject;
         fTimeNextFire = Time.time;
@@ -212,21 +214,21 @@ public class PlayerController : MonoBehaviour
             //   5,000 kg asteroid with relative speed of 50 ms^-1 => relative momentum = 250,000 kg ms^-1
             fRelativeMomentum = collision.rigidbody.mass * collision.relativeVelocity.magnitude;
             healthPlayer.Change(-(int)Math.Ceiling(collision.gameObject.GetComponent<AsteroidController>().iDamage * fRelativeMomentum / fRelativeMomentumBenchmark));
-            // if (healthPlayer.iHealth == 0)
-            // {
-            //     Destroy(gameObject);
-            // }
             StartCoroutine(FlashDamaged());
+            if (healthPlayer.iHealth == 0)
+            {
+                gameManager.GameOver();
+            }
             return;
         }
         if (collision.gameObject.CompareTag("EnemyProjectile"))
         {
             healthPlayer.Change(-collision.gameObject.GetComponent<ProjectileController>().iDamage);
-            // if (healthPlayer.iHealth == 0)
-            // {
-            //     Destroy(gameObject);
-            // }
             StartCoroutine(FlashDamaged());
+            if (healthPlayer.iHealth == 0)
+            {
+                gameManager.GameOver();
+            }
             return;
         }
         if (collision.gameObject.CompareTag("PowerUpHealth"))

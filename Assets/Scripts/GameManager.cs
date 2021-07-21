@@ -43,6 +43,9 @@ public class GameManager : MonoBehaviour
     public int iScoreMax = 99999;
     public TextMeshProUGUI guiScore;
 
+    public GameObject goPlayer;
+    private GameObject goPlayerClone;
+
     // ------------------------------------------------------------------------------------------------
 
     void Start()
@@ -91,6 +94,7 @@ public class GameManager : MonoBehaviour
             &&  !bPaused
             &&  Input.GetButtonDown("Pause") )
         {
+            goPlayerClone.GetComponent<PlayerController>().enabled = false;
             Time.timeScale = 0f;
             bPaused = true;
             goUICanvasPaused.SetActive(true);
@@ -102,6 +106,7 @@ public class GameManager : MonoBehaviour
             &&  (   Input.GetButtonDown("Pause")
                 ||  Input.GetButtonDown("Cancel") ) )
         {
+            goPlayerClone.GetComponent<PlayerController>().enabled = true;
             Time.timeScale = 1f;
             bPaused = false;
             goUICanvasPaused.SetActive(false);
@@ -118,6 +123,7 @@ public class GameManager : MonoBehaviour
             case "Button : Start": StartGame(); break;
             case "Button : Controls": ToggleUICanvas(goUICanvasControls); break;
             case "Button : Credits": ToggleUICanvas(goUICanvasCredits); break;
+            case "Button : Title": Destroy(goPlayerClone); goUICanvasHUD.SetActive(false); ToggleUICanvas(goUICanvasGameOver); break;
         }
     }
 
@@ -127,7 +133,17 @@ public class GameManager : MonoBehaviour
     {
         goUICanvasTitle.SetActive(false);
         goUICanvasHUD.SetActive(true);
+        goPlayerClone = Instantiate(goPlayer);
         bInPlay = true;
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
+    public void GameOver()
+    {
+        goPlayerClone.GetComponent<PlayerController>().enabled = false;
+        goUICanvasGameOver.SetActive(true);
+        bInPlay = false;
     }
 
     // ------------------------------------------------------------------------------------------------

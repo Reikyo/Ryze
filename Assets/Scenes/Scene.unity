@@ -1770,6 +1770,7 @@ MonoBehaviour:
   iScore: 0
   iScoreMax: 99999
   guiScore: {fileID: 610815523}
+  goPlayer: {fileID: 1913222272407158638, guid: 303da5651d6944d028fe78dfbceafa06, type: 3}
 --- !u!1 &425998617
 GameObject:
   m_ObjectHideFlags: 0
@@ -8608,11 +8609,11 @@ PrefabInstance:
     - target: {fileID: -2532333422705903093, guid: 303da5651d6944d028fe78dfbceafa06, type: 3}
       propertyPath: sliHealth
       value: 
-      objectReference: {fileID: 6136079422221805424}
+      objectReference: {fileID: 0}
     - target: {fileID: 939352437020657388, guid: 303da5651d6944d028fe78dfbceafa06, type: 3}
       propertyPath: sliCharge
       value: 
-      objectReference: {fileID: 716092542}
+      objectReference: {fileID: 0}
     - target: {fileID: 1911443224730620590, guid: 303da5651d6944d028fe78dfbceafa06, type: 3}
       propertyPath: m_RootOrder
       value: 8

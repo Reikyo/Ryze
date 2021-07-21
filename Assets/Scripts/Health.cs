@@ -18,6 +18,10 @@ public class Health : MonoBehaviour
         if (sliHealth)
         {
             sliHealth.value = iHealth;
+            if ((iHealth > 0) && !sliHealth.transform.Find("Fill Area").gameObject.activeSelf)
+            {
+                sliHealth.transform.Find("Fill Area").gameObject.SetActive(true);
+            }
         }
     }
 

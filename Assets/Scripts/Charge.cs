@@ -18,6 +18,10 @@ public class Charge : MonoBehaviour
         if (sliCharge)
         {
             sliCharge.value = iCharge;
+            if ((iCharge > 0) && !sliCharge.transform.Find("Fill Area").gameObject.activeSelf)
+            {
+                sliCharge.transform.Find("Fill Area").gameObject.SetActive(true);
+            }
         }
     }
 
