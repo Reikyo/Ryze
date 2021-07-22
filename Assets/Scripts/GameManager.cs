@@ -5,6 +5,8 @@ using TMPro;
 
 public class GameManager : MonoBehaviour
 {
+    private SpawnManager spawnManager;
+
     public bool bInPlay = false;
     public bool bPaused = false;
 
@@ -50,6 +52,8 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+        spawnManager = GameObject.Find("Spawn Manager").GetComponent<SpawnManager>();
+
         goUICanvasTitle = GameObject.Find("Canvas : Title");
         goUICanvasControls = GameObject.Find("Canvas : Controls");
         goUICanvasCredits = GameObject.Find("Canvas : Credits");
@@ -132,19 +136,11 @@ public class GameManager : MonoBehaviour
 
     public void StartGame()
     {
+        goPlayerClone = Instantiate(goPlayer);
+        spawnManager.bSpawnAsteroids = true;
+        spawnManager.bSpawnEnemies = true;
         goUICanvasTitle.SetActive(false);
         goUICanvasHUD.SetActive(true);
-        goPlayerClone = Instantiate(goPlayer);
-        bInPlay = true;
-    }
-
-    // ------------------------------------------------------------------------------------------------
-
-    public void RestartLevel()
-    {
-        Destroy(goPlayerClone);
-        goPlayerClone = Instantiate(goPlayer);
-        goUICanvasGameOver.SetActive(false);
         bInPlay = true;
     }
 
@@ -152,6 +148,7 @@ public class GameManager : MonoBehaviour
 
     public void GameOver()
     {
+        spawnManager.bSpawnEnemies = false;
         goPlayerClone.GetComponent<PlayerController>().enabled = false;
         goUICanvasGameOver.SetActive(true);
         bInPlay = false;
@@ -159,9 +156,28 @@ public class GameManager : MonoBehaviour
 
     // ------------------------------------------------------------------------------------------------
 
+    public void RestartLevel()
+    {
+        spawnManager.DestroyAsteroids();
+        spawnManager.DestroyEnemies();
+        Destroy(goPlayerClone);
+        ChangeScore(-iScore);
+        goPlayerClone = Instantiate(goPlayer);
+        spawnManager.bSpawnEnemies = true;
+        goUICanvasGameOver.SetActive(false);
+        bInPlay = true;
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
     public void EndGame()
     {
+        spawnManager.bSpawnAsteroids = false;
+        spawnManager.bSpawnEnemies = false;
+        spawnManager.DestroyAsteroids();
+        spawnManager.DestroyEnemies();
         Destroy(goPlayerClone);
+        ChangeScore(-iScore);
         goUICanvasHUD.SetActive(false);
         goUICanvasGameOver.SetActive(false);
         goUICanvasTitle.SetActive(true);

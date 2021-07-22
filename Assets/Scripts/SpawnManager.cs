@@ -7,8 +7,8 @@ public class SpawnManager : MonoBehaviour
     private GameManager gameManager;
 
     public bool bSpawnStars = true;
-    public bool bSpawnAsteroids = true;
-    public bool bSpawnEnemies = true;
+    public bool bSpawnAsteroids = false;
+    public bool bSpawnEnemies = false;
 
     public GameObject[] goArrStars;
     private GameObject goStar;
@@ -172,6 +172,37 @@ public class SpawnManager : MonoBehaviour
             v3PositionSpawn,
             goPowerUpCharge.transform.rotation
         );
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
+    public void DestroyStars()
+    {
+        foreach (GameObject goStarClone in GameObject.FindGameObjectsWithTag("Star"))
+        {
+            Destroy(goStarClone);
+        }
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
+    public void DestroyAsteroids()
+    {
+        foreach (GameObject goAsteroidClone in GameObject.FindGameObjectsWithTag("Asteroid"))
+        {
+            Destroy(goAsteroidClone);
+        }
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
+    public void DestroyEnemies()
+    {
+        foreach (GameObject goEnemyClone in GameObject.FindGameObjectsWithTag("Enemy"))
+        {
+            Destroy(goEnemyClone);
+        }
+        iNumEnemy = 0;
     }
 
     // ------------------------------------------------------------------------------------------------
