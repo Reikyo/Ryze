@@ -9,8 +9,15 @@ public class MenuController : MonoBehaviour
 
     public List<Button> butListButtons = new List<Button>();
     private List<GameObject> goListButtonMarkers = new List<GameObject>();
-    private int iButtonSelected = 0;
-    private bool bInputTriggered = false;
+    private int iButtonSelected;
+    private bool bInputTriggered;
+
+    // ------------------------------------------------------------------------------------------------
+
+    void OnEnable()
+    {
+        Reset();
+    }
 
     // ------------------------------------------------------------------------------------------------
 
@@ -22,7 +29,7 @@ public class MenuController : MonoBehaviour
         {
             goListButtonMarkers.Add(button.GetComponent<RectTransform>().Find("Markers").gameObject);
         }
-        // butListButtons[iButtonSelected].interactable = true;
+
         goListButtonMarkers[iButtonSelected].SetActive(true);
     }
 
@@ -33,12 +40,13 @@ public class MenuController : MonoBehaviour
         if (Input.GetButtonDown("Submit"))
         {
             gameManager.HandleUIButton(butListButtons[iButtonSelected].gameObject.name);
+            return;
         }
+
         if (    !bInputTriggered
             &&  ((int)Input.GetAxis("Vertical Menu") != 0) )
         {
             bInputTriggered = true;
-            // butListButtons[iButtonSelected].interactable = false;
             goListButtonMarkers[iButtonSelected].SetActive(false);
             iButtonSelected -= (int)Input.GetAxis("Vertical Menu");
             if (iButtonSelected == goListButtonMarkers.Count)
@@ -49,15 +57,36 @@ public class MenuController : MonoBehaviour
             {
                 iButtonSelected = goListButtonMarkers.Count-1;
             }
-            // butListButtons[iButtonSelected].interactable = true;
             goListButtonMarkers[iButtonSelected].SetActive(true);
             return;
         }
+
         if (    bInputTriggered
             &&  ((int)Input.GetAxis("Vertical Menu") == 0) )
         {
             bInputTriggered = false;
             return;
+        }
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
+    private void Reset()
+    {
+        // This first check is only true if we have already passed through Start() and so have already been
+        // active, therefore possibly having any button selected:
+
+        if (goListButtonMarkers.Count > 0)
+        {
+            goListButtonMarkers[iButtonSelected].SetActive(false);
+        }
+
+        iButtonSelected = 0;
+        bInputTriggered = false;
+
+        if (goListButtonMarkers.Count > 0)
+        {
+            goListButtonMarkers[iButtonSelected].SetActive(true);
         }
     }
 

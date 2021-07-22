@@ -123,7 +123,8 @@ public class GameManager : MonoBehaviour
             case "Button : Start": StartGame(); break;
             case "Button : Controls": ToggleUICanvas(goUICanvasControls); break;
             case "Button : Credits": ToggleUICanvas(goUICanvasCredits); break;
-            case "Button : Title": Destroy(goPlayerClone); goUICanvasHUD.SetActive(false); ToggleUICanvas(goUICanvasGameOver); break;
+            case "Button : Retry": RestartLevel(); break;
+            case "Button : Title": EndGame(); break;
         }
     }
 
@@ -139,11 +140,31 @@ public class GameManager : MonoBehaviour
 
     // ------------------------------------------------------------------------------------------------
 
+    public void RestartLevel()
+    {
+        Destroy(goPlayerClone);
+        goPlayerClone = Instantiate(goPlayer);
+        goUICanvasGameOver.SetActive(false);
+        bInPlay = true;
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
     public void GameOver()
     {
         goPlayerClone.GetComponent<PlayerController>().enabled = false;
         goUICanvasGameOver.SetActive(true);
         bInPlay = false;
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
+    public void EndGame()
+    {
+        Destroy(goPlayerClone);
+        goUICanvasHUD.SetActive(false);
+        goUICanvasGameOver.SetActive(false);
+        goUICanvasTitle.SetActive(true);
     }
 
     // ------------------------------------------------------------------------------------------------

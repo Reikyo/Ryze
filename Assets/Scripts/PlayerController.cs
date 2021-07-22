@@ -159,6 +159,10 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.H))
         {
             healthPlayer.Change(-10);
+            if (healthPlayer.iHealth == 0)
+            {
+                gameManager.GameOver();
+            }
         }
 
         // ------------------------------------------------------------------------------------------------
