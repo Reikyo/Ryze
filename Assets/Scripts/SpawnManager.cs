@@ -15,6 +15,7 @@ public class SpawnManager : MonoBehaviour
     private float fTimeNextSpawnStar;
     public float fTimeNextSpawnStarDeltaMin = 0f;
     public float fTimeNextSpawnStarDeltaMax = 5f;
+    public float fPositionYSpawnStars = -500f;
 
     public GameObject[] goArrAsteroids;
     private GameObject goAsteroid;
@@ -80,7 +81,7 @@ public class SpawnManager : MonoBehaviour
             goStar,
             new Vector3(
                 UnityEngine.Random.Range(gameManager.v3CamLowerLeftStars.x + 10f, gameManager.v3CamUpperRightStars.x - 10f),
-                gameManager.fPositionYSpawnStars,
+                fPositionYSpawnStars,
                 gameManager.v3CamUpperRightStars.z + 10f
             ),
             goStar.transform.rotation
@@ -203,6 +204,34 @@ public class SpawnManager : MonoBehaviour
             Destroy(goEnemyClone);
         }
         iNumEnemy = 0;
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
+    public void DestroyPowerUps()
+    {
+        foreach (GameObject goPowerUpHealth in GameObject.FindGameObjectsWithTag("PowerUpHealth"))
+        {
+            Destroy(goPowerUpHealth);
+        }
+        foreach (GameObject goPowerUpCharge in GameObject.FindGameObjectsWithTag("PowerUpCharge"))
+        {
+            Destroy(goPowerUpCharge);
+        }
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
+    public void DestroyProjectiles()
+    {
+        foreach (GameObject goProjectilePlayer in GameObject.FindGameObjectsWithTag("ProjectilePlayer"))
+        {
+            Destroy(goProjectilePlayer);
+        }
+        foreach (GameObject goProjectileEnemy in GameObject.FindGameObjectsWithTag("ProjectileEnemy"))
+        {
+            Destroy(goProjectileEnemy);
+        }
     }
 
     // ------------------------------------------------------------------------------------------------

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -40,6 +41,10 @@ public class EnemyController : MonoBehaviour
     // Score:
     public int iScoreDelta = 10;
 
+    // Audio:
+    private AudioSource audioSource;
+    private List<AudioClip> sfxclpListProjectile = new List<AudioClip>();
+
     // From other objects:
     private GameObject goPlayer;
 
@@ -59,6 +64,12 @@ public class EnemyController : MonoBehaviour
         goGunMiddleProjectileSpawnPoint = transform.Find("Chasis/GunMiddleProjectileSpawnPoint").gameObject;
         iNumFireBurst = Random.Range(1, iNumFireBurstMax+1);
         fTimeNextFire = Time.time + Random.Range(fTimeNextFireDeltaBurstMin, fTimeNextFireDeltaBurstMax);
+
+        audioSource = GameObject.Find("Audio Source").GetComponent<AudioSource>();
+        sfxclpListProjectile.Add((AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/MGWSoundDesign/FuturisticGunSoundFX/Laser/Laser9.wav", typeof(AudioClip)));
+        sfxclpListProjectile.Add((AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/MGWSoundDesign/FuturisticGunSoundFX/Laser/Laser10.wav", typeof(AudioClip)));
+        sfxclpListProjectile.Add((AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/MGWSoundDesign/FuturisticGunSoundFX/Laser/Laser19.wav", typeof(AudioClip)));
+        sfxclpListProjectile.Add((AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/MGWSoundDesign/FuturisticGunSoundFX/Laser/Laser20.wav", typeof(AudioClip)));
 
         goPlayer = GameObject.FindWithTag("Player");
 
@@ -93,7 +104,13 @@ public class EnemyController : MonoBehaviour
         {
             if (Time.time >= fTimeNextFire)
             {
-                Instantiate(goProjectile, goGunMiddleProjectileSpawnPoint.transform.position, goGunMiddleProjectileSpawnPoint.transform.rotation);
+                GameObject goProjectileClone = Instantiate(
+                    goProjectile,
+                    goGunMiddleProjectileSpawnPoint.transform.position,
+                    goGunMiddleProjectileSpawnPoint.transform.rotation
+                );
+                goProjectileClone.GetComponent<ProjectileController>().fForceMove = 100f;
+                audioSource.PlayOneShot(sfxclpListProjectile[UnityEngine.Random.Range(0, sfxclpListProjectile.Count)], 0.1f);
                 iNumFire += 1;
                 if (iNumFire < iNumFireBurst)
                 {
@@ -189,7 +206,7 @@ public class EnemyController : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.CompareTag("PlayerProjectile"))
+        if (collision.gameObject.CompareTag("ProjectilePlayer"))
         {
             healthEnemy.Change(-collision.gameObject.GetComponent<ProjectileController>().iDamage);
             if (    (healthEnemy.iHealth == 0)

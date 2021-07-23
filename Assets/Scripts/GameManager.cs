@@ -1,12 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using TMPro;
+using UnityEditor; // Needed for AssetDatabase
+using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
     private SpawnManager spawnManager;
 
+    // Status:
     public bool bInPlay = false;
     public bool bPaused = false;
 
@@ -38,12 +40,16 @@ public class GameManager : MonoBehaviour
     public Vector3 v3ExistLimitUpperRightStars;
     private Vector3 v3ExistLimitCamOffset = new Vector3(20f, 0f, 20f);
 
-    public float fPositionYSpawnStars = -500f;
-
     // Score:
     public int iScore = 0;
     public int iScoreMax = 99999;
     public TextMeshProUGUI guiScore;
+
+    // Audio:
+    private AudioSource audioSource;
+    private AudioClip sfxclpUICancel;
+    private List<AudioClip> sfxclpListMusic = new List<AudioClip>();
+    private int iIdxsfxclpListMusic = 0;
 
     public GameObject goPlayer;
     private GameObject goPlayerClone;
@@ -71,8 +77,8 @@ public class GameManager : MonoBehaviour
         camMainCamera = GameObject.Find("Main Camera").GetComponent<Camera>();
         v3CamLowerLeft = camMainCamera.ViewportToWorldPoint(new Vector3(0, 0, camMainCamera.transform.position.y));
         v3CamUpperRight = camMainCamera.ViewportToWorldPoint(new Vector3(1, 1, camMainCamera.transform.position.y));
-        v3CamLowerLeftStars = camMainCamera.ViewportToWorldPoint(new Vector3(0, 0, camMainCamera.transform.position.y - fPositionYSpawnStars));
-        v3CamUpperRightStars = camMainCamera.ViewportToWorldPoint(new Vector3(1, 1, camMainCamera.transform.position.y - fPositionYSpawnStars));
+        v3CamLowerLeftStars = camMainCamera.ViewportToWorldPoint(new Vector3(0, 0, camMainCamera.transform.position.y - spawnManager.fPositionYSpawnStars));
+        v3CamUpperRightStars = camMainCamera.ViewportToWorldPoint(new Vector3(1, 1, camMainCamera.transform.position.y - spawnManager.fPositionYSpawnStars));
 
         v3MoveLimitLowerLeft = v3CamLowerLeft + v3MoveLimitCamOffset;
         v3MoveLimitUpperRight = v3CamUpperRight - v3MoveLimitCamOffset;
@@ -81,16 +87,51 @@ public class GameManager : MonoBehaviour
         v3ExistLimitUpperRight = v3CamUpperRight + v3ExistLimitCamOffset;
         v3ExistLimitLowerLeftStars = v3CamLowerLeftStars - v3ExistLimitCamOffset;
         v3ExistLimitUpperRightStars = v3CamUpperRightStars + v3ExistLimitCamOffset;
+
+        audioSource = GameObject.Find("Audio Source").GetComponent<AudioSource>();
+        sfxclpUICancel = (AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/Little Robot Sound Factory/UI Sfx/Mp3/Click_Electronic/Click_Electronic_13.mp3", typeof(AudioClip));
+        sfxclpListMusic.Add((AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/Neocrey/Free Music Bundle/System Shock.mp3", typeof(AudioClip)));
+        sfxclpListMusic.Add((AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/Neocrey/Free Music Bundle/Burn In Space.mp3", typeof(AudioClip)));
+        sfxclpListMusic.Add((AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/Neocrey/Free Music Bundle/Cyberspace Hunters.mp3", typeof(AudioClip)));
+        sfxclpListMusic.Add((AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/Neocrey/Free Music Bundle/Destractor.mp3", typeof(AudioClip)));
+        sfxclpListMusic.Add((AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/Neocrey/Free Music Bundle/Disco Century.mp3", typeof(AudioClip)));
+        sfxclpListMusic.Add((AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/Neocrey/Free Music Bundle/Fractal.mp3", typeof(AudioClip)));
+        sfxclpListMusic.Add((AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/Neocrey/Free Music Bundle/Frozy.mp3", typeof(AudioClip)));
+        sfxclpListMusic.Add((AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/Neocrey/Free Music Bundle/Heart open.mp3", typeof(AudioClip)));
+        sfxclpListMusic.Add((AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/Neocrey/Free Music Bundle/Jump to win.mp3", typeof(AudioClip)));
+        sfxclpListMusic.Add((AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/Neocrey/Free Music Bundle/Laser Millenium.mp3", typeof(AudioClip)));
+        sfxclpListMusic.Add((AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/Neocrey/Free Music Bundle/Miami Soul.mp3", typeof(AudioClip)));
+        sfxclpListMusic.Add((AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/Neocrey/Free Music Bundle/NEON.mp3", typeof(AudioClip)));
+        sfxclpListMusic.Add((AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/Neocrey/Free Music Bundle/Nightwind.mp3", typeof(AudioClip)));
+        sfxclpListMusic.Add((AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/Neocrey/Free Music Bundle/Rise.mp3", typeof(AudioClip)));
+        sfxclpListMusic.Add((AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/Neocrey/Free Music Bundle/Stars.mp3", typeof(AudioClip)));
+        sfxclpListMusic.Add((AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/Neocrey/Free Music Bundle/Twilight.mp3", typeof(AudioClip)));
+        sfxclpListMusic.Add((AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/Neocrey/Free Music Bundle/Warrior Song.mp3", typeof(AudioClip)));
+        sfxclpListMusic.Add((AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/Neocrey/Free Music Bundle/Your personal heaven.mp3", typeof(AudioClip)));
     }
 
     // ------------------------------------------------------------------------------------------------
 
     void Update()
     {
+        if (!audioSource.isPlaying)
+        {
+            audioSource.PlayOneShot(sfxclpListMusic[iIdxsfxclpListMusic], 0.1f);
+            if (iIdxsfxclpListMusic < (sfxclpListMusic.Count - 1))
+            {
+                iIdxsfxclpListMusic += 1;
+            }
+            else
+            {
+                iIdxsfxclpListMusic = 0;
+            }
+        }
+
         if (    goUICanvasActive
             &&  Input.GetButtonDown("Cancel") )
         {
             ToggleUICanvas();
+            audioSource.PlayOneShot(sfxclpUICancel, 0.5f);
             return;
         }
 
@@ -137,8 +178,8 @@ public class GameManager : MonoBehaviour
     public void StartGame()
     {
         goPlayerClone = Instantiate(goPlayer);
-        spawnManager.bSpawnAsteroids = true;
-        spawnManager.bSpawnEnemies = true;
+        // spawnManager.bSpawnAsteroids = true;
+        // spawnManager.bSpawnEnemies = true;
         goUICanvasTitle.SetActive(false);
         goUICanvasHUD.SetActive(true);
         bInPlay = true;
@@ -160,6 +201,8 @@ public class GameManager : MonoBehaviour
     {
         spawnManager.DestroyAsteroids();
         spawnManager.DestroyEnemies();
+        spawnManager.DestroyPowerUps();
+        spawnManager.DestroyProjectiles();
         Destroy(goPlayerClone);
         ChangeScore(-iScore);
         goPlayerClone = Instantiate(goPlayer);
@@ -176,6 +219,8 @@ public class GameManager : MonoBehaviour
         spawnManager.bSpawnEnemies = false;
         spawnManager.DestroyAsteroids();
         spawnManager.DestroyEnemies();
+        spawnManager.DestroyPowerUps();
+        spawnManager.DestroyProjectiles();
         Destroy(goPlayerClone);
         ChangeScore(-iScore);
         goUICanvasHUD.SetActive(false);

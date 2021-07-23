@@ -7,12 +7,12 @@ TagManager:
   - Projectile
   - Asteroid
   - Enemy
-  - PlayerProjectile
-  - EnemyProjectile
   - Star
   - PowerUp
   - PowerUpHealth
   - PowerUpCharge
+  - ProjectilePlayer
+  - ProjectileEnemy
   layers:
   - Default
   - TransparentFX
