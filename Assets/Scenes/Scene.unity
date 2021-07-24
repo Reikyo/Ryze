@@ -7483,6 +7483,8 @@ MonoBehaviour:
   iNumEnemy: 0
   goPowerUpHealth: {fileID: 1018675173185206068, guid: ce607661348f44dfdb82d24cca075f64, type: 3}
   goPowerUpCharge: {fileID: 1018675173185206068, guid: c5db70ba09ede45059d4332ba3815e71, type: 3}
+  vfxclpExplosionAsteroid: {fileID: 1121192042590650, guid: 60a1e93d22a444cf4a0b6181232f4543, type: 3}
+  vfxclpExplosionEnemy: {fileID: 1329845292236604, guid: b78273369bcbd4264a03504e2af59859, type: 3}
 --- !u!4 &1842339213
 Transform:
   m_ObjectHideFlags: 0

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 public class SpawnManager : MonoBehaviour
@@ -30,21 +31,33 @@ public class SpawnManager : MonoBehaviour
     public GameObject goPowerUpHealth;
     public GameObject goPowerUpCharge;
 
+    // VFX:
+    public GameObject vfxclpExplosionAsteroid;
+    public GameObject vfxclpExplosionEnemy;
+    private float fTimeDelta_vfxclpExplosionAsteroid;
+    private float fTimeDelta_vfxclpExplosionEnemy;
+
+    // SFX:
+    private AudioSource audioSource;
+    private AudioClip sfxclpExplosionAsteroid;
+    private AudioClip sfxclpExplosionEnemy;
+
     // ------------------------------------------------------------------------------------------------
 
     void Start()
     {
         gameManager = GameObject.Find("Game Manager").GetComponent<GameManager>();
 
-        // bSpawnStars = false;
-        // bSpawnAsteroids = false;
-        // bSpawnEnemies = false;
-
         fTimeNextSpawnStar = Time.time + UnityEngine.Random.Range(fTimeNextSpawnStarDeltaMin, fTimeNextSpawnStarDeltaMax);
         fTimeNextSpawnAsteroid = Time.time + UnityEngine.Random.Range(fTimeNextSpawnAsteroidDeltaMin, fTimeNextSpawnAsteroidDeltaMax);
         fTimeNextSpawnEnemy = Time.time + 3f;
 
-        // Instantiate(goArrAsteroids[4], new Vector3(0f, 0f, 50f), goArrAsteroids[4].transform.rotation);
+        fTimeDelta_vfxclpExplosionAsteroid = vfxclpExplosionAsteroid.GetComponent<ParticleSystem>().main.duration;
+        fTimeDelta_vfxclpExplosionEnemy = vfxclpExplosionAsteroid.GetComponent<ParticleSystem>().main.duration;
+
+        audioSource = GameObject.Find("Audio Source").GetComponent<AudioSource>();
+        sfxclpExplosionAsteroid = (AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/Shapeforms/Shapeforms Audio Free Sound Effects/Sci Fi Weapons Cyberpunk Arsenal Preview/AUDIO/EXPLDsgn_Explosion Rumble Distorted_01.wav", typeof(AudioClip));
+        sfxclpExplosionEnemy = (AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/Shapeforms/Shapeforms Audio Free Sound Effects/Sci Fi Weapons Cyberpunk Arsenal Preview/AUDIO/EXPLDsgn_Implode_15.wav", typeof(AudioClip));
     }
 
     // ------------------------------------------------------------------------------------------------
@@ -173,6 +186,32 @@ public class SpawnManager : MonoBehaviour
             v3PositionSpawn,
             goPowerUpCharge.transform.rotation
         );
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
+    public void SpawnExplosionAsteroid(Vector3 v3PositionSpawn)
+    {
+        GameObject vfxclpExplosionAsteroidClone = Instantiate(
+            vfxclpExplosionAsteroid,
+            v3PositionSpawn,
+            vfxclpExplosionAsteroid.transform.rotation
+        );
+        Destroy(vfxclpExplosionAsteroidClone, fTimeDelta_vfxclpExplosionAsteroid);
+        audioSource.PlayOneShot(sfxclpExplosionAsteroid, 0.1f);
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
+    public void SpawnExplosionEnemy(Vector3 v3PositionSpawn)
+    {
+        GameObject vfxclpExplosionEnemyClone = Instantiate(
+            vfxclpExplosionEnemy,
+            v3PositionSpawn,
+            vfxclpExplosionEnemy.transform.rotation
+        );
+        Destroy(vfxclpExplosionEnemyClone, fTimeDelta_vfxclpExplosionEnemy);
+        audioSource.PlayOneShot(sfxclpExplosionEnemy, 0.1f);
     }
 
     // ------------------------------------------------------------------------------------------------

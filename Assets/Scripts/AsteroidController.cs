@@ -5,6 +5,8 @@ using UnityEngine;
 
 public class AsteroidController : MonoBehaviour
 {
+    private SpawnManager spawnManager;
+
     // Movement:
     private Rigidbody rbAsteroid;
 
@@ -22,6 +24,8 @@ public class AsteroidController : MonoBehaviour
 
     void Start()
     {
+        spawnManager = GameObject.Find("Spawn Manager").GetComponent<SpawnManager>();
+
         rbAsteroid = GetComponent<Rigidbody>();
         rbAsteroid.AddForce(
             UnityEngine.Random.Range(-1e6f, +1e6f),
@@ -58,6 +62,7 @@ public class AsteroidController : MonoBehaviour
             healthAsteroid.Change(-collision.gameObject.GetComponent<ProjectileController>().iDamage);
             if (healthAsteroid.iHealth == 0)
             {
+                spawnManager.SpawnExplosionAsteroid(transform.position);
                 Destroy(gameObject);
             }
             StartCoroutine(FlashDamaged());
