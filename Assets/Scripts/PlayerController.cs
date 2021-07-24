@@ -8,6 +8,7 @@ using UnityEngine.UI;
 public class PlayerController : MonoBehaviour
 {
     private GameManager gameManager;
+    private AudioManager audioManager;
 
     // Movement:
     private float fInputHorzMove;
@@ -40,17 +41,12 @@ public class PlayerController : MonoBehaviour
     private float fTimeNextFire;
     public float fTimeNextFireDelta = 0.1f;
 
-    // Audio:
-    private AudioSource audioSource;
-    private AudioClip sfxclpPowerUpHealth;
-    private AudioClip sfxclpPowerUpCharge;
-    private List<AudioClip> sfxclpListProjectile = new List<AudioClip>();
-
     // ------------------------------------------------------------------------------------------------
 
     void Start()
     {
         gameManager = GameObject.Find("Game Manager").GetComponent<GameManager>();
+        audioManager = GameObject.Find("Audio Manager").GetComponent<AudioManager>();
 
         rbPlayer = GetComponent<Rigidbody>();
 
@@ -68,16 +64,6 @@ public class PlayerController : MonoBehaviour
         goGunLeftProjectileSpawnPoint = transform.Find("08_Gun_L/GunLeftProjectileSpawnPoint").gameObject;
         goGunRightProjectileSpawnPoint = transform.Find("08_Gun_R/GunRightProjectileSpawnPoint").gameObject;
         fTimeNextFire = Time.time;
-
-        audioSource = GameObject.Find("Audio Source").GetComponent<AudioSource>();
-        sfxclpPowerUpHealth = (AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/Little Robot Sound Factory/Electric Sfx/Mp3/Jingle_Win_Synth/Jingle_Win_Synth_03.mp3", typeof(AudioClip));
-        sfxclpPowerUpCharge = (AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/Little Robot Sound Factory/Electric Sfx/Mp3/Jingle_Win_Synth/Jingle_Win_Synth_04.mp3", typeof(AudioClip));
-        sfxclpListProjectile.Add((AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/Shapeforms/Shapeforms Audio Free Sound Effects/Type Preview/AUDIO/Tablet_Swipe_01.wav", typeof(AudioClip)));
-        // sfxclpListProjectile.Add((AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/Shapeforms/Shapeforms Audio Free Sound Effects/Hit and Punch Preview/AUDIO/WHOOSH_AIRY_FLUTTER_01.wav", typeof(AudioClip))); // A bit too harsh for constant firing
-        // sfxclpListProjectile.Add((AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/MGWSoundDesign/FuturisticGunSoundFX/Laser/Laser10.wav", typeof(AudioClip))); // A bit too harsh for constant firing
-        // sfxclpListProjectile.Add((AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/MGWSoundDesign/FuturisticGunSoundFX/Laser/Laser20.wav", typeof(AudioClip))); // A bit too harsh for constant firing
-        // sfxclpListProjectile.Add((AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/Little Robot Sound Factory/UI Sfx/Mp3/Click_Electronic/Click_Electronic_05.mp3", typeof(AudioClip))); // Okay, but a bit too chirpy like a little bird
-        // sfxclpListProjectile.Add((AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/Little Robot Sound Factory/UI Sfx/Mp3/Click_Standard_00.mp3", typeof(AudioClip))); // Okay, but a bit too clicky like a typewriter
     }
 
     // ------------------------------------------------------------------------------------------------
@@ -169,8 +155,8 @@ public class PlayerController : MonoBehaviour
                     goGunRightProjectileSpawnPoint.transform.position,
                     goGunRightProjectileSpawnPoint.transform.rotation
                 );
-                // audioSource.PlayOneShot(sfxclpListProjectile[UnityEngine.Random.Range(0, sfxclpListProjectile.Count)], 0.75f);
-                audioSource.PlayOneShot(sfxclpListProjectile[0], 0.75f);
+                // audioManager.sfxclpvolListProjectilePlayer[UnityEngine.Random.Range(0, audioManager.sfxclpvolListProjectilePlayer.Count)].PlayOneShot();
+                audioManager.sfxclpvolListProjectilePlayer[0].PlayOneShot();
                 fTimeNextFire = Time.time + fTimeNextFireDelta;
             }
         }
@@ -267,7 +253,7 @@ public class PlayerController : MonoBehaviour
             if (healthPlayer.iHealth < healthPlayer.iHealthMax)
             {
                 healthPlayer.Change(collision.gameObject.GetComponent<PowerUpController>().iValue);
-                audioSource.PlayOneShot(sfxclpPowerUpHealth, 0.5f);
+                audioManager.sfxclpvolPowerUpHealth.PlayOneShot();
                 Destroy(collision.gameObject);
             }
             return;
@@ -277,7 +263,7 @@ public class PlayerController : MonoBehaviour
             if (chargePlayer.iCharge < chargePlayer.iChargeMax)
             {
                 chargePlayer.Change(collision.gameObject.GetComponent<PowerUpController>().iValue);
-                audioSource.PlayOneShot(sfxclpPowerUpCharge, 0.5f);
+                audioManager.sfxclpvolPowerUpCharge.PlayOneShot();
                 Destroy(collision.gameObject);
             }
             return;

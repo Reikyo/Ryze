@@ -7509,13 +7509,26 @@ GameObject:
   m_Component:
   - component: {fileID: 1855832997}
   - component: {fileID: 1855832996}
+  - component: {fileID: 1855832995}
   m_Layer: 0
-  m_Name: Audio Source
+  m_Name: Audio Manager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &1855832995
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1855832994}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76dc4361da12443b3a406a2d3de5245b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!82 &1855832996
 AudioSource:
   m_ObjectHideFlags: 0

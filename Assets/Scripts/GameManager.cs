@@ -7,6 +7,7 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
     private SpawnManager spawnManager;
+    private AudioManager audioManager;
 
     // Status:
     public bool bInPlay = false;
@@ -45,12 +46,6 @@ public class GameManager : MonoBehaviour
     public int iScoreMax = 99999;
     public TextMeshProUGUI guiScore;
 
-    // Audio:
-    private AudioSource audioSource;
-    private AudioClip sfxclpUICancel;
-    private List<AudioClip> sfxclpListMusic = new List<AudioClip>();
-    private int iIdxsfxclpListMusic = 0;
-
     public GameObject goPlayer;
     private GameObject goPlayerClone;
 
@@ -59,6 +54,7 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         spawnManager = GameObject.Find("Spawn Manager").GetComponent<SpawnManager>();
+        audioManager = GameObject.Find("Audio Manager").GetComponent<AudioManager>();
 
         goUICanvasTitle = GameObject.Find("Canvas : Title");
         goUICanvasControls = GameObject.Find("Canvas : Controls");
@@ -87,51 +83,17 @@ public class GameManager : MonoBehaviour
         v3ExistLimitUpperRight = v3CamUpperRight + v3ExistLimitCamOffset;
         v3ExistLimitLowerLeftStars = v3CamLowerLeftStars - v3ExistLimitCamOffset;
         v3ExistLimitUpperRightStars = v3CamUpperRightStars + v3ExistLimitCamOffset;
-
-        audioSource = GameObject.Find("Audio Source").GetComponent<AudioSource>();
-        sfxclpUICancel = (AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/Little Robot Sound Factory/UI Sfx/Mp3/Click_Electronic/Click_Electronic_13.mp3", typeof(AudioClip));
-        sfxclpListMusic.Add((AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/Neocrey/Free Music Bundle/System Shock.mp3", typeof(AudioClip)));
-        sfxclpListMusic.Add((AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/Neocrey/Free Music Bundle/Burn In Space.mp3", typeof(AudioClip)));
-        sfxclpListMusic.Add((AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/Neocrey/Free Music Bundle/Cyberspace Hunters.mp3", typeof(AudioClip)));
-        sfxclpListMusic.Add((AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/Neocrey/Free Music Bundle/Destractor.mp3", typeof(AudioClip)));
-        sfxclpListMusic.Add((AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/Neocrey/Free Music Bundle/Disco Century.mp3", typeof(AudioClip)));
-        sfxclpListMusic.Add((AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/Neocrey/Free Music Bundle/Fractal.mp3", typeof(AudioClip)));
-        sfxclpListMusic.Add((AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/Neocrey/Free Music Bundle/Frozy.mp3", typeof(AudioClip)));
-        sfxclpListMusic.Add((AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/Neocrey/Free Music Bundle/Heart open.mp3", typeof(AudioClip)));
-        sfxclpListMusic.Add((AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/Neocrey/Free Music Bundle/Jump to win.mp3", typeof(AudioClip)));
-        sfxclpListMusic.Add((AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/Neocrey/Free Music Bundle/Laser Millenium.mp3", typeof(AudioClip)));
-        sfxclpListMusic.Add((AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/Neocrey/Free Music Bundle/Miami Soul.mp3", typeof(AudioClip)));
-        sfxclpListMusic.Add((AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/Neocrey/Free Music Bundle/NEON.mp3", typeof(AudioClip)));
-        sfxclpListMusic.Add((AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/Neocrey/Free Music Bundle/Nightwind.mp3", typeof(AudioClip)));
-        sfxclpListMusic.Add((AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/Neocrey/Free Music Bundle/Rise.mp3", typeof(AudioClip)));
-        sfxclpListMusic.Add((AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/Neocrey/Free Music Bundle/Stars.mp3", typeof(AudioClip)));
-        sfxclpListMusic.Add((AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/Neocrey/Free Music Bundle/Twilight.mp3", typeof(AudioClip)));
-        sfxclpListMusic.Add((AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/Neocrey/Free Music Bundle/Warrior Song.mp3", typeof(AudioClip)));
-        sfxclpListMusic.Add((AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/Neocrey/Free Music Bundle/Your personal heaven.mp3", typeof(AudioClip)));
     }
 
     // ------------------------------------------------------------------------------------------------
 
     void Update()
     {
-        if (!audioSource.isPlaying)
-        {
-            audioSource.PlayOneShot(sfxclpListMusic[iIdxsfxclpListMusic], 0.1f);
-            if (iIdxsfxclpListMusic < (sfxclpListMusic.Count - 1))
-            {
-                iIdxsfxclpListMusic += 1;
-            }
-            else
-            {
-                iIdxsfxclpListMusic = 0;
-            }
-        }
-
         if (    goUICanvasActive
             &&  Input.GetButtonDown("Cancel") )
         {
             ToggleUICanvas();
-            audioSource.PlayOneShot(sfxclpUICancel, 0.5f);
+            audioManager.sfxclpvolUICancel.PlayOneShot();
             return;
         }
 

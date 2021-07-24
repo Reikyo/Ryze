@@ -7,16 +7,12 @@ using UnityEngine.UI;
 public class MenuController : MonoBehaviour
 {
     private GameManager gameManager;
+    private AudioManager audioManager;
 
     public List<Button> butListButtons = new List<Button>();
     private List<GameObject> goListButtonMarkers = new List<GameObject>();
     private int iButtonSelected;
     private bool bInputTriggered;
-
-    // Audio:
-    private AudioSource audioSource;
-    private AudioClip sfxclpUIScroll;
-    private AudioClip sfxclpUISubmit;
 
     // ------------------------------------------------------------------------------------------------
 
@@ -30,6 +26,7 @@ public class MenuController : MonoBehaviour
     void Start()
     {
         gameManager = GameObject.Find("Game Manager").GetComponent<GameManager>();
+        audioManager = GameObject.Find("Audio Manager").GetComponent<AudioManager>();
 
         foreach(Button button in butListButtons)
         {
@@ -37,10 +34,6 @@ public class MenuController : MonoBehaviour
         }
 
         goListButtonMarkers[iButtonSelected].SetActive(true);
-
-        audioSource = GameObject.Find("Audio Source").GetComponent<AudioSource>();
-        sfxclpUIScroll = (AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/Little Robot Sound Factory/UI Sfx/Mp3/Click_Electronic/Click_Electronic_14.mp3", typeof(AudioClip));
-        sfxclpUISubmit = (AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/Little Robot Sound Factory/UI Sfx/Mp3/Click_Electronic/Click_Electronic_12.mp3", typeof(AudioClip));
     }
 
     // ------------------------------------------------------------------------------------------------
@@ -62,7 +55,7 @@ public class MenuController : MonoBehaviour
                 iButtonSelected = goListButtonMarkers.Count-1;
             }
             goListButtonMarkers[iButtonSelected].SetActive(true);
-            audioSource.PlayOneShot(sfxclpUIScroll, 0.5f);
+            audioManager.sfxclpvolUIScroll.PlayOneShot();
             return;
         }
 
@@ -76,7 +69,7 @@ public class MenuController : MonoBehaviour
         if (Input.GetButtonDown("Submit"))
         {
             gameManager.HandleUIButton(butListButtons[iButtonSelected].gameObject.name);
-            audioSource.PlayOneShot(sfxclpUISubmit, 0.5f);
+            audioManager.sfxclpvolUISubmit.PlayOneShot();
             return;
         }
     }

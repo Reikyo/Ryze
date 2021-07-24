@@ -6,6 +6,7 @@ using UnityEngine;
 public class SpawnManager : MonoBehaviour
 {
     private GameManager gameManager;
+    private AudioManager audioManager;
 
     public bool bSpawnStars = true;
     public bool bSpawnAsteroids = false;
@@ -37,16 +38,12 @@ public class SpawnManager : MonoBehaviour
     private float fTimeDelta_vfxclpExplosionAsteroid;
     private float fTimeDelta_vfxclpExplosionEnemy;
 
-    // SFX:
-    private AudioSource audioSource;
-    private AudioClip sfxclpExplosionAsteroid;
-    private AudioClip sfxclpExplosionEnemy;
-
     // ------------------------------------------------------------------------------------------------
 
     void Start()
     {
         gameManager = GameObject.Find("Game Manager").GetComponent<GameManager>();
+        audioManager = GameObject.Find("Audio Manager").GetComponent<AudioManager>();
 
         fTimeNextSpawnStar = Time.time + UnityEngine.Random.Range(fTimeNextSpawnStarDeltaMin, fTimeNextSpawnStarDeltaMax);
         fTimeNextSpawnAsteroid = Time.time + UnityEngine.Random.Range(fTimeNextSpawnAsteroidDeltaMin, fTimeNextSpawnAsteroidDeltaMax);
@@ -54,10 +51,6 @@ public class SpawnManager : MonoBehaviour
 
         fTimeDelta_vfxclpExplosionAsteroid = vfxclpExplosionAsteroid.GetComponent<ParticleSystem>().main.duration;
         fTimeDelta_vfxclpExplosionEnemy = vfxclpExplosionAsteroid.GetComponent<ParticleSystem>().main.duration;
-
-        audioSource = GameObject.Find("Audio Source").GetComponent<AudioSource>();
-        sfxclpExplosionAsteroid = (AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/Shapeforms/Shapeforms Audio Free Sound Effects/Sci Fi Weapons Cyberpunk Arsenal Preview/AUDIO/EXPLDsgn_Explosion Rumble Distorted_01.wav", typeof(AudioClip));
-        sfxclpExplosionEnemy = (AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/Shapeforms/Shapeforms Audio Free Sound Effects/Sci Fi Weapons Cyberpunk Arsenal Preview/AUDIO/EXPLDsgn_Implode_15.wav", typeof(AudioClip));
     }
 
     // ------------------------------------------------------------------------------------------------
@@ -198,7 +191,7 @@ public class SpawnManager : MonoBehaviour
             vfxclpExplosionAsteroid.transform.rotation
         );
         Destroy(vfxclpExplosionAsteroidClone, fTimeDelta_vfxclpExplosionAsteroid);
-        audioSource.PlayOneShot(sfxclpExplosionAsteroid, 0.1f);
+        audioManager.sfxclpvolExplosionAsteroid.PlayOneShot();
     }
 
     // ------------------------------------------------------------------------------------------------
@@ -211,7 +204,7 @@ public class SpawnManager : MonoBehaviour
             vfxclpExplosionEnemy.transform.rotation
         );
         Destroy(vfxclpExplosionEnemyClone, fTimeDelta_vfxclpExplosionEnemy);
-        audioSource.PlayOneShot(sfxclpExplosionEnemy, 0.1f);
+        audioManager.sfxclpvolExplosionEnemy.PlayOneShot();
     }
 
     // ------------------------------------------------------------------------------------------------

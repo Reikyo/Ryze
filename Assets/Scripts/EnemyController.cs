@@ -8,6 +8,7 @@ public class EnemyController : MonoBehaviour
 {
     private GameManager gameManager;
     private SpawnManager spawnManager;
+    private AudioManager audioManager;
 
     // Movement:
     private NavMeshAgent navEnemy;
@@ -41,10 +42,6 @@ public class EnemyController : MonoBehaviour
     // Score:
     public int iScoreDelta = 10;
 
-    // Audio:
-    private AudioSource audioSource;
-    private List<AudioClip> sfxclpListProjectile = new List<AudioClip>();
-
     // From other objects:
     private GameObject goPlayer;
 
@@ -54,6 +51,7 @@ public class EnemyController : MonoBehaviour
     {
         gameManager = GameObject.Find("Game Manager").GetComponent<GameManager>();
         spawnManager = GameObject.Find("Spawn Manager").GetComponent<SpawnManager>();
+        audioManager = GameObject.Find("Audio Manager").GetComponent<AudioManager>();
 
         navEnemy = GetComponent<NavMeshAgent>();
 
@@ -64,18 +62,6 @@ public class EnemyController : MonoBehaviour
         goGunMiddleProjectileSpawnPoint = transform.Find("Chasis/GunMiddleProjectileSpawnPoint").gameObject;
         iNumFireBurst = Random.Range(1, iNumFireBurstMax+1);
         fTimeNextFire = Time.time + Random.Range(fTimeNextFireDeltaBurstMin, fTimeNextFireDeltaBurstMax);
-
-        audioSource = GameObject.Find("Audio Source").GetComponent<AudioSource>();
-        sfxclpListProjectile.Add((AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/MGWSoundDesign/FuturisticGunSoundFX/Laser/Laser6.wav", typeof(AudioClip)));
-        sfxclpListProjectile.Add((AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/MGWSoundDesign/FuturisticGunSoundFX/Laser/Laser7.wav", typeof(AudioClip)));
-        sfxclpListProjectile.Add((AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/MGWSoundDesign/FuturisticGunSoundFX/Laser/Laser8.wav", typeof(AudioClip)));
-        sfxclpListProjectile.Add((AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/MGWSoundDesign/FuturisticGunSoundFX/Laser/Laser9.wav", typeof(AudioClip)));
-        sfxclpListProjectile.Add((AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/MGWSoundDesign/FuturisticGunSoundFX/Laser/Laser10.wav", typeof(AudioClip)));
-        sfxclpListProjectile.Add((AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/MGWSoundDesign/FuturisticGunSoundFX/Laser/Laser16.wav", typeof(AudioClip)));
-        sfxclpListProjectile.Add((AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/MGWSoundDesign/FuturisticGunSoundFX/Laser/Laser17.wav", typeof(AudioClip)));
-        sfxclpListProjectile.Add((AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/MGWSoundDesign/FuturisticGunSoundFX/Laser/Laser18.wav", typeof(AudioClip)));
-        sfxclpListProjectile.Add((AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/MGWSoundDesign/FuturisticGunSoundFX/Laser/Laser19.wav", typeof(AudioClip)));
-        sfxclpListProjectile.Add((AudioClip)AssetDatabase.LoadAssetAtPath("Assets/Asset Store/Audio/MGWSoundDesign/FuturisticGunSoundFX/Laser/Laser20.wav", typeof(AudioClip)));
 
         goPlayer = GameObject.FindWithTag("Player");
 
@@ -116,7 +102,7 @@ public class EnemyController : MonoBehaviour
                     goGunMiddleProjectileSpawnPoint.transform.rotation
                 );
                 goProjectileClone.GetComponent<ProjectileController>().fForceMove = 100f;
-                audioSource.PlayOneShot(sfxclpListProjectile[UnityEngine.Random.Range(0, sfxclpListProjectile.Count)], 0.1f);
+                audioManager.sfxclpvolListProjectileEnemy[UnityEngine.Random.Range(0, audioManager.sfxclpvolListProjectileEnemy.Count)].PlayOneShot();
                 iNumFire += 1;
                 if (iNumFire < iNumFireBurst)
                 {
