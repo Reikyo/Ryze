@@ -105,18 +105,18 @@ public class AudioManager : MonoBehaviour
 
     void Update()
     {
-        if (!audioSource.isPlaying)
-        {
-            sfxclpvolListMusic[iIdx_sfxclpvolListMusic].PlayOneShot();
-            if (iIdx_sfxclpvolListMusic < (sfxclpvolListMusic.Count - 1))
-            {
-                iIdx_sfxclpvolListMusic += 1;
-            }
-            else
-            {
-                iIdx_sfxclpvolListMusic = 0;
-            }
-        }
+        // if (!audioSource.isPlaying)
+        // {
+        //     sfxclpvolListMusic[iIdx_sfxclpvolListMusic].PlayOneShot();
+        //     if (iIdx_sfxclpvolListMusic < (sfxclpvolListMusic.Count - 1))
+        //     {
+        //         iIdx_sfxclpvolListMusic += 1;
+        //     }
+        //     else
+        //     {
+        //         iIdx_sfxclpvolListMusic = 0;
+        //     }
+        // }
     }
 
     // ------------------------------------------------------------------------------------------------

@@ -38,16 +38,25 @@ public class PlayerController : MonoBehaviour
     public GameObject goProjectile;
     private GameObject goGunLeftProjectileSpawnPoint;
     private GameObject goGunRightProjectileSpawnPoint;
+    private GameObject goGunMiddleProjectileSpawnPoint;
 
     private float fTimeNextFire1;
     public float fTimeNextFire1Delta = 0.1f;
 
+    public enum Fire2Mode {straight, spiral};
+    public Fire2Mode fire2Mode;
+
     private bool bTriggeredFire2 = false;
-    private float fTimeNextFire2;
-    public float fTimeNextFire2Delta = 0.01f;
-    private float fAngleNextFire2;
-    public float fAngleNextFire2Delta = 10f;
-    public float fForceMoveFire2 = 50f;
+
+    public float fForceMoveFire2Straight = 200f;
+    private float fTimeNextFire2Straight;
+    public float fTimeNextFire2DeltaStraight = 0.01f;
+
+    public float fForceMoveFire2Spiral = 50f;
+    private float fTimeNextFire2Spiral;
+    public float fTimeNextFire2DeltaSpiral = 0.01f;
+    private float fAngleNextFire2Spiral;
+    public float fAngleNextFire2DeltaSpiral = 10f;
 
     // ------------------------------------------------------------------------------------------------
 
@@ -71,14 +80,19 @@ public class PlayerController : MonoBehaviour
         chargePlayer.sliCharge = GameObject.Find("Slider : Charge").GetComponent<Slider>();
         goGunLeftProjectileSpawnPoint = transform.Find("08_Gun_L/GunLeftProjectileSpawnPoint").gameObject;
         goGunRightProjectileSpawnPoint = transform.Find("08_Gun_R/GunRightProjectileSpawnPoint").gameObject;
+        goGunMiddleProjectileSpawnPoint = transform.Find("02_CockpitExtension/GunMiddleProjectileSpawnPoint").gameObject;
         fTimeNextFire1 = Time.time;
-        fTimeNextFire2 = Time.time;
+        fTimeNextFire2Spiral = Time.time;
+        fTimeNextFire2Straight = Time.time;
     }
 
     // ------------------------------------------------------------------------------------------------
 
     void Update()
     {
+
+        // ------------------------------------------------------------------------------------------------
+
         // Movement:
 
         fInputHorzMove = Input.GetAxis("Horizontal Move");
@@ -148,7 +162,7 @@ public class PlayerController : MonoBehaviour
 
         // ------------------------------------------------------------------------------------------------
 
-        // Damage:
+        // Damage: Fire1:
 
         if (    Input.GetButton("Fire1")
             &&  (Time.time >= fTimeNextFire1) )
@@ -168,30 +182,48 @@ public class PlayerController : MonoBehaviour
             fTimeNextFire1 = Time.time + fTimeNextFire1Delta;
         }
 
+        // ------------------------------------------------------------------------------------------------
+
+        // Damage: Fire2:
+
         if (    Input.GetButton("Fire2")
             &&  !bTriggeredFire2
             &&  (chargePlayer.iCharge == chargePlayer.iChargeMax) )
         {
             bTriggeredFire2 = true;
-            fAngleNextFire2 = transform.rotation.y;
+            fAngleNextFire2Spiral = transform.rotation.y;
         }
 
-        if (    bTriggeredFire2
-            &&  (Time.time >= fTimeNextFire2) )
+        if (bTriggeredFire2)
         {
-            for (int i=0; i<4; i++)
+            if (    (fire2Mode == Fire2Mode.straight)
+                &&  (Time.time >= fTimeNextFire2Straight) )
             {
                 GameObject goProjectileClone = Instantiate(
                     goProjectile,
-                    transform.position,
-                    Quaternion.Euler(0f, i*90f + fAngleNextFire2, 0f)
+                    goGunMiddleProjectileSpawnPoint.transform.position,
+                    transform.rotation
                 );
-                goProjectileClone.GetComponent<ProjectileController>().fForceMove = fForceMoveFire2;
+                goProjectileClone.GetComponent<ProjectileController>().fForceMove = fForceMoveFire2Straight;
+                fTimeNextFire2Straight = Time.time + fTimeNextFire2DeltaStraight;
             }
-            audioManager.sfxclpvolListProjectilePlayer[0].PlayOneShot();
-            fTimeNextFire2 = Time.time + fTimeNextFire2Delta;
-            fAngleNextFire2 += fAngleNextFire2Delta;
-            chargePlayer.Change(-1);
+            else if (   (fire2Mode == Fire2Mode.spiral)
+                    &&  (Time.time >= fTimeNextFire2Spiral) )
+            {
+                for (int i=0; i<4; i++)
+                {
+                    GameObject goProjectileClone = Instantiate(
+                        goProjectile,
+                        goGunMiddleProjectileSpawnPoint.transform.position,
+                        Quaternion.Euler(0f, i*90f + fAngleNextFire2Spiral - transform.rotation.y, 0f)
+                    );
+                    goProjectileClone.GetComponent<ProjectileController>().fForceMove = fForceMoveFire2Spiral;
+                }
+                fTimeNextFire2Spiral = Time.time + fTimeNextFire2DeltaSpiral;
+                fAngleNextFire2Spiral += fAngleNextFire2DeltaSpiral;
+            }
+            // audioManager.sfxclpvolListProjectilePlayer[0].PlayOneShot();
+            // chargePlayer.Change(-1);
             if (chargePlayer.iCharge == 0)
             {
                 bTriggeredFire2 = false;

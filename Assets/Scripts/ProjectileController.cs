@@ -5,7 +5,7 @@ using UnityEngine;
 public class ProjectileController : MonoBehaviour
 {
     // Movement:
-    public float fForceMove = 500f; // Player: 500; Enemy: 100
+    public float fForceMove = 200f; // Player: 200; Enemy: 100
     private Rigidbody rbProjectile;
 
     // Damage:
