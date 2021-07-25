@@ -429,8 +429,10 @@ MonoBehaviour:
   fTimeFlashDamaged: 0.1
   fRelativeMomentumBenchmark: 250000
   goProjectile: {fileID: 3262308912846389460, guid: 208adb6eee28344738120012deccca3a, type: 3}
-  fTimeNextFireDelta: 0.1
-  sfxclpProjectilePlayer: {fileID: 8300000, guid: a765109e0e9954bbfbec6ff4a77c527b, type: 3}
+  fTimeNextFire1Delta: 0.1
+  fTimeNextFire2Delta: 0.01
+  fAngleNextFire2Delta: 10
+  fForceMoveFire2: 50
 --- !u!114 &-2532333422705903093
 MonoBehaviour:
   m_ObjectHideFlags: 0

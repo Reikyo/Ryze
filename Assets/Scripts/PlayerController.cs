@@ -38,8 +38,16 @@ public class PlayerController : MonoBehaviour
     public GameObject goProjectile;
     private GameObject goGunLeftProjectileSpawnPoint;
     private GameObject goGunRightProjectileSpawnPoint;
-    private float fTimeNextFire;
-    public float fTimeNextFireDelta = 0.1f;
+
+    private float fTimeNextFire1;
+    public float fTimeNextFire1Delta = 0.1f;
+
+    private bool bTriggeredFire2 = false;
+    private float fTimeNextFire2;
+    public float fTimeNextFire2Delta = 0.01f;
+    private float fAngleNextFire2;
+    public float fAngleNextFire2Delta = 10f;
+    public float fForceMoveFire2 = 50f;
 
     // ------------------------------------------------------------------------------------------------
 
@@ -63,7 +71,8 @@ public class PlayerController : MonoBehaviour
         chargePlayer.sliCharge = GameObject.Find("Slider : Charge").GetComponent<Slider>();
         goGunLeftProjectileSpawnPoint = transform.Find("08_Gun_L/GunLeftProjectileSpawnPoint").gameObject;
         goGunRightProjectileSpawnPoint = transform.Find("08_Gun_R/GunRightProjectileSpawnPoint").gameObject;
-        fTimeNextFire = Time.time;
+        fTimeNextFire1 = Time.time;
+        fTimeNextFire2 = Time.time;
     }
 
     // ------------------------------------------------------------------------------------------------
@@ -141,23 +150,51 @@ public class PlayerController : MonoBehaviour
 
         // Damage:
 
-        if (Input.GetButton("Fire1"))
+        if (    Input.GetButton("Fire1")
+            &&  (Time.time >= fTimeNextFire1) )
         {
-            if (Time.time >= fTimeNextFire)
+            GameObject goProjectileClone1 = Instantiate(
+                goProjectile,
+                goGunLeftProjectileSpawnPoint.transform.position,
+                goGunLeftProjectileSpawnPoint.transform.rotation
+            );
+            GameObject goProjectileClone2 = Instantiate(
+                goProjectile,
+                goGunRightProjectileSpawnPoint.transform.position,
+                goGunRightProjectileSpawnPoint.transform.rotation
+            );
+            // audioManager.sfxclpvolListProjectilePlayer[UnityEngine.Random.Range(0, audioManager.sfxclpvolListProjectilePlayer.Count)].PlayOneShot();
+            audioManager.sfxclpvolListProjectilePlayer[0].PlayOneShot();
+            fTimeNextFire1 = Time.time + fTimeNextFire1Delta;
+        }
+
+        if (    Input.GetButton("Fire2")
+            &&  !bTriggeredFire2
+            &&  (chargePlayer.iCharge == chargePlayer.iChargeMax) )
+        {
+            bTriggeredFire2 = true;
+            fAngleNextFire2 = transform.rotation.y;
+        }
+
+        if (    bTriggeredFire2
+            &&  (Time.time >= fTimeNextFire2) )
+        {
+            for (int i=0; i<4; i++)
             {
-                GameObject goProjectileClone1 = Instantiate(
+                GameObject goProjectileClone = Instantiate(
                     goProjectile,
-                    goGunLeftProjectileSpawnPoint.transform.position,
-                    goGunLeftProjectileSpawnPoint.transform.rotation
+                    transform.position,
+                    Quaternion.Euler(0f, i*90f + fAngleNextFire2, 0f)
                 );
-                GameObject goProjectileClone2 = Instantiate(
-                    goProjectile,
-                    goGunRightProjectileSpawnPoint.transform.position,
-                    goGunRightProjectileSpawnPoint.transform.rotation
-                );
-                // audioManager.sfxclpvolListProjectilePlayer[UnityEngine.Random.Range(0, audioManager.sfxclpvolListProjectilePlayer.Count)].PlayOneShot();
-                audioManager.sfxclpvolListProjectilePlayer[0].PlayOneShot();
-                fTimeNextFire = Time.time + fTimeNextFireDelta;
+                goProjectileClone.GetComponent<ProjectileController>().fForceMove = fForceMoveFire2;
+            }
+            audioManager.sfxclpvolListProjectilePlayer[0].PlayOneShot();
+            fTimeNextFire2 = Time.time + fTimeNextFire2Delta;
+            fAngleNextFire2 += fAngleNextFire2Delta;
+            chargePlayer.Change(-1);
+            if (chargePlayer.iCharge == 0)
+            {
+                bTriggeredFire2 = false;
             }
         }
 
@@ -230,17 +267,8 @@ public class PlayerController : MonoBehaviour
             //   1,000 kg asteroid with relative speed of 1 ms^-1 => relative momentum = 1 kg ms^-1
             //   5,000 kg asteroid with relative speed of 50 ms^-1 => relative momentum = 250,000 kg ms^-1
             fRelativeMomentum = collision.rigidbody.mass * collision.relativeVelocity.magnitude;
+            fRelativeMomentum *= 0.01f; // Adjustment to reduce damage done to player, still tweaking to get a good balance ...
             healthPlayer.Change(-(int)Math.Ceiling(collision.gameObject.GetComponent<AsteroidController>().iDamage * fRelativeMomentum / fRelativeMomentumBenchmark));
-            StartCoroutine(FlashDamaged());
-            if (healthPlayer.iHealth == 0)
-            {
-                gameManager.GameOver();
-            }
-            return;
-        }
-        if (collision.gameObject.CompareTag("ProjectileEnemy"))
-        {
-            healthPlayer.Change(-collision.gameObject.GetComponent<ProjectileController>().iDamage);
             StartCoroutine(FlashDamaged());
             if (healthPlayer.iHealth == 0)
             {
@@ -266,6 +294,23 @@ public class PlayerController : MonoBehaviour
                 audioManager.sfxclpvolPowerUpCharge.PlayOneShot();
                 Destroy(collision.gameObject);
             }
+            return;
+        }
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
+    private void OnTriggerEnter(Collider collider)
+    {
+        if (collider.gameObject.CompareTag("ProjectileEnemy"))
+        {
+            healthPlayer.Change(-collider.gameObject.GetComponent<ProjectileController>().iDamage);
+            Destroy(collider.gameObject);
+            if (healthPlayer.iHealth == 0)
+            {
+                gameManager.GameOver();
+            }
+            StartCoroutine(FlashDamaged());
             return;
         }
     }

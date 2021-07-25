@@ -5,12 +5,11 @@ using UnityEngine;
 public class ProjectileController : MonoBehaviour
 {
     // Movement:
-    public float fForceMove = 500f;
+    public float fForceMove = 500f; // Player: 500; Enemy: 100
     private Rigidbody rbProjectile;
 
     // Damage:
-    public int iDamage = 10;
-    public string sNameOwner;
+    public int iDamage = 10; // Player: 10; Enemy: 10
 
     // ------------------------------------------------------------------------------------------------
 
@@ -18,16 +17,6 @@ public class ProjectileController : MonoBehaviour
     {
         rbProjectile = GetComponent<Rigidbody>();
         rbProjectile.AddRelativeForce(fForceMove * Vector3.forward, ForceMode.Impulse);
-    }
-
-    // ------------------------------------------------------------------------------------------------
-
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (!collision.gameObject.CompareTag(sNameOwner))
-        {
-            Destroy(gameObject);
-        }
     }
 
     // ------------------------------------------------------------------------------------------------

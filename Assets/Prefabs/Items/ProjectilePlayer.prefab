@@ -110,10 +110,10 @@ SphereCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3262308912846389460}
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.5
+  m_Radius: 1
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &4796349952209833270
 MonoBehaviour:
@@ -129,7 +129,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   fForceMove: 500
   iDamage: 10
-  sNameOwner: Player
 --- !u!114 &-7309187314132598160
 MonoBehaviour:
   m_ObjectHideFlags: 0

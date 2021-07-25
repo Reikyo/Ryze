@@ -4047,7 +4047,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c75724b9a4af248d0851575397648d78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fMetresPerSecMove: 10
+  fMetresPerSecMove: 30
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0
@@ -7529,6 +7529,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76dc4361da12443b3a406a2d3de5245b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  iIdx_sfxclpvolListMusic: 0
 --- !u!82 &1855832996
 AudioSource:
   m_ObjectHideFlags: 0

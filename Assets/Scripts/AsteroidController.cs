@@ -18,7 +18,7 @@ public class AsteroidController : MonoBehaviour
     public float fTimeFlashDamaged = 0.1f;
 
     // Damage:
-    public int iDamage = 1;
+    public int iDamage = 10;
 
     // ------------------------------------------------------------------------------------------------
 
@@ -54,12 +54,13 @@ public class AsteroidController : MonoBehaviour
 
     // ------------------------------------------------------------------------------------------------
 
-    private void OnCollisionEnter(Collision collision)
+    private void OnTriggerEnter(Collider collider)
     {
-        if (    collision.gameObject.CompareTag("ProjectilePlayer")
-            ||  collision.gameObject.CompareTag("ProjectileEnemy") )
+        if (    collider.gameObject.CompareTag("ProjectilePlayer")
+            ||  collider.gameObject.CompareTag("ProjectileEnemy") )
         {
-            healthAsteroid.Change(-collision.gameObject.GetComponent<ProjectileController>().iDamage);
+            healthAsteroid.Change(-collider.gameObject.GetComponent<ProjectileController>().iDamage);
+            Destroy(collider.gameObject);
             if (healthAsteroid.iHealth == 0)
             {
                 spawnManager.SpawnExplosionAsteroid(transform.position);

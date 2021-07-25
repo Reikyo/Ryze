@@ -101,7 +101,6 @@ public class EnemyController : MonoBehaviour
                     goGunMiddleProjectileSpawnPoint.transform.position,
                     goGunMiddleProjectileSpawnPoint.transform.rotation
                 );
-                goProjectileClone.GetComponent<ProjectileController>().fForceMove = 100f;
                 audioManager.sfxclpvolListProjectileEnemy[UnityEngine.Random.Range(0, audioManager.sfxclpvolListProjectileEnemy.Count)].PlayOneShot();
                 iNumFire += 1;
                 if (iNumFire < iNumFireBurst)
@@ -196,18 +195,19 @@ public class EnemyController : MonoBehaviour
 
     // ------------------------------------------------------------------------------------------------
 
-    private void OnCollisionEnter(Collision collision)
+    private void OnTriggerEnter(Collider collider)
     {
-        if (collision.gameObject.CompareTag("ProjectilePlayer"))
+        if (collider.gameObject.CompareTag("ProjectilePlayer"))
         {
-            healthEnemy.Change(-collision.gameObject.GetComponent<ProjectileController>().iDamage);
+            healthEnemy.Change(-collider.gameObject.GetComponent<ProjectileController>().iDamage);
+            Destroy(collider.gameObject);
             if (    (healthEnemy.iHealth == 0)
                 &&  (!bDestroyTriggered) )
             {
                 bDestroyTriggered = true;
                 spawnManager.iNumEnemy -= 1;
                 gameManager.ChangeScore(iScoreDelta);
-                if (Random.Range(0, 10) >= 5)
+                if (Random.Range(0, 10) >= 3)
                 {
                     if (Random.Range(0, 10) >= 5)
                     {
@@ -222,6 +222,7 @@ public class EnemyController : MonoBehaviour
                 Destroy(gameObject);
             }
             StartCoroutine(FlashDamaged());
+            return;
         }
     }
 

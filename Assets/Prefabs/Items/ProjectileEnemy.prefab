@@ -31,7 +31,7 @@ Transform:
   m_GameObject: {fileID: 3262308912846389460}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 1, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 2, y: 2, z: 2}
   m_Children:
   - {fileID: 5065955202749645047}
   m_Father: {fileID: 0}
@@ -110,7 +110,7 @@ SphereCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3262308912846389460}
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
   m_Radius: 0.5
@@ -127,9 +127,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 14bc06f8fdb9a4e0b8c23ed30fadc49d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fForceMove: 500
+  fForceMove: 100
   iDamage: 10
-  sNameOwner: Enemy
 --- !u!114 &-7309187314132598160
 MonoBehaviour:
   m_ObjectHideFlags: 0
