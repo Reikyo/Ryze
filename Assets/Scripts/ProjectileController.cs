@@ -8,6 +8,9 @@ public class ProjectileController : MonoBehaviour
     public float fForceMove = 200f; // Player: 200; Enemy: 100
     private Rigidbody rbProjectile;
 
+    // Health:
+    public bool bTriggeredDestroy = false;
+
     // Damage:
     public int iDamage = 10; // Player: 10; Enemy: 10
 

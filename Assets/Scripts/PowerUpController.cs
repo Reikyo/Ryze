@@ -6,13 +6,18 @@ using UnityEngine;
 public class PowerUpController : MonoBehaviour
 {
     public int iValue = 20;
-    public TextMeshProUGUI guiLabel1;
-    public TextMeshProUGUI guiLabel2;
-    public TextMeshProUGUI guiLabel3;
 
     // Movement:
     private float fDegreesPerSecond = 90f;
     private float fDegreesPerFrame;
+
+    // Appearance:
+    public TextMeshProUGUI guiLabel1;
+    public TextMeshProUGUI guiLabel2;
+    public TextMeshProUGUI guiLabel3;
+
+    // Health:
+    public bool bTriggeredDestroy = false;
 
     // ------------------------------------------------------------------------------------------------
 

@@ -5,7 +5,7 @@ using UnityEngine;
 public class SkyController : MonoBehaviour
 {
     // Movement:
-    public float fMetresPerSecMove = 10f;
+    public float fMetresPerSecMove = 30f;
 
     // ------------------------------------------------------------------------------------------------
 

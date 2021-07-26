@@ -16,6 +16,7 @@ public class AsteroidController : MonoBehaviour
     // Health:
     private Health healthAsteroid;
     public float fTimeFlashDamaged = 0.1f;
+    private bool bTriggeredDestroy = false;
 
     // Damage:
     public int iDamage = 10;
@@ -56,17 +57,25 @@ public class AsteroidController : MonoBehaviour
 
     private void OnTriggerEnter(Collider collider)
     {
-        if (    collider.gameObject.CompareTag("ProjectilePlayer")
-            ||  collider.gameObject.CompareTag("ProjectileEnemy") )
+        if (    (collider.gameObject.CompareTag("ProjectilePlayer"))
+            ||  (collider.gameObject.CompareTag("ProjectileEnemy")) )
         {
-            healthAsteroid.Change(-collider.gameObject.GetComponent<ProjectileController>().iDamage);
-            Destroy(collider.gameObject);
-            if (healthAsteroid.iHealth == 0)
+            ProjectileController projectileController = collider.gameObject.GetComponent<ProjectileController>();
+            if (!projectileController.bTriggeredDestroy)
             {
-                spawnManager.SpawnExplosionAsteroid(transform.position);
-                Destroy(gameObject);
+                projectileController.bTriggeredDestroy = true;
+                healthAsteroid.Change(-projectileController.iDamage);
+                Destroy(collider.gameObject);
+                if (    (healthAsteroid.iHealth == 0)
+                    &&  (!bTriggeredDestroy) )
+                {
+                    bTriggeredDestroy = true;
+                    spawnManager.SpawnExplosionAsteroid(transform.position);
+                    Destroy(gameObject);
+                }
+                StartCoroutine(FlashDamaged());
             }
-            StartCoroutine(FlashDamaged());
+            return;
         }
     }
 

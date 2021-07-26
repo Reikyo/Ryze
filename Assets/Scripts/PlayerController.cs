@@ -164,7 +164,7 @@ public class PlayerController : MonoBehaviour
 
         // Damage: Fire1:
 
-        if (    Input.GetButton("Fire1")
+        if (    (Input.GetButton("Fire1"))
             &&  (Time.time >= fTimeNextFire1) )
         {
             GameObject goProjectileClone1 = Instantiate(
@@ -186,12 +186,15 @@ public class PlayerController : MonoBehaviour
 
         // Damage: Fire2:
 
-        if (    Input.GetButton("Fire2")
-            &&  !bTriggeredFire2
+        if (    (Input.GetButton("Fire2"))
+            &&  (!bTriggeredFire2)
             &&  (chargePlayer.iCharge == chargePlayer.iChargeMax) )
         {
             bTriggeredFire2 = true;
-            fAngleNextFire2Spiral = transform.rotation.y;
+            if (fire2Mode == Fire2Mode.spiral)
+            {
+                fAngleNextFire2Spiral = 0f;
+            }
         }
 
         if (bTriggeredFire2)
@@ -215,15 +218,15 @@ public class PlayerController : MonoBehaviour
                     GameObject goProjectileClone = Instantiate(
                         goProjectile,
                         goGunMiddleProjectileSpawnPoint.transform.position,
-                        Quaternion.Euler(0f, i*90f + fAngleNextFire2Spiral - transform.rotation.y, 0f)
+                        Quaternion.Euler(0f, i*90f + fAngleNextFire2Spiral + transform.rotation.eulerAngles.y, 0f)
                     );
                     goProjectileClone.GetComponent<ProjectileController>().fForceMove = fForceMoveFire2Spiral;
                 }
                 fTimeNextFire2Spiral = Time.time + fTimeNextFire2DeltaSpiral;
                 fAngleNextFire2Spiral += fAngleNextFire2DeltaSpiral;
             }
-            // audioManager.sfxclpvolListProjectilePlayer[0].PlayOneShot();
-            // chargePlayer.Change(-1);
+            audioManager.sfxclpvolListProjectilePlayer[0].PlayOneShot();
+            chargePlayer.Change(-1);
             if (chargePlayer.iCharge == 0)
             {
                 bTriggeredFire2 = false;
@@ -310,21 +313,27 @@ public class PlayerController : MonoBehaviour
         }
         if (collision.gameObject.CompareTag("PowerUpHealth"))
         {
-            if (healthPlayer.iHealth < healthPlayer.iHealthMax)
+            PowerUpController powerUpController = collision.gameObject.GetComponent<PowerUpController>();
+            if (    (healthPlayer.iHealth < healthPlayer.iHealthMax)
+                &&  (!powerUpController.bTriggeredDestroy) )
             {
-                healthPlayer.Change(collision.gameObject.GetComponent<PowerUpController>().iValue);
-                audioManager.sfxclpvolPowerUpHealth.PlayOneShot();
+                powerUpController.bTriggeredDestroy = true;
+                healthPlayer.Change(powerUpController.iValue);
                 Destroy(collision.gameObject);
+                audioManager.sfxclpvolPowerUpHealth.PlayOneShot();
             }
             return;
         }
         if (collision.gameObject.CompareTag("PowerUpCharge"))
         {
-            if (chargePlayer.iCharge < chargePlayer.iChargeMax)
+            PowerUpController powerUpController = collision.gameObject.GetComponent<PowerUpController>();
+            if (    (chargePlayer.iCharge < chargePlayer.iChargeMax)
+                &&  (!powerUpController.bTriggeredDestroy) )
             {
-                chargePlayer.Change(collision.gameObject.GetComponent<PowerUpController>().iValue);
-                audioManager.sfxclpvolPowerUpCharge.PlayOneShot();
+                powerUpController.bTriggeredDestroy = true;
+                chargePlayer.Change(powerUpController.iValue);
                 Destroy(collision.gameObject);
+                audioManager.sfxclpvolPowerUpCharge.PlayOneShot();
             }
             return;
         }
@@ -336,13 +345,19 @@ public class PlayerController : MonoBehaviour
     {
         if (collider.gameObject.CompareTag("ProjectileEnemy"))
         {
-            healthPlayer.Change(-collider.gameObject.GetComponent<ProjectileController>().iDamage);
-            Destroy(collider.gameObject);
-            if (healthPlayer.iHealth == 0)
+            ProjectileController projectileController = collider.gameObject.GetComponent<ProjectileController>();
+            if (!projectileController.bTriggeredDestroy)
             {
-                gameManager.GameOver();
+                projectileController.bTriggeredDestroy = true;
+                healthPlayer.Change(-projectileController.iDamage);
+                Destroy(collider.gameObject);
+                if (    (healthPlayer.iHealth == 0)
+                    &&  (gameManager.bInPlay) )
+                {
+                    gameManager.GameOver();
+                }
+                StartCoroutine(FlashDamaged());
             }
-            StartCoroutine(FlashDamaged());
             return;
         }
     }

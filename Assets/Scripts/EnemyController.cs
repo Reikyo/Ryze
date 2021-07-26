@@ -26,7 +26,7 @@ public class EnemyController : MonoBehaviour
     // Health:
     private Health healthEnemy;
     public float fTimeFlashDamaged = 0.1f;
-    private bool bDestroyTriggered = false;
+    private bool bTriggeredDestroy = false;
 
     // Damage:
     public GameObject goProjectile;
@@ -199,29 +199,34 @@ public class EnemyController : MonoBehaviour
     {
         if (collider.gameObject.CompareTag("ProjectilePlayer"))
         {
-            healthEnemy.Change(-collider.gameObject.GetComponent<ProjectileController>().iDamage);
-            Destroy(collider.gameObject);
-            if (    (healthEnemy.iHealth == 0)
-                &&  (!bDestroyTriggered) )
+            ProjectileController projectileController = collider.gameObject.GetComponent<ProjectileController>();
+            if (!projectileController.bTriggeredDestroy)
             {
-                bDestroyTriggered = true;
-                spawnManager.iNumEnemy -= 1;
-                gameManager.ChangeScore(iScoreDelta);
-                if (Random.Range(0, 10) >= 3)
+                projectileController.bTriggeredDestroy = true;
+                healthEnemy.Change(-projectileController.iDamage);
+                Destroy(collider.gameObject);
+                if (    (healthEnemy.iHealth == 0)
+                    &&  (!bTriggeredDestroy) )
                 {
-                    if (Random.Range(0, 10) >= 5)
+                    bTriggeredDestroy = true;
+                    gameManager.ChangeScore(iScoreDelta);
+                    spawnManager.iNumEnemy -= 1;
+                    spawnManager.SpawnExplosionEnemy(transform.position);
+                    if (Random.Range(0, 10) >= 3)
                     {
-                        spawnManager.SpawnPowerUpHealth(transform.position);
+                        if (Random.Range(0, 10) >= 5)
+                        {
+                            spawnManager.SpawnPowerUpHealth(transform.position);
+                        }
+                        else
+                        {
+                            spawnManager.SpawnPowerUpCharge(transform.position);
+                        }
                     }
-                    else
-                    {
-                        spawnManager.SpawnPowerUpCharge(transform.position);
-                    }
+                    Destroy(gameObject);
                 }
-                spawnManager.SpawnExplosionEnemy(transform.position);
-                Destroy(gameObject);
+                StartCoroutine(FlashDamaged());
             }
-            StartCoroutine(FlashDamaged());
             return;
         }
     }
