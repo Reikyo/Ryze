@@ -16,7 +16,7 @@ public class PlayerController : MonoBehaviour
     private float fInputHorzLook;
     private float fInputVertLook;
     private Rigidbody rbPlayer;
-    public float fForceMove = 1e7f;
+    public float fForceMove = 4e7f;
     public float fForceMoveDeltaBoost = 1e4f;
     public float fAngSpeedMove = 5f;
     // public float fMetresPerSecMove = 100f;
@@ -40,23 +40,27 @@ public class PlayerController : MonoBehaviour
     private GameObject goGunRightProjectileSpawnPoint;
     private GameObject goGunMiddleProjectileSpawnPoint;
 
-    private float fTimeNextFire1;
-    public float fTimeNextFire1Delta = 0.1f;
+    private bool bTriggeredAttack1Lock = false;
+    private float fTimeNextAttack1;
+    public float fTimeDeltaAttack1 = 0.1f;
 
-    public enum Fire2Mode {straight, spiral};
-    public Fire2Mode fire2Mode;
+    public enum Attack2Mode {straight, spiral};
+    public Attack2Mode attack2Mode;
+    private int iIdxLastAttack2Mode = Enum.GetNames(typeof(Attack2Mode)).Length - 1;
 
-    private bool bTriggeredFire2 = false;
+    private bool bTriggeredAttack2 = false;
+    private float fTimeNextAttack2;
+    private float fTimeNextAttack2Decharge;
+    private float fAngleNextAttack2;
 
-    public float fForceMoveFire2Straight = 200f;
-    private float fTimeNextFire2Straight;
-    public float fTimeNextFire2DeltaStraight = 0.01f;
+    public float fForceMoveAttack2ModeStraight = 400f;
+    public float fTimeDeltaAttack2ModeStraight = 0.01f;
+    public float fTimeDeltaAttack2DechargeModeStraight = 0.02f;
 
-    public float fForceMoveFire2Spiral = 50f;
-    private float fTimeNextFire2Spiral;
-    public float fTimeNextFire2DeltaSpiral = 0.01f;
-    private float fAngleNextFire2Spiral;
-    public float fAngleNextFire2DeltaSpiral = 10f;
+    public float fForceMoveAttack2ModeSpiral = 50f;
+    public float fTimeDeltaAttack2ModeSpiral = 0.01f;
+    public float fTimeDeltaAttack2DechargeModeSpiral = 0.02f;
+    public float fAngleDeltaAttack2ModeSpiral = 10f;
 
     // ------------------------------------------------------------------------------------------------
 
@@ -81,9 +85,7 @@ public class PlayerController : MonoBehaviour
         goGunLeftProjectileSpawnPoint = transform.Find("08_Gun_L/GunLeftProjectileSpawnPoint").gameObject;
         goGunRightProjectileSpawnPoint = transform.Find("08_Gun_R/GunRightProjectileSpawnPoint").gameObject;
         goGunMiddleProjectileSpawnPoint = transform.Find("02_CockpitExtension/GunMiddleProjectileSpawnPoint").gameObject;
-        fTimeNextFire1 = Time.time;
-        fTimeNextFire2Spiral = Time.time;
-        fTimeNextFire2Straight = Time.time;
+        fTimeNextAttack1 = Time.time;
     }
 
     // ------------------------------------------------------------------------------------------------
@@ -126,15 +128,17 @@ public class PlayerController : MonoBehaviour
         {
             // fInputHorzMove *= -1f; // This doesn't work so well, gives bouncy behaviour at move limits
             fInputHorzMove = 0f;
-            rbPlayer.AddForce(30f * rbPlayer.mass * new Vector3(-rbPlayer.velocity.x, 0f, 0f));
+            rbPlayer.AddForce(150f * rbPlayer.mass * new Vector3(-rbPlayer.velocity.x, 0f, 0f));
         }
         if (    ((fInputVertMove < 0) && (transform.position.z <= gameManager.v3MoveLimitLowerLeft.z))
             ||  ((fInputVertMove > 0) && (transform.position.z >= gameManager.v3MoveLimitUpperRight.z)) )
         {
             // fInputVertMove *= -1f; // This doesn't work so well, gives bouncy behaviour at move limits
             fInputVertMove = 0f;
-            rbPlayer.AddForce(30f * rbPlayer.mass * new Vector3(0f, 0f, -rbPlayer.velocity.z));
+            rbPlayer.AddForce(150f * rbPlayer.mass * new Vector3(0f, 0f, -rbPlayer.velocity.z));
         }
+
+        // ------------------------------------------------------------------------------------------------
 
         if (Math.Abs(fInputHorzMove) + Math.Abs(fInputVertMove) > 0f)
         {
@@ -148,8 +152,6 @@ public class PlayerController : MonoBehaviour
 
         // ------------------------------------------------------------------------------------------------
 
-        // Look:
-
         fInputHorzLook = Input.GetAxis("Horizontal Look");
         fInputVertLook = Input.GetAxis("Vertical Look");
 
@@ -162,74 +164,40 @@ public class PlayerController : MonoBehaviour
 
         // ------------------------------------------------------------------------------------------------
 
-        // Damage: Fire1:
+        // Damage: Attack1:
 
-        if (    (Input.GetButton("Fire1"))
-            &&  (Time.time >= fTimeNextFire1) )
+        if (Input.GetButtonDown("Attack1 Lock"))
         {
-            GameObject goProjectileClone1 = Instantiate(
-                goProjectile,
-                goGunLeftProjectileSpawnPoint.transform.position,
-                goGunLeftProjectileSpawnPoint.transform.rotation
-            );
-            GameObject goProjectileClone2 = Instantiate(
-                goProjectile,
-                goGunRightProjectileSpawnPoint.transform.position,
-                goGunRightProjectileSpawnPoint.transform.rotation
-            );
-            // audioManager.sfxclpvolListProjectilePlayer[UnityEngine.Random.Range(0, audioManager.sfxclpvolListProjectilePlayer.Count)].PlayOneShot();
-            audioManager.sfxclpvolListProjectilePlayer[0].PlayOneShot();
-            fTimeNextFire1 = Time.time + fTimeNextFire1Delta;
+            bTriggeredAttack1Lock = !bTriggeredAttack1Lock;
         }
 
         // ------------------------------------------------------------------------------------------------
 
-        // Damage: Fire2:
+        // Damage: Attack2:
 
-        if (    (Input.GetButton("Fire2"))
-            &&  (!bTriggeredFire2)
-            &&  (chargePlayer.iCharge == chargePlayer.iChargeMax) )
+        if (Input.GetButtonDown("Attack2 Mode"))
         {
-            bTriggeredFire2 = true;
-            if (fire2Mode == Fire2Mode.spiral)
+            if ((int)attack2Mode == iIdxLastAttack2Mode)
             {
-                fAngleNextFire2Spiral = 0f;
+                attack2Mode = (Attack2Mode)(0);
+            }
+            else
+            {
+                attack2Mode = (Attack2Mode)((int)attack2Mode + 1);
             }
         }
 
-        if (bTriggeredFire2)
+        if (    (Input.GetButtonDown("Attack2"))
+            &&  (!bTriggeredAttack2)
+            &&  (chargePlayer.iCharge == chargePlayer.iChargeMax) )
         {
-            if (    (fire2Mode == Fire2Mode.straight)
-                &&  (Time.time >= fTimeNextFire2Straight) )
+            bTriggeredAttack2 = true;
+            fTimeNextAttack2 = 0f;
+            fAngleNextAttack2 = 0f;
+            switch (attack2Mode)
             {
-                GameObject goProjectileClone = Instantiate(
-                    goProjectile,
-                    goGunMiddleProjectileSpawnPoint.transform.position,
-                    transform.rotation
-                );
-                goProjectileClone.GetComponent<ProjectileController>().fForceMove = fForceMoveFire2Straight;
-                fTimeNextFire2Straight = Time.time + fTimeNextFire2DeltaStraight;
-            }
-            else if (   (fire2Mode == Fire2Mode.spiral)
-                    &&  (Time.time >= fTimeNextFire2Spiral) )
-            {
-                for (int i=0; i<4; i++)
-                {
-                    GameObject goProjectileClone = Instantiate(
-                        goProjectile,
-                        goGunMiddleProjectileSpawnPoint.transform.position,
-                        Quaternion.Euler(0f, i*90f + fAngleNextFire2Spiral + transform.rotation.eulerAngles.y, 0f)
-                    );
-                    goProjectileClone.GetComponent<ProjectileController>().fForceMove = fForceMoveFire2Spiral;
-                }
-                fTimeNextFire2Spiral = Time.time + fTimeNextFire2DeltaSpiral;
-                fAngleNextFire2Spiral += fAngleNextFire2DeltaSpiral;
-            }
-            audioManager.sfxclpvolListProjectilePlayer[0].PlayOneShot();
-            chargePlayer.Change(-1);
-            if (chargePlayer.iCharge == 0)
-            {
-                bTriggeredFire2 = false;
+                case Attack2Mode.straight: fTimeNextAttack2Decharge = Time.time + fTimeDeltaAttack2DechargeModeStraight; break;
+                case Attack2Mode.spiral: fTimeNextAttack2Decharge = Time.time + fTimeDeltaAttack2DechargeModeSpiral; break;
             }
         }
 
@@ -261,6 +229,99 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.K))
         {
             chargePlayer.Change(-10);
+        }
+
+        // ------------------------------------------------------------------------------------------------
+
+    }
+
+    void FixedUpdate()
+    {
+
+        // ------------------------------------------------------------------------------------------------
+
+        // Damage: Attack1:
+
+        if (    (   (Input.GetButton("Attack1"))
+                ||  (bTriggeredAttack1Lock) )
+            &&  (Time.time >= fTimeNextAttack1) )
+        {
+            GameObject goProjectileClone1 = Instantiate(
+                goProjectile,
+                goGunLeftProjectileSpawnPoint.transform.position,
+                goGunLeftProjectileSpawnPoint.transform.rotation
+            );
+            GameObject goProjectileClone2 = Instantiate(
+                goProjectile,
+                goGunRightProjectileSpawnPoint.transform.position,
+                goGunRightProjectileSpawnPoint.transform.rotation
+            );
+            // audioManager.sfxclpvolListProjectilePlayer[UnityEngine.Random.Range(0, audioManager.sfxclpvolListProjectilePlayer.Count)].PlayOneShot();
+            audioManager.sfxclpvolListProjectilePlayer[0].PlayOneShot();
+            fTimeNextAttack1 = Time.time + fTimeDeltaAttack1;
+        }
+
+        // ------------------------------------------------------------------------------------------------
+
+        // Damage: Attack2:
+
+        if (bTriggeredAttack2)
+        {
+
+            // ------------------------------------------------------------------------------------------------
+
+            if (Time.time >= fTimeNextAttack2)
+            {
+                if (attack2Mode == Attack2Mode.straight)
+                {
+                    GameObject goProjectileClone = Instantiate(
+                        goProjectile,
+                        goGunMiddleProjectileSpawnPoint.transform.position,
+                        transform.rotation
+                    );
+                    goProjectileClone.GetComponent<ProjectileController>().fForceMove = fForceMoveAttack2ModeStraight;
+
+                    fTimeNextAttack2 = Time.time + fTimeDeltaAttack2ModeStraight;
+                }
+                else if (attack2Mode == Attack2Mode.spiral)
+                {
+                    for (int i=0; i<4; i++)
+                    {
+                        GameObject goProjectileClone = Instantiate(
+                            goProjectile,
+                            goGunMiddleProjectileSpawnPoint.transform.position,
+                            Quaternion.Euler(0f, i*90f + fAngleNextAttack2 + transform.rotation.eulerAngles.y, 0f)
+                        );
+                        goProjectileClone.GetComponent<ProjectileController>().fForceMove = fForceMoveAttack2ModeSpiral;
+                    }
+
+                    fTimeNextAttack2 = Time.time + fTimeDeltaAttack2ModeSpiral;
+                    fAngleNextAttack2 += fAngleDeltaAttack2ModeSpiral;
+                }
+            }
+
+            // ------------------------------------------------------------------------------------------------
+
+            if (Time.time >= fTimeNextAttack2Decharge)
+            {
+                chargePlayer.Change(-1);
+                // audioManager.sfxclpvolListProjectilePlayer[0].PlayOneShot();
+                if (chargePlayer.iCharge == 0)
+                {
+                    bTriggeredAttack2 = false;
+                }
+                else
+                {
+                    switch (attack2Mode)
+                    {
+                        case Attack2Mode.straight: fTimeNextAttack2Decharge = Time.time + fTimeDeltaAttack2DechargeModeStraight; break;
+                        case Attack2Mode.spiral: fTimeNextAttack2Decharge = Time.time + fTimeDeltaAttack2DechargeModeSpiral; break;
+                    }
+                }
+            }
+
+            // ------------------------------------------------------------------------------------------------
+
         }
 
         // ------------------------------------------------------------------------------------------------

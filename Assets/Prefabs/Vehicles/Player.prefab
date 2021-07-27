@@ -453,19 +453,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caf6a3b21031b4db3a4ca78d881b5711, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fForceMove: 10000000
+  fForceMove: 40000000
   fForceMoveDeltaBoost: 10000
   fAngSpeedMove: 5
   fTimeFlashDamaged: 0.1
   fRelativeMomentumBenchmark: 250000
   goProjectile: {fileID: 3262308912846389460, guid: 208adb6eee28344738120012deccca3a, type: 3}
-  fTimeNextFire1Delta: 0.1
-  fire2Mode: 0
-  fForceMoveFire2Wheel: 50
-  fTimeNextFire2DeltaWheel: 0.01
-  fAngleNextFire2DeltaWheel: 10
-  fForceMoveFire2Straight: 200
-  fTimeNextFire2DeltaStraight: 0.01
+  fTimeDeltaAttack1: 0.1
+  attack2Mode: 0
+  fTimeDeltaAttack2Decharge: 0.02
+  fForceMoveAttack2ModeStraight: 400
+  fTimeDeltaAttack2ModeStraight: 0.01
+  fForceMoveAttack2ModeSpiral: 50
+  fTimeDeltaAttack2ModeSpiral: 0.01
+  fAngleDeltaAttack2ModeSpiral: 10
 --- !u!114 &-2532333422705903093
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -128,6 +128,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fForceMove: 200
+  bTriggeredDestroy: 0
   iDamage: 10
 --- !u!114 &-7309187314132598160
 MonoBehaviour:

@@ -31,13 +31,13 @@ public class EnemyController : MonoBehaviour
     // Damage:
     public GameObject goProjectile;
     private GameObject goGunMiddleProjectileSpawnPoint;
-    private int iNumFire = 0;
-    private int iNumFireBurst;
-    public int iNumFireBurstMax = 5;
-    private float fTimeNextFire;
-    public float fTimeNextFireDelta = 0.5f;
-    public float fTimeNextFireDeltaBurstMin = 2f;
-    public float fTimeNextFireDeltaBurstMax = 5f;
+    private int iNumAttack = 0;
+    private int iNumAttackBurst;
+    public int iNumMaxAttackBurst = 5;
+    private float fTimeNextAttack;
+    public float fTimeDeltaAttack = 0.5f;
+    public float fTimeDeltaMinAttackBurst = 2f;
+    public float fTimeDeltaMaxAttackBurst = 5f;
 
     // Score:
     public int iScoreDelta = 10;
@@ -60,8 +60,8 @@ public class EnemyController : MonoBehaviour
         healthEnemy = GetComponent<Health>();
 
         goGunMiddleProjectileSpawnPoint = transform.Find("Chasis/GunMiddleProjectileSpawnPoint").gameObject;
-        iNumFireBurst = Random.Range(1, iNumFireBurstMax+1);
-        fTimeNextFire = Time.time + Random.Range(fTimeNextFireDeltaBurstMin, fTimeNextFireDeltaBurstMax);
+        iNumAttackBurst = Random.Range(1, iNumMaxAttackBurst+1);
+        fTimeNextAttack = Time.time + Random.Range(fTimeDeltaMinAttackBurst, fTimeDeltaMaxAttackBurst);
 
         goPlayer = GameObject.FindWithTag("Player");
 
@@ -94,7 +94,7 @@ public class EnemyController : MonoBehaviour
 
         if (v3PositionRelativeLook.magnitude <= 200f)
         {
-            if (Time.time >= fTimeNextFire)
+            if (Time.time >= fTimeNextAttack)
             {
                 GameObject goProjectileClone = Instantiate(
                     goProjectile,
@@ -102,16 +102,16 @@ public class EnemyController : MonoBehaviour
                     goGunMiddleProjectileSpawnPoint.transform.rotation
                 );
                 audioManager.sfxclpvolListProjectileEnemy[UnityEngine.Random.Range(0, audioManager.sfxclpvolListProjectileEnemy.Count)].PlayOneShot();
-                iNumFire += 1;
-                if (iNumFire < iNumFireBurst)
+                iNumAttack += 1;
+                if (iNumAttack < iNumAttackBurst)
                 {
-                    fTimeNextFire = Time.time + fTimeNextFireDelta;
+                    fTimeNextAttack = Time.time + fTimeDeltaAttack;
                 }
                 else
                 {
-                    iNumFire = 0;
-                    iNumFireBurst = Random.Range(1, iNumFireBurstMax+1);
-                    fTimeNextFire = Time.time + Random.Range(fTimeNextFireDeltaBurstMin, fTimeNextFireDeltaBurstMax);
+                    iNumAttack = 0;
+                    iNumAttackBurst = Random.Range(1, iNumMaxAttackBurst+1);
+                    fTimeNextAttack = Time.time + Random.Range(fTimeDeltaMinAttackBurst, fTimeDeltaMaxAttackBurst);
                 }
             }
         }

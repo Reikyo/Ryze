@@ -15,7 +15,7 @@ public class StarController : MonoBehaviour
         rbStar.AddForce(
             0f,
             0f,
-            UnityEngine.Random.Range(-2e6f, -1e7f)
+            UnityEngine.Random.Range(-3.6e3f, -5e3f) // Lower value just matches 30ms^-1 background movement, upper value chosen by eye
         );
     }
 
