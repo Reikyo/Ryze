@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.UI;
 
 public class EnemyController : MonoBehaviour
 {
@@ -25,6 +26,7 @@ public class EnemyController : MonoBehaviour
 
     // Health:
     private Health healthEnemy;
+    private RectTransform rtCanvasHealth;
     public float fTimeFlashDamaged = 0.1f;
     private bool bTriggeredDestroy = false;
 
@@ -58,6 +60,8 @@ public class EnemyController : MonoBehaviour
         matEnemy = transform.Find("Chasis").gameObject.GetComponent<Renderer>().material;
 
         healthEnemy = GetComponent<Health>();
+        healthEnemy.sliHealth = transform.Find("Canvas : Health/Slider : Health").GetComponent<Slider>();
+        rtCanvasHealth = transform.Find("Canvas : Health").GetComponent<RectTransform>();
 
         goGunMiddleProjectileSpawnPoint = transform.Find("Chasis/GunMiddleProjectileSpawnPoint").gameObject;
         iNumAttackBurst = Random.Range(1, iNumMaxAttackBurst+1);
@@ -72,6 +76,9 @@ public class EnemyController : MonoBehaviour
 
     void Update()
     {
+
+        // ------------------------------------------------------------------------------------------------
+
         // Movement:
 
         if (    (moveMode != MoveMode.constant)
@@ -82,11 +89,16 @@ public class EnemyController : MonoBehaviour
 
         // ------------------------------------------------------------------------------------------------
 
-        // Look:
-
         Vector3 v3PositionRelativeLook = goPlayer.transform.position - transform.position;
         Vector3 v3PositionRelativeLookNow = Vector3.RotateTowards(transform.forward, v3PositionRelativeLook, fAngSpeedMove * Time.deltaTime, 0f);
         transform.rotation = Quaternion.LookRotation(v3PositionRelativeLookNow);
+
+        // ------------------------------------------------------------------------------------------------
+
+        // Health:
+
+        rtCanvasHealth.position = transform.position + new Vector3(0f, 0f, 10f);
+        rtCanvasHealth.LookAt(new Vector3(transform.position.x, 0f, 1000f));
 
         // ------------------------------------------------------------------------------------------------
 
