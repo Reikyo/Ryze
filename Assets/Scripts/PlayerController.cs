@@ -62,6 +62,27 @@ public class PlayerController : MonoBehaviour
     public float fTimeDeltaAttack2DechargeModeSpiral = 0.02f;
     public float fAngleDeltaAttack2ModeSpiral = 10f;
 
+    private class Icon
+    {
+        private RawImage imgUnselected;
+        private RawImage imgSelected;
+
+        public Icon(GameObject goUnselectedGiven, GameObject goSelectedGiven)
+        {
+            imgUnselected = goUnselectedGiven.GetComponent<RawImage>();
+            imgSelected = goSelectedGiven.GetComponent<RawImage>();
+            imgUnselected.enabled = true;
+            imgSelected.enabled = false;
+        }
+
+        public void Toggle()
+        {
+            imgUnselected.enabled = !imgUnselected.enabled;
+            imgSelected.enabled = !imgSelected.enabled;
+        }
+    }
+    private List<Icon> iconListAttack2Mode = new List<Icon>();
+
     // ------------------------------------------------------------------------------------------------
 
     void Start()
@@ -86,6 +107,16 @@ public class PlayerController : MonoBehaviour
         goGunRightProjectileSpawnPoint = transform.Find("08_Gun_R/GunRightProjectileSpawnPoint").gameObject;
         goGunMiddleProjectileSpawnPoint = transform.Find("02_CockpitExtension/GunMiddleProjectileSpawnPoint").gameObject;
         fTimeNextAttack1 = Time.time;
+
+        iconListAttack2Mode.Add(new Icon(
+            GameObject.Find("RawImage : IconAttack2ModeStraightUnselected"),
+            GameObject.Find("RawImage : IconAttack2ModeStraightSelected")
+        ));
+        iconListAttack2Mode.Add(new Icon(
+            GameObject.Find("RawImage : IconAttack2ModeSpiralUnselected"),
+            GameObject.Find("RawImage : IconAttack2ModeSpiralSelected")
+        ));
+        iconListAttack2Mode[0].Toggle();
     }
 
     // ------------------------------------------------------------------------------------------------
@@ -177,6 +208,8 @@ public class PlayerController : MonoBehaviour
 
         if (Input.GetButtonDown("Attack2 Mode"))
         {
+            iconListAttack2Mode[(int)attack2Mode].Toggle();
+
             if ((int)attack2Mode == iIdxLastAttack2Mode)
             {
                 attack2Mode = (Attack2Mode)(0);
@@ -185,6 +218,8 @@ public class PlayerController : MonoBehaviour
             {
                 attack2Mode = (Attack2Mode)((int)attack2Mode + 1);
             }
+
+            iconListAttack2Mode[(int)attack2Mode].Toggle();
         }
 
         if (    (Input.GetButtonDown("Attack2"))
