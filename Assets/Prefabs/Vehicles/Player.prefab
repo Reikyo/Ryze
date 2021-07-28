@@ -375,8 +375,6 @@ GameObject:
   - component: {fileID: 4358449802852073832}
   - component: {fileID: 6826743779974942637}
   - component: {fileID: 2297487835270272509}
-  - component: {fileID: -2532333422705903093}
-  - component: {fileID: 939352437020657388}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -460,43 +458,17 @@ MonoBehaviour:
   fRelativeMomentumBenchmark: 250000
   goProjectile: {fileID: 3262308912846389460, guid: 208adb6eee28344738120012deccca3a, type: 3}
   fTimeDeltaAttack1: 0.1
+  fTimeDeltaAttack1Decharge: 0.1
+  fTimeDeltaAttack1Recharge: 0.02
+  fTimeDeltaAttack1RechargeWait: 0.1
   attack2Mode: 0
-  fTimeDeltaAttack2Decharge: 0.02
   fForceMoveAttack2ModeStraight: 400
   fTimeDeltaAttack2ModeStraight: 0.01
+  fTimeDeltaAttack2DechargeModeStraight: 0.05
   fForceMoveAttack2ModeSpiral: 50
   fTimeDeltaAttack2ModeSpiral: 0.01
+  fTimeDeltaAttack2DechargeModeSpiral: 0.02
   fAngleDeltaAttack2ModeSpiral: 10
---- !u!114 &-2532333422705903093
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1913222272407158638}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 91da1451b34d1432e9d9ebbbc376e534, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  iHealth: 0
-  iHealthMax: 100
-  sliHealth: {fileID: 0}
---- !u!114 &939352437020657388
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1913222272407158638}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 35b6f5f5ea2bf4eb39e16dd645ec502d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  iCharge: 0
-  iChargeMax: 100
-  sliCharge: {fileID: 0}
 --- !u!1 &1913286069807940530
 GameObject:
   m_ObjectHideFlags: 0

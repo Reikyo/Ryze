@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class Charge : MonoBehaviour
 {
     // Charge:
-    public int iCharge;
+    public int iCharge = 0;
     public int iChargeMax = 100;
     public Slider sliCharge;
 
@@ -14,18 +14,10 @@ public class Charge : MonoBehaviour
 
     void Start()
     {
-        iCharge = 0;
-        if (sliCharge)
+        if (    (sliCharge)
+            &&  (sliCharge.value != iCharge) )
         {
-            sliCharge.value = iCharge;
-            if ((iCharge > 0) && !sliCharge.transform.Find("Fill Area").gameObject.activeSelf)
-            {
-                sliCharge.transform.Find("Fill Area").gameObject.SetActive(true);
-            }
-            else if (iCharge == 0)
-            {
-                sliCharge.transform.Find("Fill Area").gameObject.SetActive(false);
-            }
+            SetSlider();
         }
     }
 
@@ -52,15 +44,24 @@ public class Charge : MonoBehaviour
 
         if (sliCharge)
         {
-            sliCharge.value = iCharge;
-            if ((iCharge > 0) && !sliCharge.transform.Find("Fill Area").gameObject.activeSelf)
-            {
-                sliCharge.transform.Find("Fill Area").gameObject.SetActive(true);
-            }
-            else if (iCharge == 0)
-            {
-                sliCharge.transform.Find("Fill Area").gameObject.SetActive(false);
-            }
+            SetSlider();
+        }
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
+    private void SetSlider()
+    {
+        sliCharge.value = iCharge;
+        if (    (iCharge > 0)
+            &&  (!sliCharge.transform.Find("Fill Area").gameObject.activeSelf) )
+        {
+            sliCharge.transform.Find("Fill Area").gameObject.SetActive(true);
+        }
+        else if (   (iCharge == 0)
+                &&  (sliCharge.transform.Find("Fill Area").gameObject.activeSelf) )
+        {
+            sliCharge.transform.Find("Fill Area").gameObject.SetActive(false);
         }
     }
 

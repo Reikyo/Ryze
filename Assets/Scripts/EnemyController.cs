@@ -59,7 +59,7 @@ public class EnemyController : MonoBehaviour
 
         matEnemy = transform.Find("Chasis").gameObject.GetComponent<Renderer>().material;
 
-        healthEnemy = GetComponent<Health>();
+        healthEnemy = gameObject.AddComponent<Health>();
         healthEnemy.sliHealth = transform.Find("Canvas : Health/Slider : Health").GetComponent<Slider>();
         rtCanvasHealth = transform.Find("Canvas : Health").GetComponent<RectTransform>();
 
@@ -98,7 +98,7 @@ public class EnemyController : MonoBehaviour
         // Health:
 
         rtCanvasHealth.position = transform.position + new Vector3(0f, 0f, 10f);
-        rtCanvasHealth.LookAt(new Vector3(transform.position.x, 0f, 1000f));
+        rtCanvasHealth.LookAt(transform.position + new Vector3(0f, 0f, 20f));
 
         // ------------------------------------------------------------------------------------------------
 

@@ -34,28 +34,39 @@ public class PlayerController : MonoBehaviour
     public float fRelativeMomentumBenchmark = 250000f;
 
     // Damage:
-    private Charge chargePlayer;
+    private Charge chargeAttack1;
+    private Charge chargeAttack2;
+
     public GameObject goProjectile;
     private GameObject goGunLeftProjectileSpawnPoint;
     private GameObject goGunRightProjectileSpawnPoint;
     private GameObject goGunMiddleProjectileSpawnPoint;
 
-    private bool bTriggeredAttack1Lock = false;
-    private float fTimeNextAttack1;
+    private bool bTriggeredAttack1Auto = false;
+    private bool bTriggeredAttack1Wait = false;
+
+    private float fTimeNextAttack1 = 0f;
+    private float fTimeNextAttack1Decharge = 0f;
+    private float fTimeNextAttack1Recharge = 0f;
+
     public float fTimeDeltaAttack1 = 0.1f;
+    public float fTimeDeltaAttack1Decharge = 0.1f;
+    public float fTimeDeltaAttack1Recharge = 0.02f;
+    public float fTimeDeltaAttack1RechargeWait = 0.1f;
 
     public enum Attack2Mode {straight, spiral};
     public Attack2Mode attack2Mode;
     private int iIdxLastAttack2Mode = Enum.GetNames(typeof(Attack2Mode)).Length - 1;
 
     private bool bTriggeredAttack2 = false;
-    private float fTimeNextAttack2;
-    private float fTimeNextAttack2Decharge;
-    private float fAngleNextAttack2;
+
+    private float fTimeNextAttack2 = 0f;
+    private float fTimeNextAttack2Decharge = 0f;
+    private float fAngleNextAttack2 = 0f;
 
     public float fForceMoveAttack2ModeStraight = 400f;
     public float fTimeDeltaAttack2ModeStraight = 0.01f;
-    public float fTimeDeltaAttack2DechargeModeStraight = 0.02f;
+    public float fTimeDeltaAttack2DechargeModeStraight = 0.05f;
 
     public float fForceMoveAttack2ModeSpiral = 50f;
     public float fTimeDeltaAttack2ModeSpiral = 0.01f;
@@ -97,16 +108,20 @@ public class PlayerController : MonoBehaviour
             matListChildren.Add(rendChild.material);
         }
 
-        healthPlayer = GetComponent<Health>();
+        healthPlayer = gameObject.AddComponent<Health>();
         healthPlayer.sliHealth = GameObject.Find("Slider : Health").GetComponent<Slider>();
         goShield = transform.Find("Shield").gameObject;
 
-        chargePlayer = GetComponent<Charge>();
-        chargePlayer.sliCharge = GameObject.Find("Slider : Charge").GetComponent<Slider>();
+        chargeAttack1 = gameObject.AddComponent<Charge>();
+        chargeAttack1.sliCharge = GameObject.Find("Slider : Charge : Attack1").GetComponent<Slider>();
+        chargeAttack1.Change(chargeAttack1.iChargeMax);
+
+        chargeAttack2 = gameObject.AddComponent<Charge>();
+        chargeAttack2.sliCharge = GameObject.Find("Slider : Charge : Attack2").GetComponent<Slider>();
+
         goGunLeftProjectileSpawnPoint = transform.Find("08_Gun_L/GunLeftProjectileSpawnPoint").gameObject;
         goGunRightProjectileSpawnPoint = transform.Find("08_Gun_R/GunRightProjectileSpawnPoint").gameObject;
         goGunMiddleProjectileSpawnPoint = transform.Find("02_CockpitExtension/GunMiddleProjectileSpawnPoint").gameObject;
-        fTimeNextAttack1 = Time.time;
 
         iconListAttack2Mode.Add(new Icon(
             GameObject.Find("RawImage : IconAttack2ModeStraightUnselected"),
@@ -197,9 +212,9 @@ public class PlayerController : MonoBehaviour
 
         // Damage: Attack1:
 
-        if (Input.GetButtonDown("Attack1 Lock"))
+        if (Input.GetButtonDown("Attack1 Auto"))
         {
-            bTriggeredAttack1Lock = !bTriggeredAttack1Lock;
+            bTriggeredAttack1Auto = !bTriggeredAttack1Auto;
         }
 
         // ------------------------------------------------------------------------------------------------
@@ -224,7 +239,7 @@ public class PlayerController : MonoBehaviour
 
         if (    (Input.GetButtonDown("Attack2"))
             &&  (!bTriggeredAttack2)
-            &&  (chargePlayer.iCharge == chargePlayer.iChargeMax) )
+            &&  (chargeAttack2.iCharge == chargeAttack2.iChargeMax) )
         {
             bTriggeredAttack2 = true;
             fTimeNextAttack2 = 0f;
@@ -259,11 +274,11 @@ public class PlayerController : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.J))
         {
-            chargePlayer.Change(10);
+            chargeAttack2.Change(10);
         }
         if (Input.GetKeyDown(KeyCode.K))
         {
-            chargePlayer.Change(-10);
+            chargeAttack2.Change(-10);
         }
 
         // ------------------------------------------------------------------------------------------------
@@ -278,22 +293,59 @@ public class PlayerController : MonoBehaviour
         // Damage: Attack1:
 
         if (    (   (Input.GetButton("Attack1"))
-                ||  (bTriggeredAttack1Lock) )
-            &&  (Time.time >= fTimeNextAttack1) )
+                ||  (bTriggeredAttack1Auto) )
+            &&  (!bTriggeredAttack1Wait) )
         {
-            GameObject goProjectileClone1 = Instantiate(
-                goProjectile,
-                goGunLeftProjectileSpawnPoint.transform.position,
-                goGunLeftProjectileSpawnPoint.transform.rotation
-            );
-            GameObject goProjectileClone2 = Instantiate(
-                goProjectile,
-                goGunRightProjectileSpawnPoint.transform.position,
-                goGunRightProjectileSpawnPoint.transform.rotation
-            );
-            // audioManager.sfxclpvolListProjectilePlayer[UnityEngine.Random.Range(0, audioManager.sfxclpvolListProjectilePlayer.Count)].PlayOneShot();
-            audioManager.sfxclpvolListProjectilePlayer[0].PlayOneShot();
-            fTimeNextAttack1 = Time.time + fTimeDeltaAttack1;
+
+            // ------------------------------------------------------------------------------------------------
+
+            if (Time.time >= fTimeNextAttack1)
+            {
+                GameObject goProjectileClone1 = Instantiate(
+                    goProjectile,
+                    goGunLeftProjectileSpawnPoint.transform.position,
+                    goGunLeftProjectileSpawnPoint.transform.rotation
+                );
+                GameObject goProjectileClone2 = Instantiate(
+                    goProjectile,
+                    goGunRightProjectileSpawnPoint.transform.position,
+                    goGunRightProjectileSpawnPoint.transform.rotation
+                );
+                // audioManager.sfxclpvolListProjectilePlayer[UnityEngine.Random.Range(0, audioManager.sfxclpvolListProjectilePlayer.Count)].PlayOneShot();
+                audioManager.sfxclpvolListProjectilePlayer[0].PlayOneShot();
+                fTimeNextAttack1 = Time.time + fTimeDeltaAttack1;
+            }
+
+            // ------------------------------------------------------------------------------------------------
+
+            if (Time.time >= fTimeNextAttack1Decharge)
+            {
+                chargeAttack1.Change(-1);
+                if (chargeAttack1.iCharge == 0)
+                {
+                    bTriggeredAttack1Wait = true;
+                }
+                fTimeNextAttack1Decharge = Time.time + fTimeDeltaAttack1Decharge;
+            }
+
+            // ------------------------------------------------------------------------------------------------
+
+        }
+        else if (chargeAttack1.iCharge < chargeAttack1.iChargeMax)
+        {
+            if (Time.time >= fTimeNextAttack1Recharge)
+            {
+                chargeAttack1.Change(+1);
+                if (chargeAttack1.iCharge == chargeAttack1.iChargeMax)
+                {
+                    bTriggeredAttack1Wait = false;
+                }
+                switch (bTriggeredAttack1Wait)
+                {
+                    case false: fTimeNextAttack1Recharge = Time.time + fTimeDeltaAttack1Recharge; break;
+                    case true: fTimeNextAttack1Recharge = Time.time + fTimeDeltaAttack1RechargeWait; break;
+                }
+            }
         }
 
         // ------------------------------------------------------------------------------------------------
@@ -339,9 +391,8 @@ public class PlayerController : MonoBehaviour
 
             if (Time.time >= fTimeNextAttack2Decharge)
             {
-                chargePlayer.Change(-1);
-                // audioManager.sfxclpvolListProjectilePlayer[0].PlayOneShot();
-                if (chargePlayer.iCharge == 0)
+                chargeAttack2.Change(-1);
+                if (chargeAttack2.iCharge == 0)
                 {
                     bTriggeredAttack2 = false;
                 }
@@ -423,11 +474,11 @@ public class PlayerController : MonoBehaviour
         if (collision.gameObject.CompareTag("PowerUpCharge"))
         {
             PowerUpController powerUpController = collision.gameObject.GetComponent<PowerUpController>();
-            if (    (chargePlayer.iCharge < chargePlayer.iChargeMax)
+            if (    (chargeAttack2.iCharge < chargeAttack2.iChargeMax)
                 &&  (!powerUpController.bTriggeredDestroy) )
             {
                 powerUpController.bTriggeredDestroy = true;
-                chargePlayer.Change(powerUpController.iValue);
+                chargeAttack2.Change(powerUpController.iValue);
                 Destroy(collision.gameObject);
                 audioManager.sfxclpvolPowerUpCharge.PlayOneShot();
             }

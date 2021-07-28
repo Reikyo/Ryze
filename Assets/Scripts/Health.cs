@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class Health : MonoBehaviour
 {
     // Health:
-    public int iHealth;
+    public int iHealth = 100;
     public int iHealthMax = 100;
     public Slider sliHealth;
 
@@ -14,18 +14,10 @@ public class Health : MonoBehaviour
 
     void Start()
     {
-        iHealth = iHealthMax;
-        if (sliHealth)
+        if (    (sliHealth)
+            &&  (sliHealth.value != iHealth) )
         {
-            sliHealth.value = iHealth;
-            if ((iHealth > 0) && !sliHealth.transform.Find("Fill Area").gameObject.activeSelf)
-            {
-                sliHealth.transform.Find("Fill Area").gameObject.SetActive(true);
-            }
-            else if (iHealth == 0)
-            {
-                sliHealth.transform.Find("Fill Area").gameObject.SetActive(false);
-            }
+            SetSlider();
         }
     }
 
@@ -52,15 +44,24 @@ public class Health : MonoBehaviour
 
         if (sliHealth)
         {
-            sliHealth.value = iHealth;
-            if ((iHealth > 0) && !sliHealth.transform.Find("Fill Area").gameObject.activeSelf)
-            {
-                sliHealth.transform.Find("Fill Area").gameObject.SetActive(true);
-            }
-            else if (iHealth == 0)
-            {
-                sliHealth.transform.Find("Fill Area").gameObject.SetActive(false);
-            }
+            SetSlider();
+        }
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
+    private void SetSlider()
+    {
+        sliHealth.value = iHealth;
+        if (    (iHealth > 0)
+            &&  (!sliHealth.transform.Find("Fill Area").gameObject.activeSelf) )
+        {
+            sliHealth.transform.Find("Fill Area").gameObject.SetActive(true);
+        }
+        else if (   (iHealth == 0)
+                &&  (sliHealth.transform.Find("Fill Area").gameObject.activeSelf) )
+        {
+            sliHealth.transform.Find("Fill Area").gameObject.SetActive(false);
         }
     }
 
