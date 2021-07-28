@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class Health : MonoBehaviour
 {
     // Health:
-    public int iHealth = 100;
+    public int iHealth = 0;
     public int iHealthMax = 100;
     public Slider sliHealth;
 

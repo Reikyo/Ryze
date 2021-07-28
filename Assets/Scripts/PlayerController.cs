@@ -34,8 +34,8 @@ public class PlayerController : MonoBehaviour
     public float fRelativeMomentumBenchmark = 250000f;
 
     // Damage:
-    private Charge chargeAttack1;
-    private Charge chargeAttack2;
+    private Health chargeAttack1;
+    private Health chargeAttack2;
 
     public GameObject goProjectile;
     private GameObject goGunLeftProjectileSpawnPoint;
@@ -110,14 +110,15 @@ public class PlayerController : MonoBehaviour
 
         healthPlayer = gameObject.AddComponent<Health>();
         healthPlayer.sliHealth = GameObject.Find("Slider : Health").GetComponent<Slider>();
+        healthPlayer.Change(healthPlayer.iHealthMax);
         goShield = transform.Find("Shield").gameObject;
 
-        chargeAttack1 = gameObject.AddComponent<Charge>();
-        chargeAttack1.sliCharge = GameObject.Find("Slider : Charge : Attack1").GetComponent<Slider>();
-        chargeAttack1.Change(chargeAttack1.iChargeMax);
+        chargeAttack1 = gameObject.AddComponent<Health>();
+        chargeAttack1.sliHealth = GameObject.Find("Slider : Charge : Attack1").GetComponent<Slider>();
+        chargeAttack1.Change(chargeAttack1.iHealthMax);
 
-        chargeAttack2 = gameObject.AddComponent<Charge>();
-        chargeAttack2.sliCharge = GameObject.Find("Slider : Charge : Attack2").GetComponent<Slider>();
+        chargeAttack2 = gameObject.AddComponent<Health>();
+        chargeAttack2.sliHealth = GameObject.Find("Slider : Charge : Attack2").GetComponent<Slider>();
 
         goGunLeftProjectileSpawnPoint = transform.Find("08_Gun_L/GunLeftProjectileSpawnPoint").gameObject;
         goGunRightProjectileSpawnPoint = transform.Find("08_Gun_R/GunRightProjectileSpawnPoint").gameObject;
@@ -239,7 +240,7 @@ public class PlayerController : MonoBehaviour
 
         if (    (Input.GetButtonDown("Attack2"))
             &&  (!bTriggeredAttack2)
-            &&  (chargeAttack2.iCharge == chargeAttack2.iChargeMax) )
+            &&  (chargeAttack2.iHealth == chargeAttack2.iHealthMax) )
         {
             bTriggeredAttack2 = true;
             fTimeNextAttack2 = 0f;
@@ -321,7 +322,7 @@ public class PlayerController : MonoBehaviour
             if (Time.time >= fTimeNextAttack1Decharge)
             {
                 chargeAttack1.Change(-1);
-                if (chargeAttack1.iCharge == 0)
+                if (chargeAttack1.iHealth == 0)
                 {
                     bTriggeredAttack1Wait = true;
                 }
@@ -331,12 +332,12 @@ public class PlayerController : MonoBehaviour
             // ------------------------------------------------------------------------------------------------
 
         }
-        else if (chargeAttack1.iCharge < chargeAttack1.iChargeMax)
+        else if (chargeAttack1.iHealth < chargeAttack1.iHealthMax)
         {
             if (Time.time >= fTimeNextAttack1Recharge)
             {
                 chargeAttack1.Change(+1);
-                if (chargeAttack1.iCharge == chargeAttack1.iChargeMax)
+                if (chargeAttack1.iHealth == chargeAttack1.iHealthMax)
                 {
                     bTriggeredAttack1Wait = false;
                 }
@@ -392,7 +393,7 @@ public class PlayerController : MonoBehaviour
             if (Time.time >= fTimeNextAttack2Decharge)
             {
                 chargeAttack2.Change(-1);
-                if (chargeAttack2.iCharge == 0)
+                if (chargeAttack2.iHealth == 0)
                 {
                     bTriggeredAttack2 = false;
                 }
@@ -474,7 +475,7 @@ public class PlayerController : MonoBehaviour
         if (collision.gameObject.CompareTag("PowerUpCharge"))
         {
             PowerUpController powerUpController = collision.gameObject.GetComponent<PowerUpController>();
-            if (    (chargeAttack2.iCharge < chargeAttack2.iChargeMax)
+            if (    (chargeAttack2.iHealth < chargeAttack2.iHealthMax)
                 &&  (!powerUpController.bTriggeredDestroy) )
             {
                 powerUpController.bTriggeredDestroy = true;

@@ -61,6 +61,7 @@ public class EnemyController : MonoBehaviour
 
         healthEnemy = gameObject.AddComponent<Health>();
         healthEnemy.sliHealth = transform.Find("Canvas : Health/Slider : Health").GetComponent<Slider>();
+        healthEnemy.Change(healthEnemy.iHealthMax);
         rtCanvasHealth = transform.Find("Canvas : Health").GetComponent<RectTransform>();
 
         goGunMiddleProjectileSpawnPoint = transform.Find("Chasis/GunMiddleProjectileSpawnPoint").gameObject;
