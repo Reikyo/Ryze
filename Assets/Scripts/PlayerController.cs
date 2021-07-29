@@ -314,7 +314,7 @@ public class PlayerController : MonoBehaviour
                     goGunRightProjectileSpawnPoint.transform.position,
                     goGunRightProjectileSpawnPoint.transform.rotation
                 );
-                // audioManager.sfxclpvolListProjectilePlayer[UnityEngine.Random.Range(0, audioManager.sfxclpvolListProjectilePlayer.Count)].PlayOneShot();
+                // audioManager.sfxclpvolListProjectilePlayer[Random.Range(0, audioManager.sfxclpvolListProjectilePlayer.Count)].PlayOneShot();
                 audioManager.sfxclpvolListProjectilePlayer[0].PlayOneShot();
                 fTimeNextAttack1 = Time.time + fTimeDeltaAttack1;
             }

@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 8796981307071037617}
   - component: {fileID: 8796981307070071409}
   - component: {fileID: -7351607541750526161}
-  - component: {fileID: -4634085449445219531}
+  - component: {fileID: 3538524647405630615}
   - component: {fileID: 6378215160859409649}
   - component: {fileID: 8144907408189391935}
   - component: {fileID: -4217020075111381955}
@@ -103,8 +103,8 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 4
   m_CollisionDetection: 0
---- !u!65 &-4634085449445219531
-BoxCollider:
+--- !u!136 &3538524647405630615
+CapsuleCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -113,8 +113,9 @@ BoxCollider:
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 1.032, y: 1.1459999, z: 0.77699995}
+  m_Radius: 0.516
+  m_Height: 1.1459999
+  m_Direction: 1
   m_Center: {x: 0.030867502, y: -0.009949833, z: -0.038707286}
 --- !u!208 &6378215160859409649
 NavMeshObstacle:
@@ -126,10 +127,10 @@ NavMeshObstacle:
   m_Enabled: 1
   serializedVersion: 3
   m_Shape: 0
-  m_Extents: {x: 0.51600003, y: 0.573, z: 0.388}
+  m_Extents: {x: 0.51600003, y: 0.573, z: 0.51600003}
   m_MoveThreshold: 0.1
-  m_Carve: 1
-  m_CarveOnlyStationary: 0
+  m_Carve: 0
+  m_CarveOnlyStationary: 1
   m_Center: {x: 0.031000001, y: -0.010000001, z: -0.039}
   m_TimeToStationary: 0.5
 --- !u!114 &8144907408189391935

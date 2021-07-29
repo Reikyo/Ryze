@@ -49,8 +49,8 @@ public class SpawnManager : MonoBehaviour
         gameManager = GameObject.Find("Game Manager").GetComponent<GameManager>();
         audioManager = GameObject.Find("Audio Manager").GetComponent<AudioManager>();
 
-        fTimeNextSpawnStar = Time.time + UnityEngine.Random.Range(fTimeNextSpawnStarDeltaMin, fTimeNextSpawnStarDeltaMax);
-        fTimeNextSpawnAsteroid = Time.time + UnityEngine.Random.Range(fTimeNextSpawnAsteroidDeltaMin, fTimeNextSpawnAsteroidDeltaMax);
+        fTimeNextSpawnStar = Time.time + Random.Range(fTimeNextSpawnStarDeltaMin, fTimeNextSpawnStarDeltaMax);
+        fTimeNextSpawnAsteroid = Time.time + Random.Range(fTimeNextSpawnAsteroidDeltaMin, fTimeNextSpawnAsteroidDeltaMax);
         fTimeNextSpawnEnemy = Time.time + 3f;
 
         fTimeDelta_vfxclpExplosionAsteroid = vfxclpExplosionAsteroid.GetComponent<ParticleSystem>().main.duration;
@@ -88,17 +88,17 @@ public class SpawnManager : MonoBehaviour
 
     private void SpawnStars()
     {
-        goStar = goArrStars[UnityEngine.Random.Range(0, goArrStars.Length)];
+        goStar = goArrStars[Random.Range(0, goArrStars.Length)];
         Instantiate(
             goStar,
             new Vector3(
-                UnityEngine.Random.Range(gameManager.v3CamLowerLeftStars.x + 10f, gameManager.v3CamUpperRightStars.x - 10f),
+                Random.Range(gameManager.v3CamLowerLeftStars.x + 10f, gameManager.v3CamUpperRightStars.x - 10f),
                 fPositionYSpawnStars,
                 gameManager.v3CamUpperRightStars.z + 10f
             ),
             goStar.transform.rotation
         );
-        fTimeNextSpawnStar = Time.time + UnityEngine.Random.Range(fTimeNextSpawnStarDeltaMin, fTimeNextSpawnStarDeltaMax);
+        fTimeNextSpawnStar = Time.time + Random.Range(fTimeNextSpawnStarDeltaMin, fTimeNextSpawnStarDeltaMax);
         bSpawnStars = true;
     }
 
@@ -106,17 +106,17 @@ public class SpawnManager : MonoBehaviour
 
     private void SpawnAsteroids()
     {
-        goAsteroid = goArrAsteroids[UnityEngine.Random.Range(0, goArrAsteroids.Length)];
+        goAsteroid = goArrAsteroids[Random.Range(0, goArrAsteroids.Length)];
         Instantiate(
             goAsteroid,
             new Vector3(
-                UnityEngine.Random.Range(gameManager.v3CamLowerLeft.x + 10f, gameManager.v3CamUpperRight.x - 10f),
+                Random.Range(gameManager.v3CamLowerLeft.x + 10f, gameManager.v3CamUpperRight.x - 10f),
                 0f,
                 gameManager.v3CamUpperRight.z + 10f
             ),
             goAsteroid.transform.rotation
         );
-        fTimeNextSpawnAsteroid = Time.time + UnityEngine.Random.Range(fTimeNextSpawnAsteroidDeltaMin, fTimeNextSpawnAsteroidDeltaMax);
+        fTimeNextSpawnAsteroid = Time.time + Random.Range(fTimeNextSpawnAsteroidDeltaMin, fTimeNextSpawnAsteroidDeltaMax);
         bSpawnAsteroids = true;
     }
 

@@ -114,7 +114,7 @@ public class EnemyController : MonoBehaviour
                     goGunMiddleProjectileSpawnPoint.transform.position,
                     goGunMiddleProjectileSpawnPoint.transform.rotation
                 );
-                audioManager.sfxclpvolListProjectileEnemy[UnityEngine.Random.Range(0, audioManager.sfxclpvolListProjectileEnemy.Count)].PlayOneShot();
+                audioManager.sfxclpvolListProjectileEnemy[Random.Range(0, audioManager.sfxclpvolListProjectileEnemy.Count)].PlayOneShot();
                 iNumAttack += 1;
                 if (iNumAttack < iNumAttackBurst)
                 {
