@@ -35,8 +35,12 @@ public class SpawnManager : MonoBehaviour
     // VFX:
     public GameObject vfxclpExplosionAsteroid;
     public GameObject vfxclpExplosionEnemy;
+    public GameObject vfxclpSparksAsteroid;
+    public GameObject vfxclpSparksVehicle;
     private float fTimeDelta_vfxclpExplosionAsteroid;
     private float fTimeDelta_vfxclpExplosionEnemy;
+    private float fTimeDelta_vfxclpSparksAsteroid;
+    private float fTimeDelta_vfxclpSparksVehicle;
 
     // ------------------------------------------------------------------------------------------------
 
@@ -51,6 +55,8 @@ public class SpawnManager : MonoBehaviour
 
         fTimeDelta_vfxclpExplosionAsteroid = vfxclpExplosionAsteroid.GetComponent<ParticleSystem>().main.duration;
         fTimeDelta_vfxclpExplosionEnemy = vfxclpExplosionAsteroid.GetComponent<ParticleSystem>().main.duration;
+        fTimeDelta_vfxclpSparksAsteroid = vfxclpSparksAsteroid.GetComponent<ParticleSystem>().main.duration;
+        fTimeDelta_vfxclpSparksVehicle = vfxclpSparksVehicle.GetComponent<ParticleSystem>().main.duration;
     }
 
     // ------------------------------------------------------------------------------------------------
@@ -205,6 +211,32 @@ public class SpawnManager : MonoBehaviour
         );
         Destroy(vfxclpExplosionEnemyClone, fTimeDelta_vfxclpExplosionEnemy);
         audioManager.sfxclpvolExplosionEnemy.PlayOneShot();
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
+    public void SpawnSparksAsteroid(Vector3 v3PositionSpawn, Quaternion quatRotationSpawn, Transform trnParent)
+    {
+        GameObject vfxclpSparksAsteroidClone = Instantiate(
+            vfxclpSparksAsteroid,
+            v3PositionSpawn,
+            quatRotationSpawn,
+            trnParent
+        );
+        Destroy(vfxclpSparksAsteroidClone, fTimeDelta_vfxclpSparksAsteroid);
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
+    public void SpawnSparksVehicle(Vector3 v3PositionSpawn, Quaternion quatRotationSpawn, Transform trnParent)
+    {
+        GameObject vfxclpSparksVehicleClone = Instantiate(
+            vfxclpSparksVehicle,
+            v3PositionSpawn,
+            quatRotationSpawn,
+            trnParent
+        );
+        Destroy(vfxclpSparksVehicleClone, fTimeDelta_vfxclpSparksVehicle);
     }
 
     // ------------------------------------------------------------------------------------------------

@@ -217,6 +217,11 @@ public class EnemyController : MonoBehaviour
             {
                 projectileController.bTriggeredDestroy = true;
                 healthEnemy.Change(-projectileController.iDamage);
+                spawnManager.SpawnSparksVehicle(
+                    collider.gameObject.transform.position,
+                    Quaternion.LookRotation(-collider.gameObject.transform.forward),
+                    transform
+                );
                 Destroy(collider.gameObject);
                 if (    (healthEnemy.iHealth == 0)
                     &&  (!bTriggeredDestroy) )

@@ -8,6 +8,7 @@ using UnityEngine.UI;
 public class PlayerController : MonoBehaviour
 {
     private GameManager gameManager;
+    private SpawnManager spawnManager;
     private AudioManager audioManager;
 
     // Movement:
@@ -99,6 +100,7 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         gameManager = GameObject.Find("Game Manager").GetComponent<GameManager>();
+        spawnManager = GameObject.Find("Spawn Manager").GetComponent<SpawnManager>();
         audioManager = GameObject.Find("Audio Manager").GetComponent<AudioManager>();
 
         rbPlayer = GetComponent<Rigidbody>();
@@ -498,6 +500,11 @@ public class PlayerController : MonoBehaviour
             {
                 projectileController.bTriggeredDestroy = true;
                 healthPlayer.Change(-projectileController.iDamage);
+                spawnManager.SpawnSparksVehicle(
+                    collider.gameObject.transform.position,
+                    Quaternion.LookRotation(-collider.gameObject.transform.forward),
+                    transform
+                );
                 Destroy(collider.gameObject);
                 if (    (healthPlayer.iHealth == 0)
                     &&  (gameManager.bInPlay) )

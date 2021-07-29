@@ -42,6 +42,7 @@ public class AsteroidController : MonoBehaviour
         matAsteroid = GetComponent<Renderer>().material;
 
         healthAsteroid = GetComponent<Health>();
+        healthAsteroid.Change(healthAsteroid.iHealthMax);
     }
 
     // ------------------------------------------------------------------------------------------------
@@ -65,6 +66,11 @@ public class AsteroidController : MonoBehaviour
             {
                 projectileController.bTriggeredDestroy = true;
                 healthAsteroid.Change(-projectileController.iDamage);
+                spawnManager.SpawnSparksAsteroid(
+                    collider.gameObject.transform.position,
+                    Quaternion.LookRotation(-collider.gameObject.transform.forward),
+                    transform
+                );
                 Destroy(collider.gameObject);
                 if (    (healthAsteroid.iHealth == 0)
                     &&  (!bTriggeredDestroy) )
