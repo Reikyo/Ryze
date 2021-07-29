@@ -15,15 +15,15 @@ public class SpawnManager : MonoBehaviour
     public GameObject[] goArrStars;
     private GameObject goStar;
     private float fTimeNextSpawnStar;
-    public float fTimeNextSpawnStarDeltaMin = 0f;
-    public float fTimeNextSpawnStarDeltaMax = 5f;
+    public float fTimeDeltaMinSpawnStar = 0f;
+    public float fTimeDeltaMaxSpawnStar = 5f;
     public float fPositionYSpawnStars = -500f;
 
     public GameObject[] goArrAsteroids;
     private GameObject goAsteroid;
     private float fTimeNextSpawnAsteroid;
-    public float fTimeNextSpawnAsteroidDeltaMin = 0f;
-    public float fTimeNextSpawnAsteroidDeltaMax = 2f;
+    public float fTimeDeltaMinSpawnAsteroid = 0f;
+    public float fTimeDeltaMaxSpawnAsteroid = 2f;
 
     public GameObject goEnemy;
     public int iNumEnemy = 0;
@@ -49,8 +49,8 @@ public class SpawnManager : MonoBehaviour
         gameManager = GameObject.Find("Game Manager").GetComponent<GameManager>();
         audioManager = GameObject.Find("Audio Manager").GetComponent<AudioManager>();
 
-        fTimeNextSpawnStar = Time.time + Random.Range(fTimeNextSpawnStarDeltaMin, fTimeNextSpawnStarDeltaMax);
-        fTimeNextSpawnAsteroid = Time.time + Random.Range(fTimeNextSpawnAsteroidDeltaMin, fTimeNextSpawnAsteroidDeltaMax);
+        fTimeNextSpawnStar = Time.time + Random.Range(fTimeDeltaMinSpawnStar, fTimeDeltaMaxSpawnStar);
+        fTimeNextSpawnAsteroid = Time.time + Random.Range(fTimeDeltaMinSpawnAsteroid, fTimeDeltaMaxSpawnAsteroid);
         fTimeNextSpawnEnemy = Time.time + 3f;
 
         fTimeDelta_vfxclpExplosionAsteroid = vfxclpExplosionAsteroid.GetComponent<ParticleSystem>().main.duration;
@@ -98,7 +98,7 @@ public class SpawnManager : MonoBehaviour
             ),
             goStar.transform.rotation
         );
-        fTimeNextSpawnStar = Time.time + Random.Range(fTimeNextSpawnStarDeltaMin, fTimeNextSpawnStarDeltaMax);
+        fTimeNextSpawnStar = Time.time + Random.Range(fTimeDeltaMinSpawnStar, fTimeDeltaMaxSpawnStar);
         bSpawnStars = true;
     }
 
@@ -116,7 +116,7 @@ public class SpawnManager : MonoBehaviour
             ),
             goAsteroid.transform.rotation
         );
-        fTimeNextSpawnAsteroid = Time.time + Random.Range(fTimeNextSpawnAsteroidDeltaMin, fTimeNextSpawnAsteroidDeltaMax);
+        fTimeNextSpawnAsteroid = Time.time + Random.Range(fTimeDeltaMinSpawnAsteroid, fTimeDeltaMaxSpawnAsteroid);
         bSpawnAsteroids = true;
     }
 
