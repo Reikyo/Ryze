@@ -456,7 +456,9 @@ MonoBehaviour:
   fAngSpeedMove: 5
   fTimeFlashDamaged: 0.1
   fRelativeMomentumBenchmark: 250000
-  goProjectile: {fileID: 3262308912846389460, guid: 208adb6eee28344738120012deccca3a, type: 3}
+  goProjectileAttack1: {fileID: 3262308912846389460, guid: 208adb6eee28344738120012deccca3a, type: 3}
+  goProjectileAttack2ModeStraight: {fileID: 3262308912846389460, guid: e4a1903f4f6fc4528bcc308705860690, type: 3}
+  goProjectileAttack2ModeSpiral: {fileID: 3262308912846389460, guid: d35dbea2e6f2948a5b49ee7e3691d49e, type: 3}
   fTimeDeltaAttack1: 0.1
   fTimeDeltaAttack1Decharge: 0.1
   fTimeDeltaAttack1Recharge: 0.02

@@ -38,7 +38,9 @@ public class PlayerController : MonoBehaviour
     private Health chargeAttack1;
     private Health chargeAttack2;
 
-    public GameObject goProjectile;
+    private GameObject goProjectileAttack1;
+    private GameObject goProjectileAttack2ModeStraight;
+    private GameObject goProjectileAttack2ModeSpiral;
     private GameObject goGunLeftProjectileSpawnPoint;
     private GameObject goGunRightProjectileSpawnPoint;
     private GameObject goGunMiddleProjectileSpawnPoint;
@@ -121,6 +123,10 @@ public class PlayerController : MonoBehaviour
 
         chargeAttack2 = gameObject.AddComponent<Health>();
         chargeAttack2.sliHealth = GameObject.Find("Slider : Charge : Attack2").GetComponent<Slider>();
+
+        goProjectileAttack1 = (GameObject)AssetDatabase.LoadAssetAtPath("Assets/Prefabs/Items/ProjectilePlayerAttack1.prefab", typeof(GameObject));
+        goProjectileAttack2ModeStraight = (GameObject)AssetDatabase.LoadAssetAtPath("Assets/Prefabs/Items/ProjectilePlayerAttack2ModeStraight.prefab", typeof(GameObject));
+        goProjectileAttack2ModeSpiral = (GameObject)AssetDatabase.LoadAssetAtPath("Assets/Prefabs/Items/ProjectilePlayerAttack2ModeSpiral.prefab", typeof(GameObject));
 
         goGunLeftProjectileSpawnPoint = transform.Find("08_Gun_L/GunLeftProjectileSpawnPoint").gameObject;
         goGunRightProjectileSpawnPoint = transform.Find("08_Gun_R/GunRightProjectileSpawnPoint").gameObject;
@@ -304,13 +310,13 @@ public class PlayerController : MonoBehaviour
 
             if (Time.time >= fTimeNextAttack1)
             {
-                GameObject goProjectileClone1 = Instantiate(
-                    goProjectile,
+                GameObject goProjectileAttack1Clone1 = Instantiate(
+                    goProjectileAttack1,
                     goGunLeftProjectileSpawnPoint.transform.position,
                     goGunLeftProjectileSpawnPoint.transform.rotation
                 );
-                GameObject goProjectileClone2 = Instantiate(
-                    goProjectile,
+                GameObject goProjectileAttack1Clone2 = Instantiate(
+                    goProjectileAttack1,
                     goGunRightProjectileSpawnPoint.transform.position,
                     goGunRightProjectileSpawnPoint.transform.rotation
                 );
@@ -364,12 +370,12 @@ public class PlayerController : MonoBehaviour
             {
                 if (attack2Mode == Attack2Mode.straight)
                 {
-                    GameObject goProjectileClone = Instantiate(
-                        goProjectile,
+                    GameObject goProjectileAttack2ModeStraightClone = Instantiate(
+                        goProjectileAttack2ModeStraight,
                         goGunMiddleProjectileSpawnPoint.transform.position,
                         transform.rotation
                     );
-                    goProjectileClone.GetComponent<ProjectileController>().fForceMove = fForceMoveAttack2ModeStraight;
+                    goProjectileAttack2ModeStraightClone.GetComponent<ProjectileController>().fForceMove = fForceMoveAttack2ModeStraight;
 
                     fTimeNextAttack2 = Time.time + fTimeDeltaAttack2ModeStraight;
                 }
@@ -377,12 +383,12 @@ public class PlayerController : MonoBehaviour
                 {
                     for (int i=0; i<4; i++)
                     {
-                        GameObject goProjectileClone = Instantiate(
-                            goProjectile,
+                        GameObject goProjectileAttack2ModeSpiralClone = Instantiate(
+                            goProjectileAttack2ModeSpiral,
                             goGunMiddleProjectileSpawnPoint.transform.position,
                             Quaternion.Euler(0f, i*90f + fAngleNextAttack2 + transform.rotation.eulerAngles.y, 0f)
                         );
-                        goProjectileClone.GetComponent<ProjectileController>().fForceMove = fForceMoveAttack2ModeSpiral;
+                        goProjectileAttack2ModeSpiralClone.GetComponent<ProjectileController>().fForceMove = fForceMoveAttack2ModeSpiral;
                     }
 
                     fTimeNextAttack2 = Time.time + fTimeDeltaAttack2ModeSpiral;

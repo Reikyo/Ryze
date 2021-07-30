@@ -12,12 +12,12 @@ GameObject:
   - component: {fileID: 3262308912846389457}
   - component: {fileID: 3262308912846389458}
   - component: {fileID: 54174331117604894}
-  - component: {fileID: 4468733058656168591}
+  - component: {fileID: 3262308912846389459}
   - component: {fileID: 4796349952209833270}
   - component: {fileID: -7309187314132598160}
   m_Layer: 10
-  m_Name: ProjectileEnemy
-  m_TagString: ProjectileEnemy
+  m_Name: ProjectilePlayerAttack2ModeSpiral
+  m_TagString: ProjectilePlayer
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -31,9 +31,9 @@ Transform:
   m_GameObject: {fileID: 3262308912846389460}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 1, z: 0}
-  m_LocalScale: {x: 0.5, y: 0.5, z: 5}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 5065955202749645047}
+  - {fileID: 3248646180653011366}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -64,7 +64,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: d5d84313af49b4a6ba0cf75da3f727b2, type: 2}
+  - {fileID: 2100000, guid: e16de0baab81e4704bede36a76e0c5b5, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -102,8 +102,8 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 116
   m_CollisionDetection: 0
---- !u!136 &4468733058656168591
-CapsuleCollider:
+--- !u!135 &3262308912846389459
+SphereCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -112,9 +112,8 @@ CapsuleCollider:
   m_Material: {fileID: 0}
   m_IsTrigger: 1
   m_Enabled: 1
-  m_Radius: 0.5
-  m_Height: 1
-  m_Direction: 2
+  serializedVersion: 2
+  m_Radius: 1
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &4796349952209833270
 MonoBehaviour:
@@ -128,7 +127,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 14bc06f8fdb9a4e0b8c23ed30fadc49d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fForceMove: 100
+  fForceMove: 200
   bTriggeredDestroy: 0
   iDamage: 10
 --- !u!114 &-7309187314132598160
@@ -143,7 +142,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c4f8c33afb1e548c3be5f2fe9428208e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!1 &8460840953636426302
+--- !u!1 &3432870624004424895
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -151,8 +150,8 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 5065955202749645047}
-  - component: {fileID: 3582457741135778879}
+  - component: {fileID: 3248646180653011366}
+  - component: {fileID: 3559566621089343956}
   m_Layer: 10
   m_Name: Trail
   m_TagString: Untagged
@@ -160,13 +159,13 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &5065955202749645047
+--- !u!4 &3248646180653011366
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8460840953636426302}
+  m_GameObject: {fileID: 3432870624004424895}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: -0.3}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -174,14 +173,14 @@ Transform:
   m_Father: {fileID: 3262308912846389456}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!96 &3582457741135778879
+--- !u!96 &3559566621089343956
 TrailRenderer:
   serializedVersion: 2
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8460840953636426302}
+  m_GameObject: {fileID: 3432870624004424895}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
@@ -218,7 +217,7 @@ TrailRenderer:
   m_Time: 0.1
   m_Parameters:
     serializedVersion: 3
-    widthMultiplier: 1.0276926
+    widthMultiplier: 0.5
     widthCurve:
       serializedVersion: 2
       m_Curve:
@@ -236,7 +235,7 @@ TrailRenderer:
       m_RotationOrder: 4
     colorGradient:
       serializedVersion: 2
-      key0: {r: 0, g: 0.78431374, b: 0.39215687, a: 0.47058824}
+      key0: {r: 0, g: 0.9411765, b: 1, a: 0.47058824}
       key1: {r: 1, g: 1, b: 1, a: 0.039215688}
       key2: {r: 0, g: 0, b: 0, a: 0}
       key3: {r: 0, g: 0, b: 0, a: 0}
