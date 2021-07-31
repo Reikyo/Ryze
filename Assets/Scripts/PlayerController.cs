@@ -40,6 +40,7 @@ public class PlayerController : MonoBehaviour
 
     private GameObject goProjectileAttack1;
     private GameObject goProjectileAttack2ModeStraight;
+    private List<GameObject> goListProjectileAttack2ModeStraightClone = new List<GameObject>();
     private GameObject goProjectileAttack2ModeSpiral;
     private GameObject goGunLeftProjectileSpawnPoint;
     private GameObject goGunRightProjectileSpawnPoint;
@@ -67,6 +68,7 @@ public class PlayerController : MonoBehaviour
     private float fTimeNextAttack2Decharge = 0f;
     private float fAngleNextAttack2 = 0f;
 
+    private LineRenderer lineAttack2ModeStraight;
     public float fForceMoveAttack2ModeStraight = 400f;
     public float fTimeDeltaAttack2ModeStraight = 0.01f;
     public float fTimeDeltaAttack2DechargeModeStraight = 0.05f;
@@ -109,7 +111,10 @@ public class PlayerController : MonoBehaviour
 
         foreach (Renderer rendChild in GetComponentsInChildren<Renderer>())
         {
-            matListChildren.Add(rendChild.material);
+            if (rendChild.name != "Attack2ModeStraight")
+            {
+                matListChildren.Add(rendChild.material);
+            }
         }
 
         healthPlayer = gameObject.AddComponent<Health>();
@@ -131,6 +136,9 @@ public class PlayerController : MonoBehaviour
         goGunLeftProjectileSpawnPoint = transform.Find("08_Gun_L/GunLeftProjectileSpawnPoint").gameObject;
         goGunRightProjectileSpawnPoint = transform.Find("08_Gun_R/GunRightProjectileSpawnPoint").gameObject;
         goGunMiddleProjectileSpawnPoint = transform.Find("02_CockpitExtension/GunMiddleProjectileSpawnPoint").gameObject;
+
+        lineAttack2ModeStraight = transform.Find("Attack2ModeStraight").gameObject.GetComponent<LineRenderer>();
+        lineAttack2ModeStraight.enabled = false;
 
         iconListAttack2Mode.Add(new Icon(
             GameObject.Find("RawImage : IconAttack2ModeStraightUnselected"),
@@ -230,7 +238,8 @@ public class PlayerController : MonoBehaviour
 
         // Damage: Attack2:
 
-        if (Input.GetButtonDown("Attack2 Mode"))
+        if (    (Input.GetButtonDown("Attack2 Mode"))
+            &&  (!bTriggeredAttack2) )
         {
             iconListAttack2Mode[(int)attack2Mode].Toggle();
 
@@ -252,21 +261,58 @@ public class PlayerController : MonoBehaviour
         {
             bTriggeredAttack2 = true;
             fTimeNextAttack2 = 0f;
-            fAngleNextAttack2 = 0f;
-            switch (attack2Mode)
+            if (attack2Mode == Attack2Mode.straight)
             {
-                case Attack2Mode.straight: fTimeNextAttack2Decharge = Time.time + fTimeDeltaAttack2DechargeModeStraight; break;
-                case Attack2Mode.spiral: fTimeNextAttack2Decharge = Time.time + fTimeDeltaAttack2DechargeModeSpiral; break;
+                fTimeNextAttack2Decharge = Time.time + fTimeDeltaAttack2DechargeModeStraight;
+                goListProjectileAttack2ModeStraightClone.Add(goGunMiddleProjectileSpawnPoint);
             }
+            else if (attack2Mode == Attack2Mode.spiral)
+            {
+                fTimeNextAttack2Decharge = Time.time + fTimeDeltaAttack2DechargeModeSpiral;
+                fAngleNextAttack2 = 0f;
+            }
+        }
+
+        // ------------------------------------------------------------------------------------------------
+
+        if (goListProjectileAttack2ModeStraightClone.Count > 1)
+        {
+            goListProjectileAttack2ModeStraightClone.RemoveAll(item => (item == null));
+        }
+
+        if (goListProjectileAttack2ModeStraightClone.Count > 1)
+        {
+            Vector3[] v3ArrPosProjectileAttack2ModeStraightClone = new Vector3[goListProjectileAttack2ModeStraightClone.Count];
+            for (int i=0; i<goListProjectileAttack2ModeStraightClone.Count; i++)
+            {
+                v3ArrPosProjectileAttack2ModeStraightClone[i] =
+                    goListProjectileAttack2ModeStraightClone[i].transform.position
+                    + UnityEngine.Random.Range(-1f, 1f) * goListProjectileAttack2ModeStraightClone[i].transform.right;
+            }
+            if (!lineAttack2ModeStraight.enabled)
+            {
+                lineAttack2ModeStraight.enabled = true;
+            }
+            lineAttack2ModeStraight.positionCount = goListProjectileAttack2ModeStraightClone.Count;
+            lineAttack2ModeStraight.SetPositions(v3ArrPosProjectileAttack2ModeStraightClone);
+        }
+        else if (lineAttack2ModeStraight.enabled)
+        {
+            lineAttack2ModeStraight.positionCount = 0;
+            lineAttack2ModeStraight.enabled = false;
         }
 
         // ------------------------------------------------------------------------------------------------
 
         // Just to test the health component:
 
-        if (Input.GetKeyDown(KeyCode.G))
+        if (Input.GetKeyDown(KeyCode.F))
         {
             healthPlayer.Change(10);
+        }
+        if (Input.GetKeyDown(KeyCode.G))
+        {
+            healthPlayer.Change(healthPlayer.iHealthMax);
         }
         if (Input.GetKeyDown(KeyCode.H))
         {
@@ -286,6 +332,10 @@ public class PlayerController : MonoBehaviour
             chargeAttack2.Change(10);
         }
         if (Input.GetKeyDown(KeyCode.K))
+        {
+            chargeAttack2.Change(chargeAttack2.iHealthMax);
+        }
+        if (Input.GetKeyDown(KeyCode.L))
         {
             chargeAttack2.Change(-10);
         }
@@ -349,10 +399,13 @@ public class PlayerController : MonoBehaviour
                 {
                     bTriggeredAttack1Wait = false;
                 }
-                switch (bTriggeredAttack1Wait)
+                if (!bTriggeredAttack1Wait)
                 {
-                    case false: fTimeNextAttack1Recharge = Time.time + fTimeDeltaAttack1Recharge; break;
-                    case true: fTimeNextAttack1Recharge = Time.time + fTimeDeltaAttack1RechargeWait; break;
+                    fTimeNextAttack1Recharge = Time.time + fTimeDeltaAttack1Recharge;
+                }
+                else
+                {
+                    fTimeNextAttack1Recharge = Time.time + fTimeDeltaAttack1RechargeWait;
                 }
             }
         }
@@ -376,6 +429,7 @@ public class PlayerController : MonoBehaviour
                         transform.rotation
                     );
                     goProjectileAttack2ModeStraightClone.GetComponent<ProjectileController>().fForceMove = fForceMoveAttack2ModeStraight;
+                    goListProjectileAttack2ModeStraightClone.Insert(1, goProjectileAttack2ModeStraightClone);
 
                     fTimeNextAttack2 = Time.time + fTimeDeltaAttack2ModeStraight;
                 }
@@ -404,14 +458,18 @@ public class PlayerController : MonoBehaviour
                 if (chargeAttack2.iHealth == 0)
                 {
                     bTriggeredAttack2 = false;
-                }
-                else
-                {
-                    switch (attack2Mode)
+                    if (attack2Mode == Attack2Mode.straight)
                     {
-                        case Attack2Mode.straight: fTimeNextAttack2Decharge = Time.time + fTimeDeltaAttack2DechargeModeStraight; break;
-                        case Attack2Mode.spiral: fTimeNextAttack2Decharge = Time.time + fTimeDeltaAttack2DechargeModeSpiral; break;
+                        goListProjectileAttack2ModeStraightClone.Remove(goGunMiddleProjectileSpawnPoint);
                     }
+                }
+                else if (attack2Mode == Attack2Mode.straight)
+                {
+                    fTimeNextAttack2Decharge = Time.time + fTimeDeltaAttack2DechargeModeStraight;
+                }
+                else if (attack2Mode == Attack2Mode.spiral)
+                {
+                    fTimeNextAttack2Decharge = Time.time + fTimeDeltaAttack2DechargeModeSpiral;
                 }
             }
 
@@ -515,6 +573,10 @@ public class PlayerController : MonoBehaviour
                 if (    (healthPlayer.iHealth == 0)
                     &&  (gameManager.bInPlay) )
                 {
+                    if (lineAttack2ModeStraight.enabled)
+                    {
+                        lineAttack2ModeStraight.enabled = false;
+                    }
                     gameManager.GameOver();
                 }
                 StartCoroutine(FlashDamaged());
