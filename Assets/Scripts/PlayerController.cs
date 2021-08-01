@@ -25,7 +25,14 @@ public class PlayerController : MonoBehaviour
     private Vector3 v3DirectionMove;
 
     // Appearance:
+    private List<String> sListChildrenIgnoreFlashDamaged = new List<String>{"Line : Attack2ModeStraight", "Line : Engine", "Trail : Engine"};
     private List<Material> matListChildren = new List<Material>();
+    private LineRenderer lineEngine;
+    public float fPosZBase_lineEngine = -4f;
+    public float fPosZDelta_lineEngine = 0.5f;
+    private float fPosZLower_lineEngine;
+    private float fPosZUpper_lineEngine;
+    private TrailRenderer trailEngine;
 
     // Health:
     private Health healthPlayer;
@@ -111,11 +118,15 @@ public class PlayerController : MonoBehaviour
 
         foreach (Renderer rendChild in GetComponentsInChildren<Renderer>())
         {
-            if (rendChild.name != "Attack2ModeStraight")
+            if (!sListChildrenIgnoreFlashDamaged.Contains(rendChild.name))
             {
                 matListChildren.Add(rendChild.material);
             }
         }
+        lineEngine = transform.Find("Engine Emission/Line : Engine").gameObject.GetComponent<LineRenderer>();
+        fPosZLower_lineEngine = fPosZBase_lineEngine - fPosZDelta_lineEngine;
+        fPosZUpper_lineEngine = fPosZBase_lineEngine + fPosZDelta_lineEngine;
+        trailEngine = transform.Find("Engine Emission/Trail : Engine").gameObject.GetComponent<TrailRenderer>();
 
         healthPlayer = gameObject.AddComponent<Health>();
         healthPlayer.sliHealth = GameObject.Find("Slider : Health").GetComponent<Slider>();
@@ -137,7 +148,7 @@ public class PlayerController : MonoBehaviour
         goGunRightProjectileSpawnPoint = transform.Find("08_Gun_R/GunRightProjectileSpawnPoint").gameObject;
         goGunMiddleProjectileSpawnPoint = transform.Find("02_CockpitExtension/GunMiddleProjectileSpawnPoint").gameObject;
 
-        lineAttack2ModeStraight = transform.Find("Attack2ModeStraight").gameObject.GetComponent<LineRenderer>();
+        lineAttack2ModeStraight = transform.Find("Line : Attack2ModeStraight").gameObject.GetComponent<LineRenderer>();
         lineAttack2ModeStraight.enabled = false;
 
         iconListAttack2Mode.Add(new Icon(
@@ -211,6 +222,19 @@ public class PlayerController : MonoBehaviour
                 v3DirectionMove = v3DirectionMove.normalized;
             }
             rbPlayer.AddForce(fForceMove * v3DirectionMove);
+            if (!trailEngine.enabled)
+            {
+                lineEngine.SetPosition(1, lineEngine.GetPosition(0));
+                trailEngine.enabled = true;
+            }
+        }
+        else
+        {
+            lineEngine.SetPosition(1, new Vector3(0f, 0f, UnityEngine.Random.Range(fPosZLower_lineEngine, fPosZUpper_lineEngine)));
+            if (trailEngine.enabled)
+            {
+                trailEngine.enabled = false;
+            }
         }
 
         // ------------------------------------------------------------------------------------------------

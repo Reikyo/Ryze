@@ -23,6 +23,13 @@ public class EnemyController : MonoBehaviour
 
     // Appearance:
     private Material matEnemy;
+    private LineRenderer lineEngine1;
+    private LineRenderer lineEngine2;
+    private LineRenderer lineEngine3;
+    public float fPosZBase_lineEngine = -2f;
+    public float fPosZDelta_lineEngine = 0.25f;
+    private float fPosZLower_lineEngine;
+    private float fPosZUpper_lineEngine;
 
     // Health:
     private Health healthEnemy;
@@ -58,6 +65,11 @@ public class EnemyController : MonoBehaviour
         navEnemy = GetComponent<NavMeshAgent>();
 
         matEnemy = transform.Find("Chasis").gameObject.GetComponent<Renderer>().material;
+        lineEngine1 = transform.Find("Engine Emission (1)/Line : Engine").gameObject.GetComponent<LineRenderer>();
+        lineEngine2 = transform.Find("Engine Emission (2)/Line : Engine").gameObject.GetComponent<LineRenderer>();
+        lineEngine3 = transform.Find("Engine Emission (3)/Line : Engine").gameObject.GetComponent<LineRenderer>();
+        fPosZLower_lineEngine = fPosZBase_lineEngine - fPosZDelta_lineEngine;
+        fPosZUpper_lineEngine = fPosZBase_lineEngine + fPosZDelta_lineEngine;
 
         healthEnemy = gameObject.AddComponent<Health>();
         healthEnemy.sliHealth = transform.Find("Canvas : Health/Slider : Health").GetComponent<Slider>();
@@ -87,6 +99,9 @@ public class EnemyController : MonoBehaviour
         {
             SetDestination();
         }
+        lineEngine1.SetPosition(1, new Vector3(0f, 0f, Random.Range(fPosZLower_lineEngine, fPosZUpper_lineEngine)));
+        lineEngine2.SetPosition(1, new Vector3(0f, 0f, Random.Range(fPosZLower_lineEngine, fPosZUpper_lineEngine)));
+        lineEngine3.SetPosition(1, new Vector3(0f, 0f, Random.Range(fPosZLower_lineEngine, fPosZUpper_lineEngine)));
 
         // ------------------------------------------------------------------------------------------------
 

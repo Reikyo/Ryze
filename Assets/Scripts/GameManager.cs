@@ -102,6 +102,10 @@ public class GameManager : MonoBehaviour
             &&  Input.GetButtonDown("Pause") )
         {
             goPlayerClone.GetComponent<PlayerController>().enabled = false;
+            foreach (GameObject goEnemyClone in GameObject.FindGameObjectsWithTag("Enemy"))
+            {
+                goEnemyClone.GetComponent<EnemyController>().enabled = false;
+            }
             Time.timeScale = 0f;
             bPaused = true;
             goUICanvasPaused.SetActive(true);
@@ -114,6 +118,10 @@ public class GameManager : MonoBehaviour
                 ||  Input.GetButtonDown("Cancel") ) )
         {
             goPlayerClone.GetComponent<PlayerController>().enabled = true;
+            foreach (GameObject goEnemyClone in GameObject.FindGameObjectsWithTag("Enemy"))
+            {
+                goEnemyClone.GetComponent<EnemyController>().enabled = true;
+            }
             Time.timeScale = 1f;
             bPaused = false;
             goUICanvasPaused.SetActive(false);
