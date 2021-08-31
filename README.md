@@ -4,7 +4,7 @@
 
 Welcome to Ryze, a simple space shooter written in C# with Unity v2020.3. This game is still in the early stages, but so far features multiple weapons, special charge attacks, cunning AI enemy ships, and less cunning enemy asteroids. Check out some videos on my [YouTube channel](https://www.youtube.com/channel/UC0N-pEu5wcB38418Xdms7cA).
 
-<br/>
+<br/><br/>
 <img src="Images/Ryze_Start_Screen.png" alt="Ryze Start Screen" width="350"/>
 <img src="Images/Ryze_Gameplay.png" alt="Ryze Gameplay" width="350"/><br/><br/>
 <img src="Images/Ryze_Play_Screen.png" alt="Ryze Play Screen" width="350"/>
