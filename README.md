@@ -1,3 +1,18 @@
+[![Unity](https://img.shields.io/badge/v2020.3-Unity-09a3d5.svg)](https://unity.com)
+
+# Ryze
+
+Welcome to Ryze, a simple space shooter written in C# with Unity v2020.3. This game is still in the early stages, but so far features multiple weapons, special charge attacks, cunning AI enemy ships, and less cunning enemy asteroids. Check out some videos on my [YouTube channel](https://www.youtube.com/channel/UC0N-pEu5wcB38418Xdms7cA).
+
+<img src="images/Ryze_Start_Screen.png" alt="Level 1" width="400"/>
+<img src="images/Ryze_Gameplay.png" alt="Level 1" width="400"/><br/><br/>
+<img src="images/Ryze_Play_Screen.png" alt="Level 1" width="400"/>
+<img src="images/Ryze_Attack_1.png" alt="Level 1" width="400"/><br/><br/>
+<img src="images/Ryze_Attack_2_Mode_Straight.png" alt="Level 1" width="400"/>
+<img src="images/Ryze_Attack_2_Mode_Spiral.png" alt="Level 1" width="400"/>
+
+---
+
 ## Assets
 Design & Code &#169; 2021 [Darren Temple](https://github.com/Reikyo)<br/>
 All other assets are the property of their respective creators, and are used with thanks.
