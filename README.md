@@ -15,6 +15,7 @@ Welcome to Ryze, a simple space shooter written in C# with Unity v2020.3. This g
 ---
 
 ## Assets
+
 Design & Code &#169; 2021 [Darren Temple](https://github.com/Reikyo)<br/>
 All other assets are the property of their respective creators, and are used with thanks.
 
@@ -26,6 +27,11 @@ All other assets are the property of their respective creators, and are used wit
     - https://assetstore.unity.com/publishers/16362
     - https://assetstore.unity.com/packages/3d/vehicles/space/uav-trident-46128
 
+### Visual Effects:
+- Unity Technologies
+    - https://assetstore.unity.com/publishers/1
+    - https://assetstore.unity.com/packages/essentials/tutorial-projects/unity-particle-pack-127325
+
 ### Sound Effects:
 - Little Robot Sound Factory
     - https://assetstore.unity.com/publishers/5673
@@ -34,7 +40,7 @@ All other assets are the property of their respective creators, and are used wit
 - Shapeforms
     - https://assetstore.unity.com/publishers/40210
     - https://assetstore.unity.com/packages/audio/sound-fx/shapeforms-audio-free-sound-effects-183649
-- MGWSoundDesign
+- MGW Sound Design
     - https://assetstore.unity.com/publishers/27115
     - https://assetstore.unity.com/packages/audio/sound-fx/weapons/futuristic-gun-soundfx-100851
 
