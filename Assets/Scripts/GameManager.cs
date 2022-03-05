@@ -32,7 +32,7 @@ public class GameManager : MonoBehaviour
     // Movement:
     public Vector3 v3MoveLimitLowerLeft;
     public Vector3 v3MoveLimitUpperRight;
-    private Vector3 v3MoveLimitCamOffset = new Vector3(5f, 0f, 5f);
+    private Vector3 v3MoveLimitCamOffset = new Vector3(-5f, 0f, -5f);
 
     // Existence:
     public Vector3 v3ExistLimitLowerLeft;
@@ -48,6 +48,21 @@ public class GameManager : MonoBehaviour
 
     public GameObject goPlayer;
     private GameObject goPlayerClone;
+
+    // With these settings:
+    //   camMainCamera.transform.position.y =  100
+    //   spawnManager.fPositionYSpawnStars  = -500
+    // We then have:
+    //   v3CamLowerLeft                  (-102.6,    0.0,  -17.7)
+    //   v3CamUpperRight                 ( 102.6,    0.0,   97.7)
+    //   v3CamLowerLeftStars             (-615.8, -500.0, -306.4)
+    //   v3CamUpperRightStars            ( 615.8, -500.0,  386.4)
+    //   v3MoveLimitLowerLeft            ( -97.6,    0.0,  -12.7)
+    //   v3MoveLimitUpperRight           (  97.6,    0.0,   92.7)
+    //   v3ExistLimitLowerLeft           (-122.6,    0.0,  -37.7)
+    //   v3ExistLimitUpperRight          ( 122.6,    0.0,  117.7)
+    //   v3ExistLimitLowerLeftStars      (-635.8, -500.0, -326.4)
+    //   v3ExistLimitUpperRightStars     ( 635.8, -500.0,  406.4)
 
     // ------------------------------------------------------------------------------------------------
 
@@ -76,8 +91,8 @@ public class GameManager : MonoBehaviour
         v3CamLowerLeftStars = camMainCamera.ViewportToWorldPoint(new Vector3(0, 0, camMainCamera.transform.position.y - spawnManager.fPositionYSpawnStars));
         v3CamUpperRightStars = camMainCamera.ViewportToWorldPoint(new Vector3(1, 1, camMainCamera.transform.position.y - spawnManager.fPositionYSpawnStars));
 
-        v3MoveLimitLowerLeft = v3CamLowerLeft + v3MoveLimitCamOffset;
-        v3MoveLimitUpperRight = v3CamUpperRight - v3MoveLimitCamOffset;
+        v3MoveLimitLowerLeft = v3CamLowerLeft - v3MoveLimitCamOffset;
+        v3MoveLimitUpperRight = v3CamUpperRight + v3MoveLimitCamOffset;
 
         v3ExistLimitLowerLeft = v3CamLowerLeft - v3ExistLimitCamOffset;
         v3ExistLimitUpperRight = v3CamUpperRight + v3ExistLimitCamOffset;
