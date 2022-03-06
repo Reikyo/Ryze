@@ -146,20 +146,6 @@ public class GameManager : MonoBehaviour
 
     // ------------------------------------------------------------------------------------------------
 
-    public void HandleUIButton(string sNameUIButton)
-    {
-        switch(sNameUIButton)
-        {
-            case "Button : Start": StartGame(); break;
-            case "Button : Controls": ToggleUICanvas(goUICanvasControls); break;
-            case "Button : Credits": ToggleUICanvas(goUICanvasCredits); break;
-            case "Button : Retry": RestartLevel(); break;
-            case "Button : Title": EndGame(); break;
-        }
-    }
-
-    // ------------------------------------------------------------------------------------------------
-
     public void StartGame()
     {
         goPlayerClone = Instantiate(goPlayer);
@@ -215,23 +201,26 @@ public class GameManager : MonoBehaviour
 
     // ------------------------------------------------------------------------------------------------
 
-    public void ToggleUICanvas(GameObject goUICanvas = null)
+    public void ToggleUICanvas(string sUICanvas = "")
     {
-        if (    !goUICanvas
-            &&  goUICanvasActive )
+        if (sUICanvas == "Controls")
         {
-            goUICanvas = goUICanvasActive;
+            goUICanvasActive = goUICanvasControls;
+        }
+        else if (sUICanvas == "Credits")
+        {
+            goUICanvasActive = goUICanvasCredits;
         }
 
-        goUICanvasTitle.SetActive(!goUICanvasTitle.activeSelf);
-        goUICanvas.SetActive(!goUICanvas.activeSelf);
-
-        if (goUICanvas.activeSelf)
+        if (goUICanvasTitle.activeSelf)
         {
-            goUICanvasActive = goUICanvas;
+            goUICanvasTitle.SetActive(false);
+            goUICanvasActive.SetActive(true);
         }
         else
         {
+            goUICanvasActive.SetActive(false);
+            goUICanvasTitle.SetActive(true);
             goUICanvasActive = null;
         }
     }

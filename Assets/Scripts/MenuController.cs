@@ -68,7 +68,14 @@ public class MenuController : MonoBehaviour
 
         if (Input.GetButtonDown("Submit"))
         {
-            gameManager.HandleUIButton(butListButtons[iButtonSelected].gameObject.name);
+            switch(butListButtons[iButtonSelected].gameObject.name)
+            {
+                case "Button : Start": gameManager.StartGame(); break;
+                case "Button : Controls": gameManager.ToggleUICanvas("Controls"); break;
+                case "Button : Credits": gameManager.ToggleUICanvas("Credits"); break;
+                case "Button : Retry": gameManager.RestartLevel(); break;
+                case "Button : Title": gameManager.EndGame(); break;
+            }
             audioManager.sfxclpvolUISubmit.PlayOneShot();
             return;
         }
