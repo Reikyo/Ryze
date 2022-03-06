@@ -83,16 +83,16 @@ public class AudioManager : MonoBehaviour
         // sfxclpvolListProjectilePlayer.Add(new SfxClpVol((AudioClip)AssetDatabase.LoadAssetAtPath(sPathAudio + "Little Robot Sound Factory/UI Sfx/Mp3/Click_Electronic/Click_Electronic_05.mp3", typeof(AudioClip)), 0.75f)); // Okay, but a bit too chirpy like a little bird
         // sfxclpvolListProjectilePlayer.Add(new SfxClpVol((AudioClip)AssetDatabase.LoadAssetAtPath(sPathAudio + "Little Robot Sound Factory/UI Sfx/Mp3/Click_Standard_00.mp3", typeof(AudioClip)), 0.75f)); // Okay, but a bit too clicky like a typewriter
 
-        sfxclpvolListProjectileEnemy.Add(new SfxClpVol((AudioClip)AssetDatabase.LoadAssetAtPath(sPathAudio + "MGWSoundDesign/FuturisticGunSoundFX/Laser/Laser6.wav", typeof(AudioClip)), 0.1f));
-        sfxclpvolListProjectileEnemy.Add(new SfxClpVol((AudioClip)AssetDatabase.LoadAssetAtPath(sPathAudio + "MGWSoundDesign/FuturisticGunSoundFX/Laser/Laser7.wav", typeof(AudioClip)), 0.1f));
-        sfxclpvolListProjectileEnemy.Add(new SfxClpVol((AudioClip)AssetDatabase.LoadAssetAtPath(sPathAudio + "MGWSoundDesign/FuturisticGunSoundFX/Laser/Laser8.wav", typeof(AudioClip)), 0.1f));
-        sfxclpvolListProjectileEnemy.Add(new SfxClpVol((AudioClip)AssetDatabase.LoadAssetAtPath(sPathAudio + "MGWSoundDesign/FuturisticGunSoundFX/Laser/Laser9.wav", typeof(AudioClip)), 0.1f));
-        sfxclpvolListProjectileEnemy.Add(new SfxClpVol((AudioClip)AssetDatabase.LoadAssetAtPath(sPathAudio + "MGWSoundDesign/FuturisticGunSoundFX/Laser/Laser10.wav", typeof(AudioClip)), 0.1f));
-        sfxclpvolListProjectileEnemy.Add(new SfxClpVol((AudioClip)AssetDatabase.LoadAssetAtPath(sPathAudio + "MGWSoundDesign/FuturisticGunSoundFX/Laser/Laser16.wav", typeof(AudioClip)), 0.1f));
-        sfxclpvolListProjectileEnemy.Add(new SfxClpVol((AudioClip)AssetDatabase.LoadAssetAtPath(sPathAudio + "MGWSoundDesign/FuturisticGunSoundFX/Laser/Laser17.wav", typeof(AudioClip)), 0.1f));
-        sfxclpvolListProjectileEnemy.Add(new SfxClpVol((AudioClip)AssetDatabase.LoadAssetAtPath(sPathAudio + "MGWSoundDesign/FuturisticGunSoundFX/Laser/Laser18.wav", typeof(AudioClip)), 0.1f));
-        sfxclpvolListProjectileEnemy.Add(new SfxClpVol((AudioClip)AssetDatabase.LoadAssetAtPath(sPathAudio + "MGWSoundDesign/FuturisticGunSoundFX/Laser/Laser19.wav", typeof(AudioClip)), 0.1f));
-        sfxclpvolListProjectileEnemy.Add(new SfxClpVol((AudioClip)AssetDatabase.LoadAssetAtPath(sPathAudio + "MGWSoundDesign/FuturisticGunSoundFX/Laser/Laser20.wav", typeof(AudioClip)), 0.1f));
+        sfxclpvolListProjectileEnemy.Add(new SfxClpVol((AudioClip)AssetDatabase.LoadAssetAtPath(sPathAudio + "MGW Sound Design/FuturisticGunSoundFX/Laser/Laser6.wav", typeof(AudioClip)), 0.1f));
+        sfxclpvolListProjectileEnemy.Add(new SfxClpVol((AudioClip)AssetDatabase.LoadAssetAtPath(sPathAudio + "MGW Sound Design/FuturisticGunSoundFX/Laser/Laser7.wav", typeof(AudioClip)), 0.1f));
+        sfxclpvolListProjectileEnemy.Add(new SfxClpVol((AudioClip)AssetDatabase.LoadAssetAtPath(sPathAudio + "MGW Sound Design/FuturisticGunSoundFX/Laser/Laser8.wav", typeof(AudioClip)), 0.1f));
+        sfxclpvolListProjectileEnemy.Add(new SfxClpVol((AudioClip)AssetDatabase.LoadAssetAtPath(sPathAudio + "MGW Sound Design/FuturisticGunSoundFX/Laser/Laser9.wav", typeof(AudioClip)), 0.1f));
+        sfxclpvolListProjectileEnemy.Add(new SfxClpVol((AudioClip)AssetDatabase.LoadAssetAtPath(sPathAudio + "MGW Sound Design/FuturisticGunSoundFX/Laser/Laser10.wav", typeof(AudioClip)), 0.1f));
+        sfxclpvolListProjectileEnemy.Add(new SfxClpVol((AudioClip)AssetDatabase.LoadAssetAtPath(sPathAudio + "MGW Sound Design/FuturisticGunSoundFX/Laser/Laser16.wav", typeof(AudioClip)), 0.1f));
+        sfxclpvolListProjectileEnemy.Add(new SfxClpVol((AudioClip)AssetDatabase.LoadAssetAtPath(sPathAudio + "MGW Sound Design/FuturisticGunSoundFX/Laser/Laser17.wav", typeof(AudioClip)), 0.1f));
+        sfxclpvolListProjectileEnemy.Add(new SfxClpVol((AudioClip)AssetDatabase.LoadAssetAtPath(sPathAudio + "MGW Sound Design/FuturisticGunSoundFX/Laser/Laser18.wav", typeof(AudioClip)), 0.1f));
+        sfxclpvolListProjectileEnemy.Add(new SfxClpVol((AudioClip)AssetDatabase.LoadAssetAtPath(sPathAudio + "MGW Sound Design/FuturisticGunSoundFX/Laser/Laser19.wav", typeof(AudioClip)), 0.1f));
+        sfxclpvolListProjectileEnemy.Add(new SfxClpVol((AudioClip)AssetDatabase.LoadAssetAtPath(sPathAudio + "MGW Sound Design/FuturisticGunSoundFX/Laser/Laser20.wav", typeof(AudioClip)), 0.1f));
 
         sfxclpvolPowerUpHealth = new SfxClpVol((AudioClip)AssetDatabase.LoadAssetAtPath(sPathAudio + "Little Robot Sound Factory/Electric Sfx/Mp3/Jingle_Win_Synth/Jingle_Win_Synth_03.mp3", typeof(AudioClip)), 0.5f);
         sfxclpvolPowerUpCharge = new SfxClpVol((AudioClip)AssetDatabase.LoadAssetAtPath(sPathAudio + "Little Robot Sound Factory/Electric Sfx/Mp3/Jingle_Win_Synth/Jingle_Win_Synth_04.mp3", typeof(AudioClip)), 0.5f);
@@ -105,6 +105,7 @@ public class AudioManager : MonoBehaviour
 
     void Update()
     {
+        // Enable the following for music:
         // if (!audioSource.isPlaying)
         // {
         //     sfxclpvolListMusic[iIdx_sfxclpvolListMusic].PlayOneShot();
