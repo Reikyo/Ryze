@@ -12,6 +12,7 @@ public class SpawnManager : MonoBehaviour
     public bool bSpawnAsteroids = false;
     public bool bSpawnEnemies = false;
 
+    // Stars:
     public GameObject[] goArrStars;
     private GameObject goStar;
     private float fTimeNextSpawnStar;
@@ -19,16 +20,21 @@ public class SpawnManager : MonoBehaviour
     public float fTimeDeltaMaxSpawnStar = 5f;
     public float fPositionYSpawnStars = -500f;
 
+    // Asteroids:
     public GameObject[] goArrAsteroids;
     private GameObject goAsteroid;
     private float fTimeNextSpawnAsteroid;
     public float fTimeDeltaMinSpawnAsteroid = 0f;
     public float fTimeDeltaMaxSpawnAsteroid = 2f;
 
+    // Enemies:
     public GameObject goEnemy;
     public int iNumEnemy = 0;
+    private int iNumEnemyPerWave = 3;
     private float fTimeNextSpawnEnemy;
+    private float fTimeDeltaSpawnEnemy = 3f;
 
+    // PowerUps:
     public GameObject goPowerUpHealth;
     public GameObject goPowerUpCharge;
 
@@ -51,7 +57,7 @@ public class SpawnManager : MonoBehaviour
 
         fTimeNextSpawnStar = Time.time + Random.Range(fTimeDeltaMinSpawnStar, fTimeDeltaMaxSpawnStar);
         fTimeNextSpawnAsteroid = Time.time + Random.Range(fTimeDeltaMinSpawnAsteroid, fTimeDeltaMaxSpawnAsteroid);
-        fTimeNextSpawnEnemy = Time.time + 3f;
+        fTimeNextSpawnEnemy = Time.time + fTimeDeltaSpawnEnemy;
 
         fTimeDelta_vfxclpExplosionAsteroid = vfxclpExplosionAsteroid.GetComponent<ParticleSystem>().main.duration;
         fTimeDelta_vfxclpExplosionEnemy = vfxclpExplosionAsteroid.GetComponent<ParticleSystem>().main.duration;
@@ -124,7 +130,7 @@ public class SpawnManager : MonoBehaviour
 
     private void SpawnEnemies()
     {
-        for (int i=0; i<3; i++)
+        for (int i=0; i<iNumEnemyPerWave; i++)
         {
             Vector3 v3PositionSpawn = new Vector3(0f, 0f, 0f);
             Vector3 v3PositionConstant = new Vector3(0f, 0f, 0f);
@@ -156,12 +162,12 @@ public class SpawnManager : MonoBehaviour
             );
 
             EnemyController enemyController = goEnemyClone.GetComponent<EnemyController>();
-            enemyController.moveMode = moveMode;
             enemyController.v3PositionConstant = v3PositionConstant;
+            enemyController.moveMode = moveMode;
 
             iNumEnemy += 1;
         }
-        fTimeNextSpawnEnemy = Time.time + 3f;
+        fTimeNextSpawnEnemy = Time.time + fTimeDeltaSpawnEnemy;
         bSpawnEnemies = true;
     }
 
@@ -274,13 +280,13 @@ public class SpawnManager : MonoBehaviour
 
     public void DestroyPowerUps()
     {
-        foreach (GameObject goPowerUpHealth in GameObject.FindGameObjectsWithTag("PowerUpHealth"))
+        foreach (GameObject goPowerUpHealthClone in GameObject.FindGameObjectsWithTag("PowerUpHealth"))
         {
-            Destroy(goPowerUpHealth);
+            Destroy(goPowerUpHealthClone);
         }
-        foreach (GameObject goPowerUpCharge in GameObject.FindGameObjectsWithTag("PowerUpCharge"))
+        foreach (GameObject goPowerUpChargeClone in GameObject.FindGameObjectsWithTag("PowerUpCharge"))
         {
-            Destroy(goPowerUpCharge);
+            Destroy(goPowerUpChargeClone);
         }
     }
 
@@ -288,13 +294,13 @@ public class SpawnManager : MonoBehaviour
 
     public void DestroyProjectiles()
     {
-        foreach (GameObject goProjectilePlayer in GameObject.FindGameObjectsWithTag("ProjectilePlayer"))
+        foreach (GameObject goProjectilePlayerClone in GameObject.FindGameObjectsWithTag("ProjectilePlayer"))
         {
-            Destroy(goProjectilePlayer);
+            Destroy(goProjectilePlayerClone);
         }
-        foreach (GameObject goProjectileEnemy in GameObject.FindGameObjectsWithTag("ProjectileEnemy"))
+        foreach (GameObject goProjectileEnemyClone in GameObject.FindGameObjectsWithTag("ProjectileEnemy"))
         {
-            Destroy(goProjectileEnemy);
+            Destroy(goProjectileEnemyClone);
         }
     }
 
