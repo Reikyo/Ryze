@@ -99,6 +99,7 @@ public class EnemyController : MonoBehaviour
         {
             SetDestination();
         }
+        // Randomise the engine exhaust for a flickering effect:
         lineEngine1.SetPosition(1, new Vector3(0f, 0f, Random.Range(fPosZLower_lineEngine, fPosZUpper_lineEngine)));
         lineEngine2.SetPosition(1, new Vector3(0f, 0f, Random.Range(fPosZLower_lineEngine, fPosZUpper_lineEngine)));
         lineEngine3.SetPosition(1, new Vector3(0f, 0f, Random.Range(fPosZLower_lineEngine, fPosZUpper_lineEngine)));

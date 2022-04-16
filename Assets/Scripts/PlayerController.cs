@@ -230,6 +230,7 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
+            // Randomise the engine exhaust for a flickering effect:
             lineEngine.SetPosition(1, new Vector3(0f, 0f, UnityEngine.Random.Range(fPosZLower_lineEngine, fPosZUpper_lineEngine)));
             if (trailEngine.enabled)
             {
@@ -394,7 +395,7 @@ public class PlayerController : MonoBehaviour
                     goGunRightProjectileSpawnPoint.transform.position,
                     goGunRightProjectileSpawnPoint.transform.rotation
                 );
-                // audioManager.sfxclpvolListProjectilePlayer[Random.Range(0, audioManager.sfxclpvolListProjectilePlayer.Count)].PlayOneShot();
+                // audioManager.sfxclpvolListProjectilePlayer[UnityEngine.Random.Range(0, audioManager.sfxclpvolListProjectilePlayer.Count)].PlayOneShot();
                 audioManager.sfxclpvolListProjectilePlayer[0].PlayOneShot();
                 fTimeNextAttack1 = Time.time + fTimeDeltaAttack1;
             }
@@ -537,7 +538,7 @@ public class PlayerController : MonoBehaviour
         if (collision.gameObject.CompareTag("Asteroid"))
         {
             // The approximate extremes we are looking at here for a stationary player are:
-            //   1,000 kg asteroid with relative speed of 1 ms^-1 => relative momentum = 1 kg ms^-1
+            //   1,000 kg asteroid with relative speed of 1 ms^-1 => relative momentum = 1,000 kg ms^-1
             //   5,000 kg asteroid with relative speed of 50 ms^-1 => relative momentum = 250,000 kg ms^-1
             fRelativeMomentum = collision.rigidbody.mass * collision.relativeVelocity.magnitude;
             fRelativeMomentum *= 0.01f; // Adjustment to reduce damage done to player, still tweaking to get a good balance ...
