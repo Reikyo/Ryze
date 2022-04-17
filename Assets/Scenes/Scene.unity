@@ -8446,7 +8446,7 @@ MonoBehaviour:
   - {fileID: 3718482580738710056, guid: b0de720205efe4440b4a8bd50ef1d435, type: 3}
   fTimeDeltaMinSpawnAsteroid: 0
   fTimeDeltaMaxSpawnAsteroid: 2
-  goEnemy: {fileID: 1550699715972293678, guid: 54ff2ebfae43f4e98a4d2f6d04652920, type: 3}
+  goEnemy: {fileID: 8076383933121736018, guid: 4c7ad4d51a29a47958df7700a12cbd2a, type: 3}
   iNumEnemy: 0
   goPowerUpHealth: {fileID: 1018675173185206068, guid: ce607661348f44dfdb82d24cca075f64, type: 3}
   goPowerUpCharge: {fileID: 1018675173185206068, guid: c5db70ba09ede45059d4332ba3815e71, type: 3}

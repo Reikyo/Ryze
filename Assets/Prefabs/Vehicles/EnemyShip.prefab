@@ -282,9 +282,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1550699715972519410}
+  - component: {fileID: 8967354032610413327}
   - component: {fileID: 1550699715973220608}
   - component: {fileID: 1550699715974472278}
-  - component: {fileID: 7318640812991346766}
   m_Layer: 0
   m_Name: Chasis
   m_TagString: Untagged
@@ -307,6 +307,19 @@ Transform:
   m_Father: {fileID: 1550699715972474944}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &8967354032610413327
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1550699715972287576}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1.5, y: 0.2, z: 1.5}
+  m_Center: {x: 0.025, y: 0, z: -0.2}
 --- !u!33 &1550699715973220608
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -356,19 +369,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &7318640812991346766
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1550699715972287576}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 1.5, y: 0.2, z: 1.5}
-  m_Center: {x: 0.025, y: 0, z: -0.2}
 --- !u!1 &1550699715972293678
 GameObject:
   m_ObjectHideFlags: 0
@@ -378,7 +378,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1550699715972474944}
-  - component: {fileID: 332078694017000947}
+  - component: {fileID: 847101698587322141}
   - component: {fileID: 9011988410261696467}
   - component: {fileID: 2677698288876191318}
   m_Layer: 0
@@ -407,7 +407,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!54 &332078694017000947
+--- !u!54 &847101698587322141
 Rigidbody:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -460,6 +460,8 @@ MonoBehaviour:
   v3PositionConstant: {x: 0, y: 0, z: 0}
   moveMode: 0
   fAngSpeedMove: 5
+  fPosZBase_lineEngine: -2
+  fPosZDelta_lineEngine: 0.25
   fTimeFlashDamaged: 0.1
   goProjectile: {fileID: 3262308912846389460, guid: 92040474b5c7e457092c19efa9a9bd77, type: 3}
   iNumMaxAttackBurst: 5
