@@ -40,6 +40,7 @@ public class PlayerController : MonoBehaviour
     public float fTimeFlashDamaged = 0.1f;
     private float fRelativeMomentum;
     public float fRelativeMomentumBenchmark = 250000f;
+    private bool bTriggeredFlashDamagedContinuous = false;
 
     // Damage:
     private Health chargeAttack1;
@@ -248,6 +249,20 @@ public class PlayerController : MonoBehaviour
             Vector3 v3PositionRelativeLook = (new Vector3(fInputHorzLook, 0f, fInputVertLook).normalized);
             Vector3 v3PositionRelativeLookNow = Vector3.RotateTowards(transform.forward, v3PositionRelativeLook, fAngSpeedMove * Time.deltaTime, 0f);
             transform.rotation = Quaternion.LookRotation(v3PositionRelativeLookNow);
+        }
+
+        // ------------------------------------------------------------------------------------------------
+
+        // Health
+
+        if (    (healthPlayer.iHealth == 0)
+            &&  (gameManager.bInPlay) )
+        {
+            if (lineAttack2ModeStraight.enabled)
+            {
+                lineAttack2ModeStraight.enabled = false;
+            }
+            gameManager.GameOver();
         }
 
         // ------------------------------------------------------------------------------------------------
@@ -508,6 +523,18 @@ public class PlayerController : MonoBehaviour
 
     // ------------------------------------------------------------------------------------------------
 
+    public void SetHealthDeltaPerSec(int iHealthDeltaPerSecDelta)
+    {
+        healthPlayer.iHealthDeltaPerSec += iHealthDeltaPerSecDelta;
+        if (    (!bTriggeredFlashDamagedContinuous)
+            &&  (healthPlayer.iHealthDeltaPerSec < 0) )
+        {
+            StartCoroutine(FlashDamagedContinuous());
+        }
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
     IEnumerator FlashDamaged()
     {
         // goShield.SetActive(true);
@@ -529,6 +556,30 @@ public class PlayerController : MonoBehaviour
         {
             matChild.DisableKeyword("_EMISSION");
         }
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
+    IEnumerator FlashDamagedContinuous()
+    {
+        bTriggeredFlashDamagedContinuous = true;
+        while (healthPlayer.iHealthDeltaPerSec < 0)
+        {
+            foreach (Material matChild in matListChildren)
+            {
+                matChild.EnableKeyword("_EMISSION");
+            }
+
+            yield return new WaitForSeconds(fTimeFlashDamaged);
+
+            foreach (Material matChild in matListChildren)
+            {
+                matChild.DisableKeyword("_EMISSION");
+            }
+
+            yield return new WaitForSeconds(fTimeFlashDamaged);
+        }
+        bTriggeredFlashDamagedContinuous = false;
     }
 
     // ------------------------------------------------------------------------------------------------
@@ -595,15 +646,6 @@ public class PlayerController : MonoBehaviour
                     transform
                 );
                 Destroy(collider.gameObject);
-                if (    (healthPlayer.iHealth == 0)
-                    &&  (gameManager.bInPlay) )
-                {
-                    if (lineAttack2ModeStraight.enabled)
-                    {
-                        lineAttack2ModeStraight.enabled = false;
-                    }
-                    gameManager.GameOver();
-                }
                 StartCoroutine(FlashDamaged());
             }
             return;

@@ -13,6 +13,7 @@ TagManager:
   - PowerUpCharge
   - ProjectilePlayer
   - ProjectileEnemy
+  - LaserEnemy
   layers:
   - Default
   - TransparentFX

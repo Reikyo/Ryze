@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10,6 +11,9 @@ public class Health : MonoBehaviour
     public int iHealthMax = 100;
     public Slider sliHealth;
 
+    public int iHealthDeltaPerSec = 0;
+    private float fTimeNextHealthChange = 0f;
+
     // ------------------------------------------------------------------------------------------------
 
     void Start()
@@ -18,6 +22,25 @@ public class Health : MonoBehaviour
             &&  (sliHealth.value != iHealth) )
         {
             SetSlider();
+        }
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
+    void Update()
+    {
+        if (    (iHealthDeltaPerSec != 0)
+            &&  (Time.time >= fTimeNextHealthChange) )
+        {
+            if (iHealthDeltaPerSec > 0)
+            {
+                Change(+1);
+            }
+            else
+            {
+                Change(-1);
+            }
+            fTimeNextHealthChange = Time.time + (1f / Math.Abs(iHealthDeltaPerSec));
         }
     }
 

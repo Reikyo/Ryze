@@ -40,6 +40,7 @@ public class EnemyController : MonoBehaviour
     // Damage:
     public GameObject goProjectile;
     private GameObject goGunMiddleProjectileSpawnPoint;
+    private GameObject goLaser;
     private int iNumAttack = 0;
     private int iNumAttackBurst;
     public int iNumMaxAttackBurst = 5;
@@ -47,6 +48,10 @@ public class EnemyController : MonoBehaviour
     public float fTimeDeltaAttack = 0.5f;
     public float fTimeDeltaMinAttackBurst = 2f;
     public float fTimeDeltaMaxAttackBurst = 5f;
+    public enum DamageMode {projectile, laser};
+    public DamageMode damageMode;
+    private List<Collider> cdrListPlayer = new List<Collider>();
+    private int iDamageLaser = 1;
 
     // Score:
     public int iScoreDelta = 10;
@@ -76,7 +81,8 @@ public class EnemyController : MonoBehaviour
         healthEnemy.Change(healthEnemy.iHealthMax);
         rtCanvasHealth = transform.Find("Canvas : Health").GetComponent<RectTransform>();
 
-        goGunMiddleProjectileSpawnPoint = transform.Find("Chasis/GunMiddleProjectileSpawnPoint").gameObject;
+        goGunMiddleProjectileSpawnPoint = transform.Find("Weapons/GunMiddleProjectileSpawnPoint").gameObject;
+        goLaser = transform.Find("Weapons/Laser").gameObject;
         iNumAttackBurst = Random.Range(1, iNumMaxAttackBurst+1);
         fTimeNextAttack = Time.time + Random.Range(fTimeDeltaMinAttackBurst, fTimeDeltaMaxAttackBurst);
 
@@ -121,26 +127,47 @@ public class EnemyController : MonoBehaviour
 
         // Damage:
 
-        if (v3PositionRelativeLook.magnitude <= 200f)
+        if (    (damageMode == DamageMode.projectile)
+            &&  (goProjectile) )
         {
-            if (Time.time >= fTimeNextAttack)
+            if (v3PositionRelativeLook.magnitude <= 200f)
             {
-                GameObject goProjectileClone = Instantiate(
-                    goProjectile,
-                    goGunMiddleProjectileSpawnPoint.transform.position,
-                    goGunMiddleProjectileSpawnPoint.transform.rotation
-                );
-                audioManager.sfxclpvolListProjectileEnemy[Random.Range(0, audioManager.sfxclpvolListProjectileEnemy.Count)].PlayOneShot();
-                iNumAttack += 1;
-                if (iNumAttack < iNumAttackBurst)
+                if (Time.time >= fTimeNextAttack)
                 {
-                    fTimeNextAttack = Time.time + fTimeDeltaAttack;
+                    GameObject goProjectileClone = Instantiate(
+                        goProjectile,
+                        goGunMiddleProjectileSpawnPoint.transform.position,
+                        goGunMiddleProjectileSpawnPoint.transform.rotation
+                    );
+                    audioManager.sfxclpvolListProjectileEnemy[Random.Range(0, audioManager.sfxclpvolListProjectileEnemy.Count)].PlayOneShot();
+                    iNumAttack += 1;
+                    if (iNumAttack < iNumAttackBurst)
+                    {
+                        fTimeNextAttack = Time.time + fTimeDeltaAttack;
+                    }
+                    else
+                    {
+                        iNumAttack = 0;
+                        iNumAttackBurst = Random.Range(1, iNumMaxAttackBurst+1);
+                        fTimeNextAttack = Time.time + Random.Range(fTimeDeltaMinAttackBurst, fTimeDeltaMaxAttackBurst);
+                    }
                 }
-                else
+            }
+        }
+        else if (   (damageMode == DamageMode.laser)
+                &&  (goLaser) )
+        {
+            if (v3PositionRelativeLook.magnitude <= 50f)
+            {
+                goLaser.SetActive(true);
+            }
+            else if (goLaser.activeSelf)
+            {
+                goLaser.SetActive(false);
+                if (cdrListPlayer.Count > 0)
                 {
-                    iNumAttack = 0;
-                    iNumAttackBurst = Random.Range(1, iNumMaxAttackBurst+1);
-                    fTimeNextAttack = Time.time + Random.Range(fTimeDeltaMinAttackBurst, fTimeDeltaMaxAttackBurst);
+                    cdrListPlayer.Clear();
+                    goPlayer.GetComponent<PlayerController>().SetHealthDeltaPerSec(+iDamageLaser);
                 }
             }
         }
@@ -257,9 +284,44 @@ public class EnemyController : MonoBehaviour
                             spawnManager.SpawnPowerUpCharge(transform.position);
                         }
                     }
+                    if (    (goLaser.activeSelf)
+                        &&  (cdrListPlayer.Count > 0) )
+                    {
+                        goPlayer.GetComponent<PlayerController>().SetHealthDeltaPerSec(+iDamageLaser);
+                    }
                     Destroy(gameObject);
                 }
                 StartCoroutine(FlashDamaged());
+            }
+            return;
+        }
+        if (collider.attachedRigidbody.gameObject.CompareTag("Player"))
+        {
+            if (!cdrListPlayer.Contains(collider))
+            {
+                cdrListPlayer.Add(collider);
+                if (cdrListPlayer.Count == 1)
+                {
+                    goPlayer.GetComponent<PlayerController>().SetHealthDeltaPerSec(-iDamageLaser);
+                }
+            }
+            return;
+        }
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
+    private void OnTriggerExit(Collider collider)
+    {
+        if (collider.attachedRigidbody.gameObject.CompareTag("Player"))
+        {
+            if (cdrListPlayer.Contains(collider))
+            {
+                cdrListPlayer.Remove(collider);
+                if (cdrListPlayer.Count == 0)
+                {
+                    goPlayer.GetComponent<PlayerController>().SetHealthDeltaPerSec(+iDamageLaser);
+                }
             }
             return;
         }

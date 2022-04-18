@@ -134,7 +134,6 @@ public class SpawnManager : MonoBehaviour
         {
             Vector3 v3PositionSpawn = new Vector3(0f, 0f, 0f);
             Vector3 v3PositionConstant = new Vector3(0f, 0f, 0f);
-            EnemyController.MoveMode moveMode = EnemyController.MoveMode.random;
 
             switch(i)
             {
@@ -163,7 +162,8 @@ public class SpawnManager : MonoBehaviour
 
             EnemyController enemyController = goEnemyClone.GetComponent<EnemyController>();
             enemyController.v3PositionConstant = v3PositionConstant;
-            enemyController.moveMode = moveMode;
+            enemyController.moveMode = EnemyController.MoveMode.random;
+            enemyController.damageMode = EnemyController.DamageMode.laser;
 
             iNumEnemy += 1;
         }
