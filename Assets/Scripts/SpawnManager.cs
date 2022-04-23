@@ -30,7 +30,7 @@ public class SpawnManager : MonoBehaviour
     // Enemies:
     public GameObject goEnemy;
     public int iNumEnemy = 0;
-    private int iNumEnemyPerWave = 3;
+    private int iNumEnemyPerWave = 1;
     private float fTimeNextSpawnEnemy;
     private float fTimeDeltaSpawnEnemy = 3f;
 
@@ -163,7 +163,7 @@ public class SpawnManager : MonoBehaviour
             EnemyController enemyController = goEnemyClone.GetComponent<EnemyController>();
             enemyController.v3PositionConstant = v3PositionConstant;
             enemyController.moveMode = EnemyController.MoveMode.random;
-            enemyController.damageMode = EnemyController.DamageMode.laser;
+            enemyController.attackMode = EnemyController.AttackMode.laser;
 
             iNumEnemy += 1;
         }

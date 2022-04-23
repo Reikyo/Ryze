@@ -39,8 +39,14 @@ public class EnemyController : MonoBehaviour
 
     // Damage:
     public GameObject goProjectile;
-    private GameObject goGunMiddleProjectileSpawnPoint;
     private GameObject goLaser;
+    private LineRenderer lineLaser;
+    private float fPosZBase_lineLaser;
+    private GameObject goGunMiddleProjectileSpawnPoint;
+
+    public enum AttackMode {projectile, laser};
+    public AttackMode attackMode;
+
     private int iNumAttack = 0;
     private int iNumAttackBurst;
     public int iNumMaxAttackBurst = 5;
@@ -48,10 +54,9 @@ public class EnemyController : MonoBehaviour
     public float fTimeDeltaAttack = 0.5f;
     public float fTimeDeltaMinAttackBurst = 2f;
     public float fTimeDeltaMaxAttackBurst = 5f;
-    public enum DamageMode {projectile, laser};
-    public DamageMode damageMode;
-    private List<Collider> cdrListPlayer = new List<Collider>();
+
     private int iDamageLaser = 1;
+    private List<Collider> cdrListPlayer = new List<Collider>();
 
     // Score:
     public int iScoreDelta = 10;
@@ -81,8 +86,10 @@ public class EnemyController : MonoBehaviour
         healthEnemy.Change(healthEnemy.iHealthMax);
         rtCanvasHealth = transform.Find("Canvas : Health").GetComponent<RectTransform>();
 
+        goLaser = transform.Find("Weapons/Line : Laser").gameObject;
+        lineLaser = goLaser.GetComponent<LineRenderer>();
+        fPosZBase_lineLaser = lineLaser.GetPosition(1).z;
         goGunMiddleProjectileSpawnPoint = transform.Find("Weapons/GunMiddleProjectileSpawnPoint").gameObject;
-        goLaser = transform.Find("Weapons/Laser").gameObject;
         iNumAttackBurst = Random.Range(1, iNumMaxAttackBurst+1);
         fTimeNextAttack = Time.time + Random.Range(fTimeDeltaMinAttackBurst, fTimeDeltaMaxAttackBurst);
 
@@ -95,7 +102,6 @@ public class EnemyController : MonoBehaviour
 
     void Update()
     {
-
         // ------------------------------------------------------------------------------------------------
 
         // Movement:
@@ -127,7 +133,7 @@ public class EnemyController : MonoBehaviour
 
         // Damage:
 
-        if (    (damageMode == DamageMode.projectile)
+        if (    (attackMode == AttackMode.projectile)
             &&  (goProjectile) )
         {
             if (v3PositionRelativeLook.magnitude <= 200f)
@@ -154,12 +160,24 @@ public class EnemyController : MonoBehaviour
                 }
             }
         }
-        else if (   (damageMode == DamageMode.laser)
+        else if (   (attackMode == AttackMode.laser)
                 &&  (goLaser) )
         {
             if (v3PositionRelativeLook.magnitude <= 50f)
             {
-                goLaser.SetActive(true);
+                // TODO: Change to raycast hit player
+                if (cdrListPlayer.Count > 0)
+                {
+                    lineLaser.SetPosition(1, new Vector3(0f, 0f, v3PositionRelativeLook.magnitude));
+                }
+                else
+                {
+                    lineLaser.SetPosition(1, new Vector3(0f, 0f, fPosZBase_lineLaser));
+                }
+                if (!goLaser.activeSelf)
+                {
+                    goLaser.SetActive(true);
+                }
             }
             else if (goLaser.activeSelf)
             {
