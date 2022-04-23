@@ -40,6 +40,7 @@ public class EnemyController : MonoBehaviour
     // Damage:
     public GameObject goProjectile;
     private GameObject goLaser;
+    private RaycastHit rayLaser;
     private LineRenderer lineLaser;
     private float fPosZBase_lineLaser;
     private GameObject goGunMiddleProjectileSpawnPoint;
@@ -56,7 +57,13 @@ public class EnemyController : MonoBehaviour
     public float fTimeDeltaMaxAttackBurst = 5f;
 
     private int iDamageLaser = 1;
-    private List<Collider> cdrListPlayer = new List<Collider>();
+    private float fDistToPlayerLaserEnable = 75f;
+    private bool bRayLaserHitLastFrame = false;
+    private bool bRayLaserHitThisFrame = false;
+    private bool bRayLaserHitPlayerLastFrame = false;
+    private bool bRayLaserHitPlayerThisFrame = false;
+    private bool bLaserDamagePlayerLastFrame = false;
+    private bool bLaserDamagePlayerThisFrame = false;
 
     // Score:
     public int iScoreDelta = 10;
@@ -87,8 +94,11 @@ public class EnemyController : MonoBehaviour
         rtCanvasHealth = transform.Find("Canvas : Health").GetComponent<RectTransform>();
 
         goLaser = transform.Find("Weapons/Line : Laser").gameObject;
-        lineLaser = goLaser.GetComponent<LineRenderer>();
-        fPosZBase_lineLaser = lineLaser.GetPosition(1).z;
+        if (goLaser)
+        {
+            lineLaser = goLaser.GetComponent<LineRenderer>();
+            fPosZBase_lineLaser = lineLaser.GetPosition(1).z;
+        }
         goGunMiddleProjectileSpawnPoint = transform.Find("Weapons/GunMiddleProjectileSpawnPoint").gameObject;
         iNumAttackBurst = Random.Range(1, iNumMaxAttackBurst+1);
         fTimeNextAttack = Time.time + Random.Range(fTimeDeltaMinAttackBurst, fTimeDeltaMaxAttackBurst);
@@ -163,31 +173,66 @@ public class EnemyController : MonoBehaviour
         else if (   (attackMode == AttackMode.laser)
                 &&  (goLaser) )
         {
-            if (v3PositionRelativeLook.magnitude <= 50f)
+            bRayLaserHitThisFrame = Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out rayLaser);
+
+            if (bRayLaserHitThisFrame)
             {
-                // TODO: Change to raycast hit player
-                if (cdrListPlayer.Count > 0)
-                {
-                    lineLaser.SetPosition(1, new Vector3(0f, 0f, v3PositionRelativeLook.magnitude));
-                }
-                else
+                Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.forward) * rayLaser.distance, Color.yellow);
+                lineLaser.SetPosition(1, new Vector3(0f, 0f, rayLaser.distance + 1f)); // Add 1 here to go further in than the collider edge and so get closer to the mesh
+                bRayLaserHitPlayerThisFrame = rayLaser.collider.attachedRigidbody.gameObject.CompareTag("Player");
+            }
+            else
+            {
+                Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.forward) * 1000f, Color.white);
+                if (bRayLaserHitLastFrame)
                 {
                     lineLaser.SetPosition(1, new Vector3(0f, 0f, fPosZBase_lineLaser));
                 }
-                if (!goLaser.activeSelf)
+                if (bRayLaserHitPlayerLastFrame)
                 {
-                    goLaser.SetActive(true);
+                    bRayLaserHitPlayerThisFrame = false;
                 }
             }
-            else if (goLaser.activeSelf)
+
+            if (v3PositionRelativeLook.magnitude <= fDistToPlayerLaserEnable)
             {
-                goLaser.SetActive(false);
-                if (cdrListPlayer.Count > 0)
+                if (!lineLaser.enabled)
                 {
-                    cdrListPlayer.Clear();
-                    goPlayer.GetComponent<PlayerController>().SetHealthDeltaPerSec(+iDamageLaser);
+                    lineLaser.enabled = true;
                 }
             }
+            else
+            {
+                if (lineLaser.enabled)
+                {
+                    lineLaser.enabled = false;
+                }
+            }
+
+            if (    (bRayLaserHitPlayerThisFrame)
+                &&  (lineLaser.enabled) )
+            {
+                bLaserDamagePlayerThisFrame = true;
+            }
+            else
+            {
+                bLaserDamagePlayerThisFrame = false;
+            }
+
+            if (    (!bLaserDamagePlayerLastFrame)
+                &&  (bLaserDamagePlayerThisFrame) )
+            {
+                goPlayer.GetComponent<PlayerController>().SetHealthDeltaPerSec(-iDamageLaser);
+            }
+            else if (   (bLaserDamagePlayerLastFrame)
+                    &&  (!bLaserDamagePlayerThisFrame) )
+            {
+                goPlayer.GetComponent<PlayerController>().SetHealthDeltaPerSec(+iDamageLaser);
+            }
+
+            bRayLaserHitLastFrame = bRayLaserHitThisFrame;
+            bRayLaserHitPlayerLastFrame = bRayLaserHitPlayerThisFrame;
+            bLaserDamagePlayerLastFrame = bLaserDamagePlayerThisFrame;
         }
 
         // ------------------------------------------------------------------------------------------------
@@ -302,44 +347,13 @@ public class EnemyController : MonoBehaviour
                             spawnManager.SpawnPowerUpCharge(transform.position);
                         }
                     }
-                    if (    (goLaser.activeSelf)
-                        &&  (cdrListPlayer.Count > 0) )
+                    if (bLaserDamagePlayerThisFrame)
                     {
                         goPlayer.GetComponent<PlayerController>().SetHealthDeltaPerSec(+iDamageLaser);
                     }
                     Destroy(gameObject);
                 }
                 StartCoroutine(FlashDamaged());
-            }
-            return;
-        }
-        if (collider.attachedRigidbody.gameObject.CompareTag("Player"))
-        {
-            if (!cdrListPlayer.Contains(collider))
-            {
-                cdrListPlayer.Add(collider);
-                if (cdrListPlayer.Count == 1)
-                {
-                    goPlayer.GetComponent<PlayerController>().SetHealthDeltaPerSec(-iDamageLaser);
-                }
-            }
-            return;
-        }
-    }
-
-    // ------------------------------------------------------------------------------------------------
-
-    private void OnTriggerExit(Collider collider)
-    {
-        if (collider.attachedRigidbody.gameObject.CompareTag("Player"))
-        {
-            if (cdrListPlayer.Contains(collider))
-            {
-                cdrListPlayer.Remove(collider);
-                if (cdrListPlayer.Count == 0)
-                {
-                    goPlayer.GetComponent<PlayerController>().SetHealthDeltaPerSec(+iDamageLaser);
-                }
             }
             return;
         }

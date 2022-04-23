@@ -1974,7 +1974,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3332910498067890785}
-  - component: {fileID: 5722235244120007157}
   - component: {fileID: 4253891759562222529}
   m_Layer: 0
   m_Name: 'Line : Laser'
@@ -1982,7 +1981,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &3332910498067890785
 Transform:
   m_ObjectHideFlags: 0
@@ -1997,20 +1996,6 @@ Transform:
   m_Father: {fileID: 2995379664004002638}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!136 &5722235244120007157
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8779905362644164708}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  m_Radius: 0.25
-  m_Height: 296
-  m_Direction: 2
-  m_Center: {x: 0, y: 0, z: 152}
 --- !u!120 &4253891759562222529
 LineRenderer:
   m_ObjectHideFlags: 0
@@ -2018,7 +2003,7 @@ LineRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8779905362644164708}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 0
   m_ReceiveShadows: 0
   m_DynamicOccludee: 0
