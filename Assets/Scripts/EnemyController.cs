@@ -23,9 +23,7 @@ public class EnemyController : MonoBehaviour
 
     // Appearance:
     private Material matEnemy;
-    private LineRenderer lineEngine1;
-    private LineRenderer lineEngine2;
-    private LineRenderer lineEngine3;
+    private List<LineRenderer> lineListEngine = new List<LineRenderer>();
     public float fPosZBase_lineEngine = -2f;
     public float fPosZDelta_lineEngine = 0.25f;
     private float fPosZLower_lineEngine;
@@ -82,9 +80,10 @@ public class EnemyController : MonoBehaviour
         navEnemy = GetComponent<NavMeshAgent>();
 
         matEnemy = transform.Find("Chasis").gameObject.GetComponent<Renderer>().material;
-        lineEngine1 = transform.Find("Engine Emission (1)/Line : Engine").gameObject.GetComponent<LineRenderer>();
-        lineEngine2 = transform.Find("Engine Emission (2)/Line : Engine").gameObject.GetComponent<LineRenderer>();
-        lineEngine3 = transform.Find("Engine Emission (3)/Line : Engine").gameObject.GetComponent<LineRenderer>();
+        foreach (Transform trn in transform.Find("Engine"))
+        {
+            lineListEngine.Add(trn.Find("Line : Engine").gameObject.GetComponent<LineRenderer>());
+        }
         fPosZLower_lineEngine = fPosZBase_lineEngine - fPosZDelta_lineEngine;
         fPosZUpper_lineEngine = fPosZBase_lineEngine + fPosZDelta_lineEngine;
 
@@ -93,9 +92,9 @@ public class EnemyController : MonoBehaviour
         healthEnemy.Change(healthEnemy.iHealthMax);
         rtCanvasHealth = transform.Find("Canvas : Health").GetComponent<RectTransform>();
 
-        goLaser = transform.Find("Weapons/Line : Laser").gameObject;
-        if (goLaser)
+        if (transform.Find("Weapons/Line : Laser"))
         {
+            goLaser = transform.Find("Weapons/Line : Laser").gameObject;
             lineLaser = goLaser.GetComponent<LineRenderer>();
             fPosZBase_lineLaser = lineLaser.GetPosition(1).z;
         }
@@ -122,9 +121,10 @@ public class EnemyController : MonoBehaviour
             SetDestination();
         }
         // Randomise the engine exhaust for a flickering effect:
-        lineEngine1.SetPosition(1, new Vector3(0f, 0f, Random.Range(fPosZLower_lineEngine, fPosZUpper_lineEngine)));
-        lineEngine2.SetPosition(1, new Vector3(0f, 0f, Random.Range(fPosZLower_lineEngine, fPosZUpper_lineEngine)));
-        lineEngine3.SetPosition(1, new Vector3(0f, 0f, Random.Range(fPosZLower_lineEngine, fPosZUpper_lineEngine)));
+        foreach (LineRenderer line in lineListEngine)
+        {
+            line.SetPosition(1, new Vector3(0f, 0f, Random.Range(fPosZLower_lineEngine, fPosZUpper_lineEngine)));
+        }
 
         // ------------------------------------------------------------------------------------------------
 
