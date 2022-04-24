@@ -41,6 +41,8 @@ public class AudioManager : MonoBehaviour
     public List<SfxClpVol> sfxclpvolListProjectilePlayer = new List<SfxClpVol>();
     public List<SfxClpVol> sfxclpvolListProjectileEnemy = new List<SfxClpVol>();
 
+    public SfxClpVol sfxclpvolLaserEnemy;
+
     public SfxClpVol sfxclpvolPowerUpHealth;
     public SfxClpVol sfxclpvolPowerUpCharge;
 
@@ -93,6 +95,8 @@ public class AudioManager : MonoBehaviour
         sfxclpvolListProjectileEnemy.Add(new SfxClpVol((AudioClip)AssetDatabase.LoadAssetAtPath(sPathAudio + "MGW Sound Design/FuturisticGunSoundFX/Laser/Laser18.wav", typeof(AudioClip)), 0.1f));
         sfxclpvolListProjectileEnemy.Add(new SfxClpVol((AudioClip)AssetDatabase.LoadAssetAtPath(sPathAudio + "MGW Sound Design/FuturisticGunSoundFX/Laser/Laser19.wav", typeof(AudioClip)), 0.1f));
         sfxclpvolListProjectileEnemy.Add(new SfxClpVol((AudioClip)AssetDatabase.LoadAssetAtPath(sPathAudio + "MGW Sound Design/FuturisticGunSoundFX/Laser/Laser20.wav", typeof(AudioClip)), 0.1f));
+
+        sfxclpvolLaserEnemy = new SfxClpVol((AudioClip)AssetDatabase.LoadAssetAtPath(sPathAudio + "Little Robot Sound Factory/Electric Sfx/Mp3/Whoosh_Electric/Whoosh_Electric_00.mp3", typeof(AudioClip)), 0.1f);
 
         sfxclpvolPowerUpHealth = new SfxClpVol((AudioClip)AssetDatabase.LoadAssetAtPath(sPathAudio + "Little Robot Sound Factory/Electric Sfx/Mp3/Jingle_Win_Synth/Jingle_Win_Synth_03.mp3", typeof(AudioClip)), 0.5f);
         sfxclpvolPowerUpCharge = new SfxClpVol((AudioClip)AssetDatabase.LoadAssetAtPath(sPathAudio + "Little Robot Sound Factory/Electric Sfx/Mp3/Jingle_Win_Synth/Jingle_Win_Synth_04.mp3", typeof(AudioClip)), 0.5f);

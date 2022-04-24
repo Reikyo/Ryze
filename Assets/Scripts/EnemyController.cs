@@ -199,6 +199,7 @@ public class EnemyController : MonoBehaviour
                 if (!lineLaser.enabled)
                 {
                     lineLaser.enabled = true;
+                    InvokeRepeating("PlaySfxLaser", 0f, 0.1f);
                 }
             }
             else
@@ -206,6 +207,7 @@ public class EnemyController : MonoBehaviour
                 if (lineLaser.enabled)
                 {
                     lineLaser.enabled = false;
+                    CancelInvoke("PlaySfxLaser");
                 }
             }
 
@@ -310,6 +312,13 @@ public class EnemyController : MonoBehaviour
         matEnemy.EnableKeyword("_EMISSION");
         yield return new WaitForSeconds(fTimeFlashDamaged);
         matEnemy.DisableKeyword("_EMISSION");
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
+    private void PlaySfxLaser()
+    {
+        audioManager.sfxclpvolLaserEnemy.PlayOneShot();
     }
 
     // ------------------------------------------------------------------------------------------------
