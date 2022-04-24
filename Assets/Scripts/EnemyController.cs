@@ -128,7 +128,9 @@ public class EnemyController : MonoBehaviour
 
         // ------------------------------------------------------------------------------------------------
 
+        // Using this in Quaternion.LookRotation() gives instant rotation towards the player:
         Vector3 v3PositionRelativeLook = goPlayer.transform.position - transform.position;
+        // Using this in Quaternion.LookRotation() gives delayed rotation towards the player:
         Vector3 v3PositionRelativeLookNow = Vector3.RotateTowards(transform.forward, v3PositionRelativeLook, fAngSpeedMove * Time.deltaTime, 0f);
         transform.rotation = Quaternion.LookRotation(v3PositionRelativeLookNow);
 
@@ -146,95 +148,12 @@ public class EnemyController : MonoBehaviour
         if (    (attackMode == AttackMode.projectile)
             &&  (goProjectile) )
         {
-            if (v3PositionRelativeLook.magnitude <= 200f)
-            {
-                if (Time.time >= fTimeNextAttack)
-                {
-                    GameObject goProjectileClone = Instantiate(
-                        goProjectile,
-                        goGunMiddleProjectileSpawnPoint.transform.position,
-                        goGunMiddleProjectileSpawnPoint.transform.rotation
-                    );
-                    audioManager.sfxclpvolListProjectileEnemy[Random.Range(0, audioManager.sfxclpvolListProjectileEnemy.Count)].PlayOneShot();
-                    iNumAttack += 1;
-                    if (iNumAttack < iNumAttackBurst)
-                    {
-                        fTimeNextAttack = Time.time + fTimeDeltaAttack;
-                    }
-                    else
-                    {
-                        iNumAttack = 0;
-                        iNumAttackBurst = Random.Range(1, iNumMaxAttackBurst+1);
-                        fTimeNextAttack = Time.time + Random.Range(fTimeDeltaMinAttackBurst, fTimeDeltaMaxAttackBurst);
-                    }
-                }
-            }
+            SetAttackProjectile(v3PositionRelativeLook);
         }
         else if (   (attackMode == AttackMode.laser)
                 &&  (goLaser) )
         {
-            bRayLaserHitThisFrame = Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out rayLaser);
-
-            if (bRayLaserHitThisFrame)
-            {
-                Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.forward) * rayLaser.distance, Color.yellow);
-                lineLaser.SetPosition(1, new Vector3(0f, 0f, rayLaser.distance + 1f)); // Add 1 here to go further in than the collider edge and so get closer to the mesh
-                bRayLaserHitPlayerThisFrame = rayLaser.collider.attachedRigidbody.gameObject.CompareTag("Player");
-            }
-            else
-            {
-                Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.forward) * 1000f, Color.white);
-                if (bRayLaserHitLastFrame)
-                {
-                    lineLaser.SetPosition(1, new Vector3(0f, 0f, fPosZBase_lineLaser));
-                }
-                if (bRayLaserHitPlayerLastFrame)
-                {
-                    bRayLaserHitPlayerThisFrame = false;
-                }
-            }
-
-            if (v3PositionRelativeLook.magnitude <= fDistToPlayerLaserEnable)
-            {
-                if (!lineLaser.enabled)
-                {
-                    lineLaser.enabled = true;
-                    InvokeRepeating("PlaySfxLaser", 0f, 0.1f);
-                }
-            }
-            else
-            {
-                if (lineLaser.enabled)
-                {
-                    lineLaser.enabled = false;
-                    CancelInvoke("PlaySfxLaser");
-                }
-            }
-
-            if (    (bRayLaserHitPlayerThisFrame)
-                &&  (lineLaser.enabled) )
-            {
-                bLaserDamagePlayerThisFrame = true;
-            }
-            else
-            {
-                bLaserDamagePlayerThisFrame = false;
-            }
-
-            if (    (!bLaserDamagePlayerLastFrame)
-                &&  (bLaserDamagePlayerThisFrame) )
-            {
-                goPlayer.GetComponent<PlayerController>().SetHealthDeltaPerSec(-iDamageLaser);
-            }
-            else if (   (bLaserDamagePlayerLastFrame)
-                    &&  (!bLaserDamagePlayerThisFrame) )
-            {
-                goPlayer.GetComponent<PlayerController>().SetHealthDeltaPerSec(+iDamageLaser);
-            }
-
-            bRayLaserHitLastFrame = bRayLaserHitThisFrame;
-            bRayLaserHitPlayerLastFrame = bRayLaserHitPlayerThisFrame;
-            bLaserDamagePlayerLastFrame = bLaserDamagePlayerThisFrame;
+            SetAttackLaser(v3PositionRelativeLook);
         }
 
         // ------------------------------------------------------------------------------------------------
@@ -303,6 +222,103 @@ public class EnemyController : MonoBehaviour
             navEnemy.SetDestination(v3PositionRandom);
             return;
         }
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
+    private void SetAttackProjectile(Vector3 v3PositionRelativeLook)
+    {
+        if (v3PositionRelativeLook.magnitude <= 200f)
+        {
+            if (Time.time >= fTimeNextAttack)
+            {
+                GameObject goProjectileClone = Instantiate(
+                    goProjectile,
+                    goGunMiddleProjectileSpawnPoint.transform.position,
+                    goGunMiddleProjectileSpawnPoint.transform.rotation
+                );
+                audioManager.sfxclpvolListProjectileEnemy[Random.Range(0, audioManager.sfxclpvolListProjectileEnemy.Count)].PlayOneShot();
+                iNumAttack += 1;
+                if (iNumAttack < iNumAttackBurst)
+                {
+                    fTimeNextAttack = Time.time + fTimeDeltaAttack;
+                }
+                else
+                {
+                    iNumAttack = 0;
+                    iNumAttackBurst = Random.Range(1, iNumMaxAttackBurst+1);
+                    fTimeNextAttack = Time.time + Random.Range(fTimeDeltaMinAttackBurst, fTimeDeltaMaxAttackBurst);
+                }
+            }
+        }
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
+    private void SetAttackLaser(Vector3 v3PositionRelativeLook)
+    {
+        bRayLaserHitThisFrame = Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out rayLaser);
+
+        if (bRayLaserHitThisFrame)
+        {
+            Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.forward) * rayLaser.distance, Color.yellow);
+            lineLaser.SetPosition(1, new Vector3(0f, 0f, rayLaser.distance + 1f)); // Add 1 here to go further in than the collider edge and so get closer to the mesh
+            bRayLaserHitPlayerThisFrame = rayLaser.collider.attachedRigidbody.gameObject.CompareTag("Player");
+        }
+        else
+        {
+            Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.forward) * 1000f, Color.white);
+            if (bRayLaserHitLastFrame)
+            {
+                lineLaser.SetPosition(1, new Vector3(0f, 0f, fPosZBase_lineLaser));
+            }
+            if (bRayLaserHitPlayerLastFrame)
+            {
+                bRayLaserHitPlayerThisFrame = false;
+            }
+        }
+
+        if (v3PositionRelativeLook.magnitude <= fDistToPlayerLaserEnable)
+        {
+            if (!lineLaser.enabled)
+            {
+                lineLaser.enabled = true;
+                InvokeRepeating("PlaySfxLaser", 0f, 0.1f);
+            }
+        }
+        else
+        {
+            if (lineLaser.enabled)
+            {
+                lineLaser.enabled = false;
+                CancelInvoke("PlaySfxLaser");
+            }
+        }
+
+        if (    (bRayLaserHitPlayerThisFrame)
+            &&  (lineLaser.enabled) )
+        {
+            bLaserDamagePlayerThisFrame = true;
+        }
+        else
+        {
+            bLaserDamagePlayerThisFrame = false;
+        }
+
+        if (    (!bLaserDamagePlayerLastFrame)
+            &&  (bLaserDamagePlayerThisFrame) )
+        {
+            goPlayer.GetComponent<PlayerController>().SetHealthDeltaPerSec(-iDamageLaser);
+        }
+        else if (   (bLaserDamagePlayerLastFrame)
+                &&  (!bLaserDamagePlayerThisFrame) )
+        {
+            goPlayer.GetComponent<PlayerController>().SetHealthDeltaPerSec(+iDamageLaser);
+        }
+
+        bRayLaserHitLastFrame = bRayLaserHitThisFrame;
+        bRayLaserHitPlayerLastFrame = bRayLaserHitPlayerThisFrame;
+        bLaserDamagePlayerLastFrame = bLaserDamagePlayerThisFrame;
     }
 
     // ------------------------------------------------------------------------------------------------
