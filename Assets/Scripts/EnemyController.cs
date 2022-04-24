@@ -12,14 +12,24 @@ public class EnemyController : MonoBehaviour
     private AudioManager audioManager;
 
     // Movement:
+    public float fAngSpeedMove = 5f;
     private NavMeshAgent navEnemy;
+    public enum MoveMode {constant, constanthover, oscillatehorz, oscillatevert, pattern, random};
+    public MoveMode moveMode;
     public Vector3 v3PositionConstant = new Vector3(0f, 0f, 0f);
     private Vector2 v2PositionRandom;
     private Vector3 v3PositionRandom;
     private bool bDirectionLowerLeft = true;
-    public enum MoveMode {random, constant, constanthover, oscillatehorz, oscillatevert};
-    public MoveMode moveMode;
-    public float fAngSpeedMove = 5f;
+    private List<(Vector3, float)> v3fListPositionPattern = new List<(Vector3, float)>(){
+        (new Vector3(-50f, 0f,  0f), 2f),
+        (new Vector3(+50f, 0f,  0f), 2f),
+        (new Vector3(+50f, 0f,+50f), 2f),
+        (new Vector3(-50f, 0f,+50f), 2f)
+    };
+    private int iIdx_v3fListPositionPattern = 0;
+    private bool bDestinationSet = false;
+    private bool bDestinationArrived = false;
+    private float fTimeDestinationArrived;
 
     // Appearance:
     private Material matEnemy;
@@ -55,7 +65,7 @@ public class EnemyController : MonoBehaviour
     public float fTimeDeltaMaxAttackBurst = 5f;
 
     private int iDamageLaser = 1;
-    private float fDistToPlayerLaserEnable = 75f;
+    private float fDistToPlayerLaserEnable = 100f;
     private bool bRayLaserHitLastFrame = false;
     private bool bRayLaserHitThisFrame = false;
     private bool bRayLaserHitPlayerLastFrame = false;
@@ -153,7 +163,7 @@ public class EnemyController : MonoBehaviour
         else if (   (attackMode == AttackMode.laser)
                 &&  (goLaser) )
         {
-            SetAttackLaser(v3PositionRelativeLook);
+            // SetAttackLaser(v3PositionRelativeLook);
         }
 
         // ------------------------------------------------------------------------------------------------
@@ -202,6 +212,33 @@ public class EnemyController : MonoBehaviour
                 navEnemy.SetDestination(new Vector3(v3PositionConstant.x, 0f, gameManager.v3MoveLimitUpperRight.z));
             }
             bDirectionLowerLeft = !bDirectionLowerLeft;
+            return;
+        }
+        if (moveMode == MoveMode.pattern)
+        {
+            if (!bDestinationSet)
+            {
+                navEnemy.SetDestination(v3fListPositionPattern[iIdx_v3fListPositionPattern].Item1);
+                bDestinationSet = true;
+            }
+            else if (!bDestinationArrived)
+            {
+                fTimeDestinationArrived = Time.time;
+                bDestinationArrived = true;
+            }
+            else if (Time.time > fTimeDestinationArrived + v3fListPositionPattern[iIdx_v3fListPositionPattern].Item2)
+            {
+                if (iIdx_v3fListPositionPattern < v3fListPositionPattern.Count-1)
+                {
+                    iIdx_v3fListPositionPattern++;
+                }
+                else
+                {
+                    iIdx_v3fListPositionPattern = 0;
+                }
+                bDestinationSet = false;
+                bDestinationArrived = false;
+            }
             return;
         }
         if (moveMode == MoveMode.random)
