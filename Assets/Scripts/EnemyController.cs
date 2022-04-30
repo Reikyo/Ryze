@@ -14,8 +14,16 @@ public class EnemyController : MonoBehaviour
     // Movement:
     public float fAngSpeedMove = 5f;
     private NavMeshAgent navEnemy;
+
     public enum MoveMode {constant, constanthover, oscillatehorz, oscillatevert, pattern, random};
     public MoveMode moveMode;
+
+    public enum LookMode {negX, posX, negZ, posZ, angY, player};
+    public LookMode lookMode;
+    public float fAngYLook = 0f;
+    private Vector3 v3PositionRelativeLook;
+    private Vector3 v3PositionRelativeLookNow;
+
     public Vector3 v3PositionConstant = new Vector3(0f, 0f, 0f);
     private Vector2 v2PositionRandom;
     private Vector3 v3PositionRandom;
@@ -138,10 +146,18 @@ public class EnemyController : MonoBehaviour
 
         // ------------------------------------------------------------------------------------------------
 
-        // Using this in Quaternion.LookRotation() gives instant rotation towards the player:
-        Vector3 v3PositionRelativeLook = goPlayer.transform.position - transform.position;
-        // Using this in Quaternion.LookRotation() gives delayed rotation towards the player:
-        Vector3 v3PositionRelativeLookNow = Vector3.RotateTowards(transform.forward, v3PositionRelativeLook, fAngSpeedMove * Time.deltaTime, 0f);
+        // Using this in Quaternion.LookRotation() gives instant rotation towards the target:
+        switch(lookMode)
+        {
+            case LookMode.negX: v3PositionRelativeLook = new Vector3(-1000f, 0f, 0f) - transform.position; break;
+            case LookMode.posX: v3PositionRelativeLook = new Vector3(+1000f, 0f, 0f) - transform.position; break;
+            case LookMode.negZ: v3PositionRelativeLook = new Vector3(0f, 0f, -1000f) - transform.position; break;
+            case LookMode.posZ: v3PositionRelativeLook = new Vector3(0f, 0f, +1000f) - transform.position; break;
+            case LookMode.angY: v3PositionRelativeLook = new Vector3(1000f * Mathf.Cos(fAngYLook * Mathf.PI/180f), 0f, 1000f * Mathf.Sin(fAngYLook * Mathf.PI/180f)) - transform.position; break;
+            case LookMode.player: v3PositionRelativeLook = goPlayer.transform.position - transform.position; break;
+        }
+        // Using this in Quaternion.LookRotation() gives delayed rotation towards the target:
+        v3PositionRelativeLookNow = Vector3.RotateTowards(transform.forward, v3PositionRelativeLook, fAngSpeedMove * Time.deltaTime, 0f);
         transform.rotation = Quaternion.LookRotation(v3PositionRelativeLookNow);
 
         // ------------------------------------------------------------------------------------------------
@@ -163,7 +179,7 @@ public class EnemyController : MonoBehaviour
         else if (   (attackMode == AttackMode.laser)
                 &&  (goLaser) )
         {
-            // SetAttackLaser(v3PositionRelativeLook);
+            SetAttackLaser(v3PositionRelativeLook);
         }
 
         // ------------------------------------------------------------------------------------------------
