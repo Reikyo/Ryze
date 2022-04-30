@@ -73,7 +73,7 @@ public class EnemyController : MonoBehaviour
     public float fTimeDeltaMaxAttackBurst = 5f;
 
     private int iDamageLaser = 1;
-    private float fDistToPlayerLaserEnable = 100f;
+    private float fDistToPositionRelativeLookLaserEnable = 100f;
     private bool bRayLaserHitLastFrame = false;
     private bool bRayLaserHitThisFrame = false;
     private bool bRayLaserHitPlayerLastFrame = false;
@@ -149,12 +149,12 @@ public class EnemyController : MonoBehaviour
         // Using this in Quaternion.LookRotation() gives instant rotation towards the target:
         switch(lookMode)
         {
-            case LookMode.negX: v3PositionRelativeLook = new Vector3(-1000f, 0f, 0f) - transform.position; break;
-            case LookMode.posX: v3PositionRelativeLook = new Vector3(+1000f, 0f, 0f) - transform.position; break;
-            case LookMode.negZ: v3PositionRelativeLook = new Vector3(0f, 0f, -1000f) - transform.position; break;
-            case LookMode.posZ: v3PositionRelativeLook = new Vector3(0f, 0f, +1000f) - transform.position; break;
-            case LookMode.angY: v3PositionRelativeLook = new Vector3(1000f * Mathf.Cos(fAngYLook * Mathf.PI/180f), 0f, 1000f * Mathf.Sin(fAngYLook * Mathf.PI/180f)) - transform.position; break;
-            case LookMode.player: v3PositionRelativeLook = goPlayer.transform.position - transform.position; break;
+            case LookMode.negX: v3PositionRelativeLook = new Vector3(-1000f, 0f, 0f); fDistToPositionRelativeLookLaserEnable = 1500f; break;
+            case LookMode.posX: v3PositionRelativeLook = new Vector3(+1000f, 0f, 0f); fDistToPositionRelativeLookLaserEnable = 1500f; break;
+            case LookMode.negZ: v3PositionRelativeLook = new Vector3(0f, 0f, -1000f); fDistToPositionRelativeLookLaserEnable = 1500f; break;
+            case LookMode.posZ: v3PositionRelativeLook = new Vector3(0f, 0f, +1000f); fDistToPositionRelativeLookLaserEnable = 1500f; break;
+            case LookMode.angY: v3PositionRelativeLook = new Vector3(1000f * Mathf.Cos(fAngYLook * Mathf.PI/180f), 0f, 1000f * Mathf.Sin(fAngYLook * Mathf.PI/180f)); fDistToPositionRelativeLookLaserEnable = 1500f; break;
+            case LookMode.player: v3PositionRelativeLook = goPlayer.transform.position - transform.position; fDistToPositionRelativeLookLaserEnable = 100f; break;
         }
         // Using this in Quaternion.LookRotation() gives delayed rotation towards the target:
         v3PositionRelativeLookNow = Vector3.RotateTowards(transform.forward, v3PositionRelativeLook, fAngSpeedMove * Time.deltaTime, 0f);
@@ -331,7 +331,7 @@ public class EnemyController : MonoBehaviour
             }
         }
 
-        if (v3PositionRelativeLook.magnitude <= fDistToPlayerLaserEnable)
+        if (v3PositionRelativeLook.magnitude <= fDistToPositionRelativeLookLaserEnable)
         {
             if (!lineLaser.enabled)
             {
