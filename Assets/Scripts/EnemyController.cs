@@ -15,6 +15,14 @@ public class EnemyController : MonoBehaviour
     public float fAngSpeedMove = 5f;
     private NavMeshAgent navEnemy;
 
+    private Vector3 v3PositionRelativePlayer = new Vector3();
+    private float fDistToPlayer;
+    private Quaternion quatRotToPlayer = new Quaternion();
+    private float fDegAngYRotToPlayer;
+    private Quaternion quatRotToLook = new Quaternion();
+    private float fDegAngYRotToLook;
+    private float fDegAngYRotToStop = 0.1f;
+
     public enum MoveMode {constant, constanthover, oscillatehorz, oscillatevert, pattern, random};
     public MoveMode moveMode;
 
@@ -27,7 +35,7 @@ public class EnemyController : MonoBehaviour
         (new Vector3(+50f, 0f,  0f), 2f),
         (new Vector3(+50f, 0f,+50f), 2f),
         (new Vector3(-50f, 0f,+50f), 2f)
-    };
+    }; // These tuples are (v3Position, fTimeWait)
     private int iIdx_v3fListPositionPattern = 0;
     private bool bDestinationSet = false;
     private bool bDestinationArrived = false;
@@ -41,7 +49,6 @@ public class EnemyController : MonoBehaviour
     private float fRadAngYRotationConstant = 0f;
     private float fDegAngYRotationTarget = 0f;
     private float fRadAngYRotationTarget = 0f;
-    private float fStoppingAngle = 0.1f;
     private Vector3 v3PositionRelativeLook;
     private Vector3 v3PositionRelativeLookNow;
     private List<(float, float)> ffListRotationPattern = new List<(float, float)>(){
@@ -49,7 +56,7 @@ public class EnemyController : MonoBehaviour
         (90f, 2f),
         (180f, 2f),
         (270f, 2f)
-    };
+    }; // These tuples are (fDegAngY, fTimeWait)
     private int iIdx_ffListRotationPattern = 0;
     private bool bOrientationSet = false;
     private bool bOrientationArrived = false;
@@ -70,15 +77,23 @@ public class EnemyController : MonoBehaviour
     private bool bTriggeredDestroy = false;
 
     // Damage:
+    private RaycastHit rayHit;
     public GameObject goProjectile;
     private GameObject goLaser;
-    private RaycastHit rayLaser;
     private LineRenderer lineLaser;
     private float fPosZBase_lineLaser;
     private GameObject goGunMiddleProjectileSpawnPoint;
 
-    public enum AttackMode {projectile, laser};
-    public AttackMode attackMode;
+    public enum AttackMode1 {projectile, laser};
+    public AttackMode1 attackMode1;
+
+    public enum AttackMode2 {constant, burst, pattern};
+    public AttackMode2 attackMode2;
+
+    public float fDistToPlayerAttack = 100f; // 200f for projectile, 100f for laser
+    public float fDegAngYRotToPlayerAttack = 5f;
+    public bool bAttackOnlyIfPlayerInRange = false;
+    public bool bAttackOnlyIfPlayerInSight = false;
 
     private int iNumAttack = 0;
     private int iNumAttackBurst;
@@ -89,11 +104,10 @@ public class EnemyController : MonoBehaviour
     public float fTimeDeltaMaxAttackBurst = 5f;
 
     private int iDamageLaser = 1;
-    private float fDistToPositionRelativeLookLaserEnable = 100f;
-    private bool bRayLaserHitLastFrame = false;
-    private bool bRayLaserHitThisFrame = false;
-    private bool bRayLaserHitPlayerLastFrame = false;
-    private bool bRayLaserHitPlayerThisFrame = false;
+    private bool bRayHitLastFrame = false;
+    private bool bRayHitThisFrame = false;
+    private bool bRayHitPlayerLastFrame = false;
+    private bool bRayHitPlayerThisFrame = false;
     private bool bLaserDamagePlayerLastFrame = false;
     private bool bLaserDamagePlayerThisFrame = false;
 
@@ -148,6 +162,40 @@ public class EnemyController : MonoBehaviour
     {
         // ------------------------------------------------------------------------------------------------
 
+        SetRay();
+
+        v3PositionRelativePlayer = goPlayer.transform.position - transform.position;
+        fDistToPlayer = v3PositionRelativePlayer.magnitude;
+
+        quatRotToPlayer.SetFromToRotation(transform.forward, v3PositionRelativePlayer);
+        if (quatRotToPlayer.eulerAngles.y <= 180f)
+        {
+            fDegAngYRotToPlayer = quatRotToPlayer.eulerAngles.y;
+        }
+        else
+        {
+            fDegAngYRotToPlayer = 360f - quatRotToPlayer.eulerAngles.y;
+        }
+
+        if (lookMode == LookMode.player)
+        {
+            fDegAngYRotToLook = fDegAngYRotToPlayer;
+        }
+        else
+        {
+            quatRotToLook.SetFromToRotation(transform.forward, v3PositionRelativeLook);
+            if (quatRotToLook.eulerAngles.y <= 180f)
+            {
+                fDegAngYRotToLook = quatRotToLook.eulerAngles.y;
+            }
+            else
+            {
+                fDegAngYRotToLook = 360f - quatRotToLook.eulerAngles.y;
+            }
+        }
+
+        // ------------------------------------------------------------------------------------------------
+
         // Movement:
 
         if (    (moveMode != MoveMode.constant)
@@ -156,9 +204,8 @@ public class EnemyController : MonoBehaviour
             SetDestination();
         }
 
-        float fRemainingAngle = Mathf.Abs(transform.rotation.eulerAngles.y - fDegAngYRotationTarget);
         if (    (   (lookMode != LookMode.constant)
-                &&  (fRemainingAngle <= fStoppingAngle) )
+                &&  (fDegAngYRotToLook <= fDegAngYRotToStop) )
             ||  (lookMode == LookMode.player) )
         {
             SetOrientation();
@@ -190,19 +237,60 @@ public class EnemyController : MonoBehaviour
 
         // Damage:
 
-        if (    (attackMode == AttackMode.projectile)
-            &&  (goProjectile) )
+        if (    (   (!bAttackOnlyIfPlayerInRange)
+                ||  (fDistToPlayer <= fDistToPlayerAttack) )
+            &&  (   (!bAttackOnlyIfPlayerInSight)
+                ||  (fDegAngYRotToPlayer <= fDegAngYRotToPlayerAttack) ) )
         {
-            SetAttackProjectile(v3PositionRelativeLook);
+            if (    (attackMode1 == AttackMode1.projectile)
+                &&  (goProjectile) )
+            {
+                SetAttackProjectile();
+            }
+            else if (   (attackMode1 == AttackMode1.laser)
+                    &&  (goLaser) )
+            {
+                SetAttackLaser();
+            }
         }
-        else if (   (attackMode == AttackMode.laser)
-                &&  (goLaser) )
+        else if (lineLaser.enabled)
         {
-            SetAttackLaser(v3PositionRelativeLook);
+            lineLaser.enabled = false;
+            CancelInvoke("PlaySfxLaser");
         }
+
+        SetHealthPlayer();
 
         // ------------------------------------------------------------------------------------------------
+    }
 
+    // ------------------------------------------------------------------------------------------------
+
+    private void SetRay()
+    {
+        bRayHitLastFrame = bRayHitThisFrame;
+        bRayHitPlayerLastFrame = bRayHitPlayerThisFrame;
+        bLaserDamagePlayerLastFrame = bLaserDamagePlayerThisFrame;
+
+        bRayHitThisFrame = Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out rayHit);
+        if (bRayHitThisFrame)
+        {
+            Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.forward) * rayHit.distance, Color.yellow);
+            lineLaser.SetPosition(1, new Vector3(0f, 0f, rayHit.distance + 1f)); // Add 1 here to go further in than the collider edge and so get closer to the mesh
+            bRayHitPlayerThisFrame = rayHit.collider.attachedRigidbody.gameObject.CompareTag("Player");
+        }
+        else
+        {
+            Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.forward) * 1000f, Color.white);
+            if (bRayHitLastFrame)
+            {
+                lineLaser.SetPosition(1, new Vector3(0f, 0f, fPosZBase_lineLaser));
+            }
+            if (bRayHitPlayerLastFrame)
+            {
+                bRayHitPlayerThisFrame = false;
+            }
+        }
     }
 
     // ------------------------------------------------------------------------------------------------
@@ -308,7 +396,6 @@ public class EnemyController : MonoBehaviour
                 0f,
                 1000f * Mathf.Cos(fRadAngYRotationConstant)
             );
-            fDistToPositionRelativeLookLaserEnable = 1500f;
             return;
         }
         if (lookMode == LookMode.pattern)
@@ -342,22 +429,39 @@ public class EnemyController : MonoBehaviour
                 bOrientationSet = false;
                 bOrientationArrived = false;
             }
-            fDistToPositionRelativeLookLaserEnable = 1500f;
             return;
         }
         if (lookMode == LookMode.player)
         {
-            v3PositionRelativeLook = goPlayer.transform.position - transform.position;
-            fDistToPositionRelativeLookLaserEnable = 100f;
+            v3PositionRelativeLook = v3PositionRelativePlayer;
             return;
         }
     }
 
     // ------------------------------------------------------------------------------------------------
 
-    private void SetAttackProjectile(Vector3 v3PositionRelativeLook)
+    private void SetAttackProjectile()
     {
-        if (v3PositionRelativeLook.magnitude <= 200f)
+        if (lineLaser.enabled)
+        {
+            lineLaser.enabled = false;
+            CancelInvoke("PlaySfxLaser");
+        }
+        if (attackMode2 == AttackMode2.constant)
+        {
+            if (Time.time >= fTimeNextAttack)
+            {
+                GameObject goProjectileClone = Instantiate(
+                    goProjectile,
+                    goGunMiddleProjectileSpawnPoint.transform.position,
+                    goGunMiddleProjectileSpawnPoint.transform.rotation
+                );
+                audioManager.sfxclpvolListProjectileEnemy[Random.Range(0, audioManager.sfxclpvolListProjectileEnemy.Count)].PlayOneShot();
+                fTimeNextAttack = Time.time + fTimeDeltaAttack;
+            }
+            return;
+        }
+        if (attackMode2 == AttackMode2.burst)
         {
             if (Time.time >= fTimeNextAttack)
             {
@@ -379,52 +483,42 @@ public class EnemyController : MonoBehaviour
                     fTimeNextAttack = Time.time + Random.Range(fTimeDeltaMinAttackBurst, fTimeDeltaMaxAttackBurst);
                 }
             }
+            return;
+        }
+        if (attackMode2 == AttackMode2.pattern)
+        {
+            return;
         }
     }
 
     // ------------------------------------------------------------------------------------------------
 
-    private void SetAttackLaser(Vector3 v3PositionRelativeLook)
+    private void SetAttackLaser()
     {
-        bRayLaserHitThisFrame = Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out rayLaser);
-
-        if (bRayLaserHitThisFrame)
-        {
-            Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.forward) * rayLaser.distance, Color.yellow);
-            lineLaser.SetPosition(1, new Vector3(0f, 0f, rayLaser.distance + 1f)); // Add 1 here to go further in than the collider edge and so get closer to the mesh
-            bRayLaserHitPlayerThisFrame = rayLaser.collider.attachedRigidbody.gameObject.CompareTag("Player");
-        }
-        else
-        {
-            Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.forward) * 1000f, Color.white);
-            if (bRayLaserHitLastFrame)
-            {
-                lineLaser.SetPosition(1, new Vector3(0f, 0f, fPosZBase_lineLaser));
-            }
-            if (bRayLaserHitPlayerLastFrame)
-            {
-                bRayLaserHitPlayerThisFrame = false;
-            }
-        }
-
-        if (v3PositionRelativeLook.magnitude <= fDistToPositionRelativeLookLaserEnable)
+        if (attackMode2 == AttackMode2.constant)
         {
             if (!lineLaser.enabled)
             {
                 lineLaser.enabled = true;
                 InvokeRepeating("PlaySfxLaser", 0f, 0.1f);
             }
+            return;
         }
-        else
+        if (attackMode2 == AttackMode2.burst)
         {
-            if (lineLaser.enabled)
-            {
-                lineLaser.enabled = false;
-                CancelInvoke("PlaySfxLaser");
-            }
+            return;
         }
+        if (attackMode2 == AttackMode2.pattern)
+        {
+            return;
+        }
+    }
 
-        if (    (bRayLaserHitPlayerThisFrame)
+    // ------------------------------------------------------------------------------------------------
+
+    private void SetHealthPlayer()
+    {
+        if (    (bRayHitPlayerThisFrame)
             &&  (lineLaser.enabled) )
         {
             bLaserDamagePlayerThisFrame = true;
@@ -444,10 +538,6 @@ public class EnemyController : MonoBehaviour
         {
             goPlayer.GetComponent<PlayerController>().SetHealthDeltaPerSec(+iDamageLaser);
         }
-
-        bRayLaserHitLastFrame = bRayLaserHitThisFrame;
-        bRayLaserHitPlayerLastFrame = bRayLaserHitPlayerThisFrame;
-        bLaserDamagePlayerLastFrame = bLaserDamagePlayerThisFrame;
     }
 
     // ------------------------------------------------------------------------------------------------

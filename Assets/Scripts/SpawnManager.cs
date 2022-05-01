@@ -164,7 +164,8 @@ public class SpawnManager : MonoBehaviour
             enemyController.v3PositionConstant = v3PositionConstant;
             enemyController.moveMode = EnemyController.MoveMode.pattern;
             enemyController.lookMode = EnemyController.LookMode.pattern;
-            enemyController.attackMode = EnemyController.AttackMode.laser;
+            enemyController.attackMode1 = EnemyController.AttackMode1.laser;
+            enemyController.attackMode2 = EnemyController.AttackMode2.constant;
 
             iNumEnemy += 1;
         }
