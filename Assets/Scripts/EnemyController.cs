@@ -18,12 +18,6 @@ public class EnemyController : MonoBehaviour
     public enum MoveMode {constant, constanthover, oscillatehorz, oscillatevert, pattern, random};
     public MoveMode moveMode;
 
-    public enum LookMode {negX, posX, negZ, posZ, angY, player};
-    public LookMode lookMode;
-    public float fAngYLook = 0f;
-    private Vector3 v3PositionRelativeLook;
-    private Vector3 v3PositionRelativeLookNow;
-
     public Vector3 v3PositionConstant = new Vector3(0f, 0f, 0f);
     private Vector2 v2PositionRandom;
     private Vector3 v3PositionRandom;
@@ -38,6 +32,28 @@ public class EnemyController : MonoBehaviour
     private bool bDestinationSet = false;
     private bool bDestinationArrived = false;
     private float fTimeDestinationArrived;
+
+    public enum LookMode {constant, pattern, player};
+    public LookMode lookMode;
+
+    // Looking down from the positive y-axis, angles are clockwise from the positive z-axis
+    public float fDegAngYRotationConstant = 0f;
+    private float fRadAngYRotationConstant = 0f;
+    private float fDegAngYRotationTarget = 0f;
+    private float fRadAngYRotationTarget = 0f;
+    private float fStoppingAngle = 0.1f;
+    private Vector3 v3PositionRelativeLook;
+    private Vector3 v3PositionRelativeLookNow;
+    private List<(float, float)> ffListRotationPattern = new List<(float, float)>(){
+        (0f, 2f),
+        (90f, 2f),
+        (180f, 2f),
+        (270f, 2f)
+    };
+    private int iIdx_ffListRotationPattern = 0;
+    private bool bOrientationSet = false;
+    private bool bOrientationArrived = false;
+    private float fTimeOrientationArrived;
 
     // Appearance:
     private Material matEnemy;
@@ -123,6 +139,7 @@ public class EnemyController : MonoBehaviour
         goPlayer = GameObject.FindWithTag("Player");
 
         SetDestination();
+        SetOrientation();
     }
 
     // ------------------------------------------------------------------------------------------------
@@ -138,27 +155,29 @@ public class EnemyController : MonoBehaviour
         {
             SetDestination();
         }
+
+        float fRemainingAngle = Mathf.Abs(transform.rotation.eulerAngles.y - fDegAngYRotationTarget);
+        if (    (   (lookMode != LookMode.constant)
+                &&  (fRemainingAngle <= fStoppingAngle) )
+            ||  (lookMode == LookMode.player) )
+        {
+            SetOrientation();
+        }
+
+        // Using v3PositionRelativeLook in Quaternion.LookRotation() gives instant rotation towards the target
+        // Using v3PositionRelativeLookNow in Quaternion.LookRotation() gives delayed rotation towards the target
+        v3PositionRelativeLookNow = Vector3.RotateTowards(transform.forward, v3PositionRelativeLook, fAngSpeedMove * Time.deltaTime, 0f);
+        transform.rotation = Quaternion.LookRotation(v3PositionRelativeLookNow);
+
+        // ------------------------------------------------------------------------------------------------
+
+        // Appearance:
+
         // Randomise the engine exhaust for a flickering effect:
         foreach (LineRenderer line in lineListEngine)
         {
             line.SetPosition(1, new Vector3(0f, 0f, Random.Range(fPosZLower_lineEngine, fPosZUpper_lineEngine)));
         }
-
-        // ------------------------------------------------------------------------------------------------
-
-        // Using this in Quaternion.LookRotation() gives instant rotation towards the target:
-        switch(lookMode)
-        {
-            case LookMode.negX: v3PositionRelativeLook = new Vector3(-1000f, 0f, 0f); fDistToPositionRelativeLookLaserEnable = 1500f; break;
-            case LookMode.posX: v3PositionRelativeLook = new Vector3(+1000f, 0f, 0f); fDistToPositionRelativeLookLaserEnable = 1500f; break;
-            case LookMode.negZ: v3PositionRelativeLook = new Vector3(0f, 0f, -1000f); fDistToPositionRelativeLookLaserEnable = 1500f; break;
-            case LookMode.posZ: v3PositionRelativeLook = new Vector3(0f, 0f, +1000f); fDistToPositionRelativeLookLaserEnable = 1500f; break;
-            case LookMode.angY: v3PositionRelativeLook = new Vector3(1000f * Mathf.Cos(fAngYLook * Mathf.PI/180f), 0f, 1000f * Mathf.Sin(fAngYLook * Mathf.PI/180f)); fDistToPositionRelativeLookLaserEnable = 1500f; break;
-            case LookMode.player: v3PositionRelativeLook = goPlayer.transform.position - transform.position; fDistToPositionRelativeLookLaserEnable = 100f; break;
-        }
-        // Using this in Quaternion.LookRotation() gives delayed rotation towards the target:
-        v3PositionRelativeLookNow = Vector3.RotateTowards(transform.forward, v3PositionRelativeLook, fAngSpeedMove * Time.deltaTime, 0f);
-        transform.rotation = Quaternion.LookRotation(v3PositionRelativeLookNow);
 
         // ------------------------------------------------------------------------------------------------
 
@@ -273,6 +292,63 @@ public class EnemyController : MonoBehaviour
             }
 
             navEnemy.SetDestination(v3PositionRandom);
+            return;
+        }
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
+    private void SetOrientation()
+    {
+        if (lookMode == LookMode.constant)
+        {
+            fRadAngYRotationConstant = fDegAngYRotationConstant * Mathf.PI/180f;
+            v3PositionRelativeLook = new Vector3(
+                1000f * Mathf.Sin(fRadAngYRotationConstant),
+                0f,
+                1000f * Mathf.Cos(fRadAngYRotationConstant)
+            );
+            fDistToPositionRelativeLookLaserEnable = 1500f;
+            return;
+        }
+        if (lookMode == LookMode.pattern)
+        {
+            if (!bOrientationSet)
+            {
+                fDegAngYRotationTarget = ffListRotationPattern[iIdx_ffListRotationPattern].Item1;
+                fRadAngYRotationTarget = fDegAngYRotationTarget * Mathf.PI/180f;
+                v3PositionRelativeLook = new Vector3(
+                    1000f * Mathf.Sin(fRadAngYRotationTarget),
+                    0f,
+                    1000f * Mathf.Cos(fRadAngYRotationTarget)
+                );
+                bOrientationSet = true;
+            }
+            else if (!bOrientationArrived)
+            {
+                fTimeOrientationArrived = Time.time;
+                bOrientationArrived = true;
+            }
+            else if (Time.time > fTimeOrientationArrived + ffListRotationPattern[iIdx_ffListRotationPattern].Item2)
+            {
+                if (iIdx_ffListRotationPattern < ffListRotationPattern.Count-1)
+                {
+                    iIdx_ffListRotationPattern++;
+                }
+                else
+                {
+                    iIdx_ffListRotationPattern = 0;
+                }
+                bOrientationSet = false;
+                bOrientationArrived = false;
+            }
+            fDistToPositionRelativeLookLaserEnable = 1500f;
+            return;
+        }
+        if (lookMode == LookMode.player)
+        {
+            v3PositionRelativeLook = goPlayer.transform.position - transform.position;
+            fDistToPositionRelativeLookLaserEnable = 100f;
             return;
         }
     }
