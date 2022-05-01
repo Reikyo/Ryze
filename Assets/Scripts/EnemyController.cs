@@ -12,16 +12,16 @@ public class EnemyController : MonoBehaviour
     private AudioManager audioManager;
 
     // Movement:
-    public float fAngSpeedMove = 5f;
+    public float fRadiansPerSecMove = 5f;
     private NavMeshAgent navEnemy;
 
     private Vector3 v3PositionRelativePlayer = new Vector3();
     private float fDistToPlayer;
-    private Quaternion quatRotToPlayer = new Quaternion();
-    private float fDegAngYRotToPlayer;
-    private Quaternion quatRotToLook = new Quaternion();
-    private float fDegAngYRotToLook;
-    private float fDegAngYRotToStop = 0.1f;
+    private Quaternion quatRotationToPlayer = new Quaternion();
+    private float fDegreesRotationYToPlayer;
+    private Quaternion quatRotationToLook = new Quaternion();
+    private float fDegreesRotationYToLook;
+    private float fDegreesRotationYToStop = 0.1f;
 
     public enum MoveMode {constant, constanthover, oscillatehorz, oscillatevert, pattern, random};
     public MoveMode moveMode;
@@ -45,10 +45,10 @@ public class EnemyController : MonoBehaviour
     public LookMode lookMode;
 
     // Looking down from the positive y-axis, angles are clockwise from the positive z-axis
-    public float fDegAngYRotationConstant = 0f;
-    private float fRadAngYRotationConstant = 0f;
-    private float fDegAngYRotationTarget = 0f;
-    private float fRadAngYRotationTarget = 0f;
+    public float fDegreesRotationYConstant = 0f;
+    private float fRadiansRotationYConstant = 0f;
+    private float fDegreesRotationYTarget = 0f;
+    private float fRadiansRotationYTarget = 0f;
     private Vector3 v3PositionRelativeLook;
     private Vector3 v3PositionRelativeLookNow;
     private List<(float, float)> ffListRotationPattern = new List<(float, float)>(){
@@ -56,7 +56,7 @@ public class EnemyController : MonoBehaviour
         (90f, 2f),
         (180f, 2f),
         (270f, 2f)
-    }; // These tuples are (fDegAngY, fTimeWait)
+    }; // These tuples are (fDegreesRotationY, fTimeWait)
     private int iIdx_ffListRotationPattern = 0;
     private bool bOrientationSet = false;
     private bool bOrientationArrived = false;
@@ -65,10 +65,10 @@ public class EnemyController : MonoBehaviour
     // Appearance:
     private Material matEnemy;
     private List<LineRenderer> lineListEngine = new List<LineRenderer>();
-    public float fPosZBase_lineEngine = -2f;
-    public float fPosZDelta_lineEngine = 0.25f;
-    private float fPosZLower_lineEngine;
-    private float fPosZUpper_lineEngine;
+    public float fPositionZBase_lineEngine = -2f;
+    public float fPositionZDelta_lineEngine = 0.25f;
+    private float fPositionZLower_lineEngine;
+    private float fPositionZUpper_lineEngine;
 
     // Health:
     private Health healthEnemy;
@@ -81,7 +81,7 @@ public class EnemyController : MonoBehaviour
     public GameObject goProjectile;
     private GameObject goLaser;
     private LineRenderer lineLaser;
-    private float fPosZBase_lineLaser;
+    private float fPositionZBase_lineLaser;
     private GameObject goGunMiddleProjectileSpawnPoint;
 
     public enum AttackMode1 {projectile, laser};
@@ -91,7 +91,7 @@ public class EnemyController : MonoBehaviour
     public AttackMode2 attackMode2;
 
     public float fDistToPlayerAttack = 100f; // 200f for projectile, 100f for laser
-    public float fDegAngYRotToPlayerAttack = 5f;
+    public float fDegreesRotationYToPlayerAttack = 5f;
     public bool bAttackOnlyIfPlayerInRange = false;
     public bool bAttackOnlyIfPlayerInSight = false;
 
@@ -132,8 +132,8 @@ public class EnemyController : MonoBehaviour
         {
             lineListEngine.Add(trn.Find("Line : Engine").gameObject.GetComponent<LineRenderer>());
         }
-        fPosZLower_lineEngine = fPosZBase_lineEngine - fPosZDelta_lineEngine;
-        fPosZUpper_lineEngine = fPosZBase_lineEngine + fPosZDelta_lineEngine;
+        fPositionZLower_lineEngine = fPositionZBase_lineEngine - fPositionZDelta_lineEngine;
+        fPositionZUpper_lineEngine = fPositionZBase_lineEngine + fPositionZDelta_lineEngine;
 
         healthEnemy = gameObject.AddComponent<Health>();
         healthEnemy.sliHealth = transform.Find("Canvas : Health/Slider : Health").GetComponent<Slider>();
@@ -144,7 +144,7 @@ public class EnemyController : MonoBehaviour
         {
             goLaser = transform.Find("Weapons/Line : Laser").gameObject;
             lineLaser = goLaser.GetComponent<LineRenderer>();
-            fPosZBase_lineLaser = lineLaser.GetPosition(1).z;
+            fPositionZBase_lineLaser = lineLaser.GetPosition(1).z;
         }
         goGunMiddleProjectileSpawnPoint = transform.Find("Weapons/GunMiddleProjectileSpawnPoint").gameObject;
         iNumAttackBurst = Random.Range(1, iNumMaxAttackBurst+1);
@@ -167,30 +167,30 @@ public class EnemyController : MonoBehaviour
         v3PositionRelativePlayer = goPlayer.transform.position - transform.position;
         fDistToPlayer = v3PositionRelativePlayer.magnitude;
 
-        quatRotToPlayer.SetFromToRotation(transform.forward, v3PositionRelativePlayer);
-        if (quatRotToPlayer.eulerAngles.y <= 180f)
+        quatRotationToPlayer.SetFromToRotation(transform.forward, v3PositionRelativePlayer);
+        if (quatRotationToPlayer.eulerAngles.y <= 180f)
         {
-            fDegAngYRotToPlayer = quatRotToPlayer.eulerAngles.y;
+            fDegreesRotationYToPlayer = quatRotationToPlayer.eulerAngles.y;
         }
         else
         {
-            fDegAngYRotToPlayer = 360f - quatRotToPlayer.eulerAngles.y;
+            fDegreesRotationYToPlayer = 360f - quatRotationToPlayer.eulerAngles.y;
         }
 
         if (lookMode == LookMode.player)
         {
-            fDegAngYRotToLook = fDegAngYRotToPlayer;
+            fDegreesRotationYToLook = fDegreesRotationYToPlayer;
         }
         else
         {
-            quatRotToLook.SetFromToRotation(transform.forward, v3PositionRelativeLook);
-            if (quatRotToLook.eulerAngles.y <= 180f)
+            quatRotationToLook.SetFromToRotation(transform.forward, v3PositionRelativeLook);
+            if (quatRotationToLook.eulerAngles.y <= 180f)
             {
-                fDegAngYRotToLook = quatRotToLook.eulerAngles.y;
+                fDegreesRotationYToLook = quatRotationToLook.eulerAngles.y;
             }
             else
             {
-                fDegAngYRotToLook = 360f - quatRotToLook.eulerAngles.y;
+                fDegreesRotationYToLook = 360f - quatRotationToLook.eulerAngles.y;
             }
         }
 
@@ -205,7 +205,7 @@ public class EnemyController : MonoBehaviour
         }
 
         if (    (   (lookMode != LookMode.constant)
-                &&  (fDegAngYRotToLook <= fDegAngYRotToStop) )
+                &&  (fDegreesRotationYToLook <= fDegreesRotationYToStop) )
             ||  (lookMode == LookMode.player) )
         {
             SetOrientation();
@@ -213,7 +213,7 @@ public class EnemyController : MonoBehaviour
 
         // Using v3PositionRelativeLook in Quaternion.LookRotation() gives instant rotation towards the target
         // Using v3PositionRelativeLookNow in Quaternion.LookRotation() gives delayed rotation towards the target
-        v3PositionRelativeLookNow = Vector3.RotateTowards(transform.forward, v3PositionRelativeLook, fAngSpeedMove * Time.deltaTime, 0f);
+        v3PositionRelativeLookNow = Vector3.RotateTowards(transform.forward, v3PositionRelativeLook, fRadiansPerSecMove * Time.deltaTime, 0f);
         transform.rotation = Quaternion.LookRotation(v3PositionRelativeLookNow);
 
         // ------------------------------------------------------------------------------------------------
@@ -223,7 +223,7 @@ public class EnemyController : MonoBehaviour
         // Randomise the engine exhaust for a flickering effect:
         foreach (LineRenderer line in lineListEngine)
         {
-            line.SetPosition(1, new Vector3(0f, 0f, Random.Range(fPosZLower_lineEngine, fPosZUpper_lineEngine)));
+            line.SetPosition(1, new Vector3(0f, 0f, Random.Range(fPositionZLower_lineEngine, fPositionZUpper_lineEngine)));
         }
 
         // ------------------------------------------------------------------------------------------------
@@ -240,7 +240,7 @@ public class EnemyController : MonoBehaviour
         if (    (   (!bAttackOnlyIfPlayerInRange)
                 ||  (fDistToPlayer <= fDistToPlayerAttack) )
             &&  (   (!bAttackOnlyIfPlayerInSight)
-                ||  (fDegAngYRotToPlayer <= fDegAngYRotToPlayerAttack) ) )
+                ||  (fDegreesRotationYToPlayer <= fDegreesRotationYToPlayerAttack) ) )
         {
             if (    (attackMode1 == AttackMode1.projectile)
                 &&  (goProjectile) )
@@ -284,7 +284,7 @@ public class EnemyController : MonoBehaviour
             Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.forward) * 1000f, Color.white);
             if (bRayHitLastFrame)
             {
-                lineLaser.SetPosition(1, new Vector3(0f, 0f, fPosZBase_lineLaser));
+                lineLaser.SetPosition(1, new Vector3(0f, 0f, fPositionZBase_lineLaser));
             }
             if (bRayHitPlayerLastFrame)
             {
@@ -390,11 +390,11 @@ public class EnemyController : MonoBehaviour
     {
         if (lookMode == LookMode.constant)
         {
-            fRadAngYRotationConstant = fDegAngYRotationConstant * Mathf.PI/180f;
+            fRadiansRotationYConstant = fDegreesRotationYConstant * Mathf.PI/180f;
             v3PositionRelativeLook = new Vector3(
-                1000f * Mathf.Sin(fRadAngYRotationConstant),
+                1000f * Mathf.Sin(fRadiansRotationYConstant),
                 0f,
-                1000f * Mathf.Cos(fRadAngYRotationConstant)
+                1000f * Mathf.Cos(fRadiansRotationYConstant)
             );
             return;
         }
@@ -402,12 +402,12 @@ public class EnemyController : MonoBehaviour
         {
             if (!bOrientationSet)
             {
-                fDegAngYRotationTarget = ffListRotationPattern[iIdx_ffListRotationPattern].Item1;
-                fRadAngYRotationTarget = fDegAngYRotationTarget * Mathf.PI/180f;
+                fDegreesRotationYTarget = ffListRotationPattern[iIdx_ffListRotationPattern].Item1;
+                fRadiansRotationYTarget = fDegreesRotationYTarget * Mathf.PI/180f;
                 v3PositionRelativeLook = new Vector3(
-                    1000f * Mathf.Sin(fRadAngYRotationTarget),
+                    1000f * Mathf.Sin(fRadiansRotationYTarget),
                     0f,
-                    1000f * Mathf.Cos(fRadAngYRotationTarget)
+                    1000f * Mathf.Cos(fRadiansRotationYTarget)
                 );
                 bOrientationSet = true;
             }
