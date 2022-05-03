@@ -12,16 +12,19 @@ public class EnemyController : MonoBehaviour
     private AudioManager audioManager;
 
     // Movement:
-    public float fRadiansPerSecMove = 5f;
     private NavMeshAgent navEnemy;
+
+    private Vector3 v3TransformForwardLastFrame = new Vector3();
+    private float fDegreesPerSecMove;
+    public float fRadiansPerSecMoveMax = 5f;
 
     private Vector3 v3PositionRelativePlayer = new Vector3();
     private float fDistToPlayer;
-    private Quaternion quatRotationToPlayer = new Quaternion();
     private float fDegreesRotationYToPlayer;
-    private Quaternion quatRotationToLook = new Quaternion();
-    private float fDegreesRotationYToLook;
-    private float fDegreesRotationYToStop = 0.1f;
+    private float fDegreesRotationYToTarget;
+
+    private float fTimeStop = 0.5f;
+    private float fDegreesRotationYStop = 1f;
 
     public enum MoveMode {constant, constanthover, oscillatehorz, oscillatevert, pattern, random};
     public MoveMode moveMode;
@@ -49,12 +52,12 @@ public class EnemyController : MonoBehaviour
     private float fRadiansRotationYConstant = 0f;
     private float fDegreesRotationYTarget = 0f;
     private float fRadiansRotationYTarget = 0f;
-    private Vector3 v3PositionRelativeLook;
-    private Vector3 v3PositionRelativeLookNow;
+    private Vector3 v3PositionRelativeTarget;
+    private Vector3 v3PositionRelativeTargetNow;
     private List<(float, float)> ffListRotationPattern = new List<(float, float)>(){
-        (0f, 2f),
-        (90f, 2f),
         (180f, 2f),
+        (90f, 2f),
+        (0f, 2f),
         (270f, 2f)
     }; // These tuples are (fDegreesRotationY, fTimeWait)
     private int iIdx_ffListRotationPattern = 0;
@@ -126,6 +129,9 @@ public class EnemyController : MonoBehaviour
         audioManager = GameObject.Find("Audio Manager").GetComponent<AudioManager>();
 
         navEnemy = GetComponent<NavMeshAgent>();
+        navEnemy.updateRotation = false; // This is true by default, but that causes issues with the explicit rotation handling herein, so toggle off
+
+        v3TransformForwardLastFrame = transform.forward;
 
         matEnemy = transform.Find("Chasis").gameObject.GetComponent<Renderer>().material;
         foreach (Transform trn in transform.Find("Engine"))
@@ -167,54 +173,59 @@ public class EnemyController : MonoBehaviour
         v3PositionRelativePlayer = goPlayer.transform.position - transform.position;
         fDistToPlayer = v3PositionRelativePlayer.magnitude;
 
-        quatRotationToPlayer.SetFromToRotation(transform.forward, v3PositionRelativePlayer);
-        if (quatRotationToPlayer.eulerAngles.y <= 180f)
-        {
-            fDegreesRotationYToPlayer = quatRotationToPlayer.eulerAngles.y;
-        }
-        else
-        {
-            fDegreesRotationYToPlayer = 360f - quatRotationToPlayer.eulerAngles.y;
-        }
-
+        fDegreesRotationYToPlayer = Vector3.Angle(transform.forward, v3PositionRelativePlayer);
         if (lookMode == LookMode.player)
         {
-            fDegreesRotationYToLook = fDegreesRotationYToPlayer;
+            fDegreesRotationYToTarget = fDegreesRotationYToPlayer;
         }
         else
         {
-            quatRotationToLook.SetFromToRotation(transform.forward, v3PositionRelativeLook);
-            if (quatRotationToLook.eulerAngles.y <= 180f)
-            {
-                fDegreesRotationYToLook = quatRotationToLook.eulerAngles.y;
-            }
-            else
-            {
-                fDegreesRotationYToLook = 360f - quatRotationToLook.eulerAngles.y;
-            }
+            fDegreesRotationYToTarget = Vector3.Angle(transform.forward, v3PositionRelativeTarget);
         }
 
         // ------------------------------------------------------------------------------------------------
 
         // Movement:
 
+        // Here we check both the remaining distance/angle to the target location/orientation, and the
+        // remaining time to the target location/orientation at the current speed. This is important for
+        // pattern motion that incorporates wait times. For example, if the enemy is moving very slowly,
+        // then it could be within the stopping distance of the target and so trigger the next call to
+        // SetDestination() or SetOrientation() without consideration of the stopping time. This would
+        // allow for the possibility of the actual time to the target being longer than the desired wait
+        // time at the target, and so no wait time would actually be had when the target is arrived at. We
+        // don't simply use the stopping time to the target on its own either, as if the enemy is moving
+        // very quickly, then it could be within stopping time of the target and so trigger the next call
+        // to SetDestination() or SetOrientation() without consideration of the stopping distance. The next
+        // target could then be set before the current one is arrived at, and the course would be adjusted
+        // too soon.
+
         if (    (moveMode != MoveMode.constant)
             &&  (navEnemy.remainingDistance <= navEnemy.stoppingDistance) )
         {
-            SetDestination();
+            if (    (navEnemy.velocity.magnitude == 0f)
+                ||  (navEnemy.remainingDistance / navEnemy.velocity.magnitude <= fTimeStop) )
+            {
+                SetDestination();
+            }
         }
 
-        if (    (   (lookMode != LookMode.constant)
-                &&  (fDegreesRotationYToLook <= fDegreesRotationYToStop) )
-            ||  (lookMode == LookMode.player) )
+        if (    (lookMode != LookMode.constant)
+            &&  (fDegreesRotationYToTarget <= fDegreesRotationYStop) )
         {
-            SetOrientation();
+            fDegreesPerSecMove = Vector3.Angle(transform.forward, v3TransformForwardLastFrame) / Time.deltaTime;
+            if (    (fDegreesPerSecMove == 0f)
+                ||  (fDegreesRotationYToTarget / fDegreesPerSecMove <= fTimeStop) )
+            {
+                SetOrientation();
+            }
         }
+        v3TransformForwardLastFrame = transform.forward;
 
-        // Using v3PositionRelativeLook in Quaternion.LookRotation() gives instant rotation towards the target
-        // Using v3PositionRelativeLookNow in Quaternion.LookRotation() gives delayed rotation towards the target
-        v3PositionRelativeLookNow = Vector3.RotateTowards(transform.forward, v3PositionRelativeLook, fRadiansPerSecMove * Time.deltaTime, 0f);
-        transform.rotation = Quaternion.LookRotation(v3PositionRelativeLookNow);
+        // Using v3PositionRelativeTarget in Quaternion.LookRotation() gives instant rotation towards the target
+        // Using v3PositionRelativeTargetNow in Quaternion.LookRotation() gives delayed rotation towards the target
+        v3PositionRelativeTargetNow = Vector3.RotateTowards(transform.forward, v3PositionRelativeTarget, fRadiansPerSecMoveMax * Time.deltaTime, 0f);
+        transform.rotation = Quaternion.LookRotation(v3PositionRelativeTargetNow);
 
         // ------------------------------------------------------------------------------------------------
 
@@ -391,7 +402,7 @@ public class EnemyController : MonoBehaviour
         if (lookMode == LookMode.constant)
         {
             fRadiansRotationYConstant = fDegreesRotationYConstant * Mathf.PI/180f;
-            v3PositionRelativeLook = new Vector3(
+            v3PositionRelativeTarget = new Vector3(
                 1000f * Mathf.Sin(fRadiansRotationYConstant),
                 0f,
                 1000f * Mathf.Cos(fRadiansRotationYConstant)
@@ -404,7 +415,7 @@ public class EnemyController : MonoBehaviour
             {
                 fDegreesRotationYTarget = ffListRotationPattern[iIdx_ffListRotationPattern].Item1;
                 fRadiansRotationYTarget = fDegreesRotationYTarget * Mathf.PI/180f;
-                v3PositionRelativeLook = new Vector3(
+                v3PositionRelativeTarget = new Vector3(
                     1000f * Mathf.Sin(fRadiansRotationYTarget),
                     0f,
                     1000f * Mathf.Cos(fRadiansRotationYTarget)
@@ -433,7 +444,7 @@ public class EnemyController : MonoBehaviour
         }
         if (lookMode == LookMode.player)
         {
-            v3PositionRelativeLook = v3PositionRelativePlayer;
+            v3PositionRelativeTarget = v3PositionRelativePlayer;
             return;
         }
     }

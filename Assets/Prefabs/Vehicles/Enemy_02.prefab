@@ -1015,7 +1015,6 @@ GameObject:
   - component: {fileID: -8250346162278057341}
   - component: {fileID: -7704168425871007117}
   - component: {fileID: -4267685257932835893}
-  - component: {fileID: -1221631188189163637}
   m_Layer: 0
   m_Name: Enemy_02
   m_TagString: Enemy
@@ -1070,7 +1069,7 @@ NavMeshAgent:
   m_Speed: 100
   m_Acceleration: 1000
   avoidancePriority: 0
-  m_AngularSpeed: 120
+  m_AngularSpeed: 0
   m_StoppingDistance: 10
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 1
@@ -1091,33 +1090,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 217f46a4132184e61b2817a966096218, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fAngSpeedMove: 5
+  fRadiansPerSecMoveMax: 5
   moveMode: 0
-  lookMode: 0
-  fAngYLook: 0
   v3PositionConstant: {x: 0, y: 0, z: 0}
-  fPosZBase_lineEngine: -2
-  fPosZDelta_lineEngine: 0.25
+  lookMode: 0
+  fDegreesRotationYConstant: 0
+  fPositionZBase_lineEngine: -2
+  fPositionZDelta_lineEngine: 0.25
   fTimeFlashDamaged: 0.1
   goProjectile: {fileID: 3262308912846389460, guid: 92040474b5c7e457092c19efa9a9bd77, type: 3}
-  attackMode: 0
+  attackMode1: 0
+  attackMode2: 0
+  fDistToPlayerAttack: 100
+  fDegreesRotationYToPlayerAttack: 5
+  bAttackOnlyIfPlayerInRange: 0
+  bAttackOnlyIfPlayerInSight: 0
   iNumMaxAttackBurst: 5
   fTimeDeltaAttack: 0.5
   fTimeDeltaMinAttackBurst: 2
   fTimeDeltaMaxAttackBurst: 5
   iScoreDelta: 10
---- !u!114 &-1221631188189163637
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8076383933121736018}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b0ca379a085e54dfa94d8d7504f16052, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &8461826510934725445
 GameObject:
   m_ObjectHideFlags: 0
