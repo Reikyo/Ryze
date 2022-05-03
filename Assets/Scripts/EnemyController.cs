@@ -168,20 +168,7 @@ public class EnemyController : MonoBehaviour
     {
         // ------------------------------------------------------------------------------------------------
 
-        SetRay();
-
-        v3PositionRelativePlayer = goPlayer.transform.position - transform.position;
-        fDistToPlayer = v3PositionRelativePlayer.magnitude;
-
-        fDegreesRotationYToPlayer = Vector3.Angle(transform.forward, v3PositionRelativePlayer);
-        if (lookMode == LookMode.player)
-        {
-            fDegreesRotationYToTarget = fDegreesRotationYToPlayer;
-        }
-        else
-        {
-            fDegreesRotationYToTarget = Vector3.Angle(transform.forward, v3PositionRelativeTarget);
-        }
+        SetThisFrame();
 
         // ------------------------------------------------------------------------------------------------
 
@@ -200,27 +187,8 @@ public class EnemyController : MonoBehaviour
         // target could then be set before the current one is arrived at, and the course would be adjusted
         // too soon.
 
-        if (    (moveMode != MoveMode.constant)
-            &&  (navEnemy.remainingDistance <= navEnemy.stoppingDistance) )
-        {
-            if (    (navEnemy.velocity.magnitude == 0f)
-                ||  (navEnemy.remainingDistance / navEnemy.velocity.magnitude <= fTimeStop) )
-            {
-                SetDestination();
-            }
-        }
-
-        if (    (lookMode != LookMode.constant)
-            &&  (fDegreesRotationYToTarget <= fDegreesRotationYStop) )
-        {
-            fDegreesPerSecMove = Vector3.Angle(transform.forward, v3TransformForwardLastFrame) / Time.deltaTime;
-            if (    (fDegreesPerSecMove == 0f)
-                ||  (fDegreesRotationYToTarget / fDegreesPerSecMove <= fTimeStop) )
-            {
-                SetOrientation();
-            }
-        }
-        v3TransformForwardLastFrame = transform.forward;
+        SetDestinationCheck();
+        SetOrientationCheck();
 
         // Using v3PositionRelativeTarget in Quaternion.LookRotation() gives instant rotation towards the target
         // Using v3PositionRelativeTargetNow in Quaternion.LookRotation() gives delayed rotation towards the target
@@ -248,41 +216,20 @@ public class EnemyController : MonoBehaviour
 
         // Damage:
 
-        if (    (   (!bAttackOnlyIfPlayerInRange)
-                ||  (fDistToPlayer <= fDistToPlayerAttack) )
-            &&  (   (!bAttackOnlyIfPlayerInSight)
-                ||  (fDegreesRotationYToPlayer <= fDegreesRotationYToPlayerAttack) ) )
-        {
-            if (    (attackMode1 == AttackMode1.projectile)
-                &&  (goProjectile) )
-            {
-                SetAttackProjectile();
-            }
-            else if (   (attackMode1 == AttackMode1.laser)
-                    &&  (goLaser) )
-            {
-                SetAttackLaser();
-            }
-        }
-        else if (lineLaser.enabled)
-        {
-            lineLaser.enabled = false;
-            CancelInvoke("PlaySfxLaser");
-        }
-
+        SetAttack();
         SetHealthPlayer();
+
+        // ------------------------------------------------------------------------------------------------
+
+        SetLastFrame();
 
         // ------------------------------------------------------------------------------------------------
     }
 
     // ------------------------------------------------------------------------------------------------
 
-    private void SetRay()
+    private void SetThisFrame()
     {
-        bRayHitLastFrame = bRayHitThisFrame;
-        bRayHitPlayerLastFrame = bRayHitPlayerThisFrame;
-        bLaserDamagePlayerLastFrame = bLaserDamagePlayerThisFrame;
-
         bRayHitThisFrame = Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out rayHit);
         if (bRayHitThisFrame)
         {
@@ -300,6 +247,60 @@ public class EnemyController : MonoBehaviour
             if (bRayHitPlayerLastFrame)
             {
                 bRayHitPlayerThisFrame = false;
+            }
+        }
+
+        v3PositionRelativePlayer = goPlayer.transform.position - transform.position;
+        fDistToPlayer = v3PositionRelativePlayer.magnitude;
+
+        fDegreesRotationYToPlayer = Vector3.Angle(transform.forward, v3PositionRelativePlayer);
+        if (lookMode == LookMode.player)
+        {
+            fDegreesRotationYToTarget = fDegreesRotationYToPlayer;
+        }
+        else
+        {
+            fDegreesRotationYToTarget = Vector3.Angle(transform.forward, v3PositionRelativeTarget);
+        }
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
+    private void SetLastFrame()
+    {
+        bRayHitLastFrame = bRayHitThisFrame;
+        bRayHitPlayerLastFrame = bRayHitPlayerThisFrame;
+        bLaserDamagePlayerLastFrame = bLaserDamagePlayerThisFrame;
+        v3TransformForwardLastFrame = transform.forward;
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
+    private void SetDestinationCheck()
+    {
+        if (    (moveMode != MoveMode.constant)
+            &&  (navEnemy.remainingDistance <= navEnemy.stoppingDistance) )
+        {
+            if (    (navEnemy.velocity.magnitude == 0f)
+                ||  (navEnemy.remainingDistance / navEnemy.velocity.magnitude <= fTimeStop) )
+            {
+                SetDestination();
+            }
+        }
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
+    private void SetOrientationCheck()
+    {
+        if (    (lookMode != LookMode.constant)
+            &&  (fDegreesRotationYToTarget <= fDegreesRotationYStop) )
+        {
+            fDegreesPerSecMove = Vector3.Angle(transform.forward, v3TransformForwardLastFrame) / Time.deltaTime;
+            if (    (fDegreesPerSecMove == 0f)
+                ||  (fDegreesRotationYToTarget / fDegreesPerSecMove <= fTimeStop) )
+            {
+                SetOrientation();
             }
         }
     }
@@ -446,6 +447,33 @@ public class EnemyController : MonoBehaviour
         {
             v3PositionRelativeTarget = v3PositionRelativePlayer;
             return;
+        }
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
+    private void SetAttack()
+    {
+        if (    (   (!bAttackOnlyIfPlayerInRange)
+                ||  (fDistToPlayer <= fDistToPlayerAttack) )
+            &&  (   (!bAttackOnlyIfPlayerInSight)
+                ||  (fDegreesRotationYToPlayer <= fDegreesRotationYToPlayerAttack) ) )
+        {
+            if (    (attackMode1 == AttackMode1.projectile)
+                &&  (goProjectile) )
+            {
+                SetAttackProjectile();
+            }
+            else if (   (attackMode1 == AttackMode1.laser)
+                    &&  (goLaser) )
+            {
+                SetAttackLaser();
+            }
+        }
+        else if (lineLaser.enabled)
+        {
+            lineLaser.enabled = false;
+            CancelInvoke("PlaySfxLaser");
         }
     }
 
