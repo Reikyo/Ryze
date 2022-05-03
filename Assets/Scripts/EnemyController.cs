@@ -26,7 +26,7 @@ public class EnemyController : MonoBehaviour
     private float fTimeStop = 0.5f;
     private float fDegreesRotationYStop = 1f;
 
-    public enum MoveMode {constant, constanthover, oscillatehorz, oscillatevert, pattern, random};
+    public enum MoveMode {constant, constanthover, oscillatehorz, oscillatevert, pattern, player};
     public MoveMode moveMode;
 
     public Vector3 v3PositionConstant = new Vector3(0f, 0f, 0f);
@@ -375,7 +375,7 @@ public class EnemyController : MonoBehaviour
             }
             return;
         }
-        if (moveMode == MoveMode.random)
+        if (moveMode == MoveMode.player)
         {
             v3PositionRandom = new Vector3(gameManager.v3MoveLimitLowerLeft.x-10f, 0f, gameManager.v3MoveLimitLowerLeft.z-10f);
 
