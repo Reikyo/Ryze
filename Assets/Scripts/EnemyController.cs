@@ -14,6 +14,14 @@ public class EnemyController : MonoBehaviour
     // Movement:
     private NavMeshAgent navEnemy;
 
+    private bool bPositionTargetArrived = false;
+    private bool bRotationTargetArrived = false;
+    private bool bWaitAtPosition = false;
+    private bool bWaitAtRotation = false;
+    private float fTimeWaitAtPosition;
+    private float fTimeWaitAtRotation;
+    public bool bSyncPattern = false;
+
     private Vector3 v3TransformForwardLastFrame = new Vector3();
     private float fDegreesPerSecMove;
     public float fRadiansPerSecMoveMax = 5f;
@@ -40,9 +48,6 @@ public class EnemyController : MonoBehaviour
         (new Vector3(-50f, 0f,+50f), 2f)
     }; // These tuples are (v3Position, fTimeWait)
     private int iIdx_v3fListPositionPattern = 0;
-    private bool bDestinationSet = false;
-    private bool bDestinationArrived = false;
-    private float fTimeDestinationArrived;
 
     public enum LookMode {constant, pattern, player};
     public LookMode lookMode;
@@ -61,9 +66,6 @@ public class EnemyController : MonoBehaviour
         (270f, 2f)
     }; // These tuples are (fDegreesRotationY, fTimeWait)
     private int iIdx_ffListRotationPattern = 0;
-    private bool bOrientationSet = false;
-    private bool bOrientationArrived = false;
-    private float fTimeOrientationArrived;
 
     // Appearance:
     private Material matEnemy;
@@ -76,7 +78,7 @@ public class EnemyController : MonoBehaviour
     // Health:
     private Health healthEnemy;
     private RectTransform rtCanvasHealth;
-    public float fTimeFlashDamaged = 0.1f;
+    public float fTimeWaitFlashDamaged = 0.1f;
     private bool bTriggeredDestroy = false;
 
     // Damage:
@@ -158,8 +160,8 @@ public class EnemyController : MonoBehaviour
 
         goPlayer = GameObject.FindWithTag("Player");
 
-        SetDestination();
-        SetOrientation();
+        SetPositionTarget();
+        SetRotationTarget();
     }
 
     // ------------------------------------------------------------------------------------------------
@@ -168,32 +170,26 @@ public class EnemyController : MonoBehaviour
     {
         // ------------------------------------------------------------------------------------------------
 
-        SetThisFrame();
+        SetInfoThisFrame();
 
         // ------------------------------------------------------------------------------------------------
 
         // Movement:
 
-        // Here we check both the remaining distance/angle to the target location/orientation, and the
-        // remaining time to the target location/orientation at the current speed. This is important for
+        // Here we check both the remaining distance/angle to the target position/rotation, and the
+        // remaining time to the target position/rotation at the current speed. This is important for
         // pattern motion that incorporates wait times. For example, if the enemy is moving very slowly,
         // then it could be within the stopping distance of the target and so trigger the next call to
-        // SetDestination() or SetOrientation() without consideration of the stopping time. This would
-        // allow for the possibility of the actual time to the target being longer than the desired wait
-        // time at the target, and so no wait time would actually be had when the target is arrived at. We
-        // don't simply use the stopping time to the target on its own either, as if the enemy is moving
-        // very quickly, then it could be within stopping time of the target and so trigger the next call
-        // to SetDestination() or SetOrientation() without consideration of the stopping distance. The next
-        // target could then be set before the current one is arrived at, and the course would be adjusted
-        // too soon.
+        // the function that sets the target position/rotation without consideration of the stopping time.
+        // This would allow for the possibility of the actual time to the target being longer than the
+        // desired wait time at the target, and so no wait time would actually be had when the target is
+        // arrived at. We don't simply use the stopping time to the target on its own either, as if the
+        // enemy is moving very quickly, then it could be within stopping time of the target and so trigger
+        // the next call to the function that sets the target position/rotation without consideration of
+        // the stopping distance. The next target could then be set before the current one is arrived at,
+        // and the course would be adjusted too soon.
 
-        SetDestinationCheck();
-        SetOrientationCheck();
-
-        // Using v3PositionRelativeTarget in Quaternion.LookRotation() gives instant rotation towards the target
-        // Using v3PositionRelativeTargetNow in Quaternion.LookRotation() gives delayed rotation towards the target
-        v3PositionRelativeTargetNow = Vector3.RotateTowards(transform.forward, v3PositionRelativeTarget, fRadiansPerSecMoveMax * Time.deltaTime, 0f);
-        transform.rotation = Quaternion.LookRotation(v3PositionRelativeTargetNow);
+        SetMovement();
 
         // ------------------------------------------------------------------------------------------------
 
@@ -221,14 +217,14 @@ public class EnemyController : MonoBehaviour
 
         // ------------------------------------------------------------------------------------------------
 
-        SetLastFrame();
+        SetInfoLastFrame();
 
         // ------------------------------------------------------------------------------------------------
     }
 
     // ------------------------------------------------------------------------------------------------
 
-    private void SetThisFrame()
+    private void SetInfoThisFrame()
     {
         bRayHitThisFrame = Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out rayHit);
         if (bRayHitThisFrame)
@@ -266,7 +262,7 @@ public class EnemyController : MonoBehaviour
 
     // ------------------------------------------------------------------------------------------------
 
-    private void SetLastFrame()
+    private void SetInfoLastFrame()
     {
         bRayHitLastFrame = bRayHitThisFrame;
         bRayHitPlayerLastFrame = bRayHitPlayerThisFrame;
@@ -276,39 +272,99 @@ public class EnemyController : MonoBehaviour
 
     // ------------------------------------------------------------------------------------------------
 
-    private void SetDestinationCheck()
+    private void SetMovement()
     {
         if (    (moveMode != MoveMode.constant)
-            &&  (navEnemy.remainingDistance <= navEnemy.stoppingDistance) )
+            &&  (!bPositionTargetArrived) )
+        {
+            CheckPositionTargetArrived();
+            if (    (bPositionTargetArrived)
+                &&  (bWaitAtPosition) )
+            {
+                StartCoroutine(WaitAtPosition());
+            }
+        }
+
+        if (    (lookMode != LookMode.constant)
+            &&  (!bRotationTargetArrived) )
+        {
+            CheckRotationTargetArrived();
+            if (    (bRotationTargetArrived)
+                &&  (bWaitAtRotation) )
+            {
+                StartCoroutine(WaitAtRotation());
+            }
+        }
+
+        if (    (moveMode == MoveMode.pattern)
+            &&  (lookMode == LookMode.pattern)
+            &&  (bSyncPattern) )
+        {
+            if (    (bPositionTargetArrived)
+                &&  (!bWaitAtPosition)
+                &&  (bRotationTargetArrived)
+                &&  (!bWaitAtRotation) )
+            {
+                SetPositionTarget();
+                SetRotationTarget();
+            }
+        }
+        else
+        {
+            if (    (moveMode != MoveMode.constant)
+                &&  (bPositionTargetArrived)
+                &&  (!bWaitAtPosition) )
+            {
+                SetPositionTarget();
+            }
+            if (    (lookMode != LookMode.constant)
+                &&  (bRotationTargetArrived)
+                &&  (!bWaitAtRotation) )
+            {
+                SetRotationTarget();
+            }
+        }
+
+        // Using v3PositionRelativeTarget in Quaternion.LookRotation() gives instant rotation towards the target
+        // Using v3PositionRelativeTargetNow in Quaternion.LookRotation() gives delayed rotation towards the target
+        v3PositionRelativeTargetNow = Vector3.RotateTowards(transform.forward, v3PositionRelativeTarget, fRadiansPerSecMoveMax * Time.deltaTime, 0f);
+        transform.rotation = Quaternion.LookRotation(v3PositionRelativeTargetNow);
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
+    private void CheckPositionTargetArrived()
+    {
+        if (navEnemy.remainingDistance <= navEnemy.stoppingDistance)
         {
             if (    (navEnemy.velocity.magnitude == 0f)
                 ||  (navEnemy.remainingDistance / navEnemy.velocity.magnitude <= fTimeStop) )
             {
-                SetDestination();
+                bPositionTargetArrived = true;
             }
         }
     }
 
     // ------------------------------------------------------------------------------------------------
 
-    private void SetOrientationCheck()
+    private void CheckRotationTargetArrived()
     {
-        if (    (lookMode != LookMode.constant)
-            &&  (fDegreesRotationYToTarget <= fDegreesRotationYStop) )
+        if (fDegreesRotationYToTarget <= fDegreesRotationYStop)
         {
             fDegreesPerSecMove = Vector3.Angle(transform.forward, v3TransformForwardLastFrame) / Time.deltaTime;
             if (    (fDegreesPerSecMove == 0f)
                 ||  (fDegreesRotationYToTarget / fDegreesPerSecMove <= fTimeStop) )
             {
-                SetOrientation();
+                bRotationTargetArrived = true;
             }
         }
     }
 
     // ------------------------------------------------------------------------------------------------
 
-    private void SetDestination()
+    private void SetPositionTarget()
     {
+        bPositionTargetArrived = false;
         if (moveMode == MoveMode.constant)
         {
             navEnemy.SetDestination(v3PositionConstant);
@@ -351,29 +407,9 @@ public class EnemyController : MonoBehaviour
         }
         if (moveMode == MoveMode.pattern)
         {
-            if (!bDestinationSet)
-            {
-                navEnemy.SetDestination(v3fListPositionPattern[iIdx_v3fListPositionPattern].Item1);
-                bDestinationSet = true;
-            }
-            else if (!bDestinationArrived)
-            {
-                fTimeDestinationArrived = Time.time;
-                bDestinationArrived = true;
-            }
-            else if (Time.time > fTimeDestinationArrived + v3fListPositionPattern[iIdx_v3fListPositionPattern].Item2)
-            {
-                if (iIdx_v3fListPositionPattern < v3fListPositionPattern.Count-1)
-                {
-                    iIdx_v3fListPositionPattern++;
-                }
-                else
-                {
-                    iIdx_v3fListPositionPattern = 0;
-                }
-                bDestinationSet = false;
-                bDestinationArrived = false;
-            }
+            navEnemy.SetDestination(v3fListPositionPattern[iIdx_v3fListPositionPattern].Item1);
+            fTimeWaitAtPosition = v3fListPositionPattern[iIdx_v3fListPositionPattern].Item2;
+            bWaitAtPosition = fTimeWaitAtPosition > 0f;
             return;
         }
         if (moveMode == MoveMode.player)
@@ -398,8 +434,9 @@ public class EnemyController : MonoBehaviour
 
     // ------------------------------------------------------------------------------------------------
 
-    private void SetOrientation()
+    private void SetRotationTarget()
     {
+        bRotationTargetArrived = false;
         if (lookMode == LookMode.constant)
         {
             fRadiansRotationYConstant = fDegreesRotationYConstant * Mathf.PI/180f;
@@ -412,35 +449,15 @@ public class EnemyController : MonoBehaviour
         }
         if (lookMode == LookMode.pattern)
         {
-            if (!bOrientationSet)
-            {
-                fDegreesRotationYTarget = ffListRotationPattern[iIdx_ffListRotationPattern].Item1;
-                fRadiansRotationYTarget = fDegreesRotationYTarget * Mathf.PI/180f;
-                v3PositionRelativeTarget = new Vector3(
-                    1000f * Mathf.Sin(fRadiansRotationYTarget),
-                    0f,
-                    1000f * Mathf.Cos(fRadiansRotationYTarget)
-                );
-                bOrientationSet = true;
-            }
-            else if (!bOrientationArrived)
-            {
-                fTimeOrientationArrived = Time.time;
-                bOrientationArrived = true;
-            }
-            else if (Time.time > fTimeOrientationArrived + ffListRotationPattern[iIdx_ffListRotationPattern].Item2)
-            {
-                if (iIdx_ffListRotationPattern < ffListRotationPattern.Count-1)
-                {
-                    iIdx_ffListRotationPattern++;
-                }
-                else
-                {
-                    iIdx_ffListRotationPattern = 0;
-                }
-                bOrientationSet = false;
-                bOrientationArrived = false;
-            }
+            fDegreesRotationYTarget = ffListRotationPattern[iIdx_ffListRotationPattern].Item1;
+            fRadiansRotationYTarget = fDegreesRotationYTarget * Mathf.PI/180f;
+            v3PositionRelativeTarget = new Vector3(
+                1000f * Mathf.Sin(fRadiansRotationYTarget),
+                0f,
+                1000f * Mathf.Cos(fRadiansRotationYTarget)
+            );
+            fTimeWaitAtRotation = ffListRotationPattern[iIdx_ffListRotationPattern].Item2;
+            bWaitAtRotation = fTimeWaitAtRotation > 0f;
             return;
         }
         if (lookMode == LookMode.player)
@@ -581,10 +598,42 @@ public class EnemyController : MonoBehaviour
 
     // ------------------------------------------------------------------------------------------------
 
+    IEnumerator WaitAtPosition()
+    {
+        yield return new WaitForSeconds(fTimeWaitAtPosition);
+        if (iIdx_v3fListPositionPattern < v3fListPositionPattern.Count-1)
+        {
+            iIdx_v3fListPositionPattern++;
+        }
+        else
+        {
+            iIdx_v3fListPositionPattern = 0;
+        }
+        bWaitAtPosition = false;
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
+    IEnumerator WaitAtRotation()
+    {
+        yield return new WaitForSeconds(fTimeWaitAtRotation);
+        if (iIdx_ffListRotationPattern < ffListRotationPattern.Count-1)
+        {
+            iIdx_ffListRotationPattern++;
+        }
+        else
+        {
+            iIdx_ffListRotationPattern = 0;
+        }
+        bWaitAtRotation = false;
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
     IEnumerator FlashDamaged()
     {
         matEnemy.EnableKeyword("_EMISSION");
-        yield return new WaitForSeconds(fTimeFlashDamaged);
+        yield return new WaitForSeconds(fTimeWaitFlashDamaged);
         matEnemy.DisableKeyword("_EMISSION");
     }
 
