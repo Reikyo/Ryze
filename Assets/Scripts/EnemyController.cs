@@ -49,8 +49,10 @@ public class EnemyController : MonoBehaviour
     private Vector2 v2PositionRandom;
     private Vector3 v3PositionRandom;
     private bool bDirectionLowerLeft = true;
-    // These tuples are ([fMetresPosX,fMetresPosY,fMetresPosZ,fMetresPerSec], fTimeDeltaWait). Note
-    // that the speed is optional, so the arrays can be 3 or 4 elements long:
+    // These tuples are ([fMetresPosX,fMetresPosY,fMetresPosZ,fMetresPerSec], fTimeDeltaWait).
+    // Note that the position arrays are optional. If one is empty, then the previous non-empty one
+    // remains in effect. As such, at least the first position array must be non-empty for a default.
+    // Note that the speed is optional, so the position arrays can be 3 or 4 elements long.
     private List<(float[], float)> ListPositionPattern = new List<(float[], float)>(){
         (new float[]{-50f, 0f,  0f}, 2f),
         (new float[]{+50f, 0f,  0f}, 2f),
@@ -64,8 +66,10 @@ public class EnemyController : MonoBehaviour
     private float fRadiansRotationYConstant = 0f;
     private float fDegreesRotationYTarget = 0f;
     private float fRadiansRotationYTarget = 0f;
-    // These tuples are ([fDegreesRotationY,fDegreesPerSec], fTimeDeltaWait). Note that the speed is
-    // optional, so the arrays can be 1 or 2 elements long:
+    // These tuples are ([fDegreesRotationY,fDegreesPerSec], fTimeDeltaWait).
+    // Note that the rotation arrays are optional. If one is empty, then the previous non-empty one
+    // remains in effect. As such, at least the first rotation array must be non-empty for a default.
+    // Note that the speed is optional, so the rotation arrays can be 1 or 2 elements long.
     private List<(float[], float)> ListRotationPattern = new List<(float[], float)>(){
         (new float[]{180f}, 2f),
         (new float[]{90f}, 2f),
