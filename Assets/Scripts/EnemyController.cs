@@ -34,8 +34,10 @@ public class EnemyController : MonoBehaviour
     private float fMetresDeltaToPlayer;
     private float fDegreesDeltaRotationYToPlayer;
     private float fDegreesDeltaRotationYToTarget;
-    private float fDegreesDeltaRotationYToStopMax = 1f;
-    private float fTimeDeltaToStopMax = 0.5f;
+    private float fDegreesDeltaRotationYStopMax = 1f;
+    private float fTimeDeltaToPositionTarget;
+    private float fTimeDeltaToRotationTarget;
+    private float fTimeDeltaStopMax = 0.5f;
 
     public enum MoveMode {constant, constanthover, oscillatehorz, oscillatevert, pattern, player};
     public MoveMode moveMode;
@@ -394,8 +396,15 @@ public class EnemyController : MonoBehaviour
     {
         if (navEnemy.remainingDistance <= navEnemy.stoppingDistance)
         {
-            if (    (navEnemy.velocity.magnitude == 0f)
-                ||  (navEnemy.remainingDistance / navEnemy.velocity.magnitude <= fTimeDeltaToStopMax) )
+            if (navEnemy.velocity.magnitude == 0f)
+            {
+                fTimeDeltaToPositionTarget = 0f;
+            }
+            else
+            {
+                fTimeDeltaToPositionTarget = navEnemy.remainingDistance / navEnemy.velocity.magnitude;
+            }
+            if (fTimeDeltaToPositionTarget <= fTimeDeltaStopMax)
             {
                 bPositionTargetArrived = true;
             }
@@ -406,11 +415,18 @@ public class EnemyController : MonoBehaviour
 
     private void CheckRotationTargetArrived()
     {
-        if (fDegreesDeltaRotationYToTarget <= fDegreesDeltaRotationYToStopMax)
+        if (fDegreesDeltaRotationYToTarget <= fDegreesDeltaRotationYStopMax)
         {
             fDegreesPerSecMove = Vector3.Angle(transform.forward, v3TransformForwardLastFrame) / Time.deltaTime;
-            if (    (fDegreesPerSecMove == 0f)
-                ||  (fDegreesDeltaRotationYToTarget / fDegreesPerSecMove <= fTimeDeltaToStopMax) )
+            if (fDegreesPerSecMove == 0f)
+            {
+                fTimeDeltaToRotationTarget = 0f;
+            }
+            else
+            {
+                fTimeDeltaToRotationTarget = fDegreesDeltaRotationYToTarget / fDegreesPerSecMove;
+            }
+            if (fTimeDeltaToRotationTarget <= fTimeDeltaStopMax)
             {
                 bRotationTargetArrived = true;
             }
@@ -759,7 +775,7 @@ public class EnemyController : MonoBehaviour
 
     IEnumerator WaitAtPositionTarget()
     {
-        yield return new WaitForSeconds(fTimeDeltaWaitAtPositionTarget);
+        yield return new WaitForSeconds(fTimeDeltaWaitAtPositionTarget + fTimeDeltaToPositionTarget);
         bWaitAtPositionTarget = false;
     }
 
@@ -767,7 +783,7 @@ public class EnemyController : MonoBehaviour
 
     IEnumerator WaitAtRotationTarget()
     {
-        yield return new WaitForSeconds(fTimeDeltaWaitAtRotationTarget);
+        yield return new WaitForSeconds(fTimeDeltaWaitAtRotationTarget + fTimeDeltaToRotationTarget);
         bWaitAtRotationTarget = false;
     }
 
