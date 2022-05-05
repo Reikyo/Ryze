@@ -28,8 +28,8 @@ public class PlayerController : MonoBehaviour
     private List<String> sListChildrenIgnoreFlashDamaged = new List<String>{"Line : Attack2ModeStraight", "Line : Engine", "Trail : Engine"};
     private List<Material> matListChildren = new List<Material>();
     private LineRenderer lineEngine;
-    public float fPosZBase_lineEngine = -4f;
-    public float fPosZDelta_lineEngine = 0.5f;
+    private float fPosZBase_lineEngine = -4f;
+    private float fPosZDelta_lineEngine = 0.5f;
     private float fPosZLower_lineEngine;
     private float fPosZUpper_lineEngine;
     private TrailRenderer trailEngine;
@@ -37,7 +37,7 @@ public class PlayerController : MonoBehaviour
     // Health:
     private Health healthPlayer;
     private GameObject goShield;
-    public float fTimeWaitFlashDamaged = 0.1f;
+    private float fTimeDeltaWaitFlashDamaged = 0.1f;
     private float fRelativeMomentum;
     public float fRelativeMomentumBenchmark = 250000f;
     private bool bTriggeredFlashDamagedContinuous = false;
@@ -538,11 +538,11 @@ public class PlayerController : MonoBehaviour
     IEnumerator FlashDamaged()
     {
         // goShield.SetActive(true);
-        // yield return new WaitForSeconds(fTimeWaitFlashDamaged);
+        // yield return new WaitForSeconds(fTimeDeltaWaitFlashDamaged);
         // goShield.SetActive(false);
-        // yield return new WaitForSeconds(fTimeWaitFlashDamaged);
+        // yield return new WaitForSeconds(fTimeDeltaWaitFlashDamaged);
         // goShield.SetActive(true);
-        // yield return new WaitForSeconds(fTimeWaitFlashDamaged);
+        // yield return new WaitForSeconds(fTimeDeltaWaitFlashDamaged);
         // goShield.SetActive(false);
 
         foreach (Material matChild in matListChildren)
@@ -550,7 +550,7 @@ public class PlayerController : MonoBehaviour
             matChild.EnableKeyword("_EMISSION");
         }
 
-        yield return new WaitForSeconds(fTimeWaitFlashDamaged);
+        yield return new WaitForSeconds(fTimeDeltaWaitFlashDamaged);
 
         foreach (Material matChild in matListChildren)
         {
@@ -570,14 +570,14 @@ public class PlayerController : MonoBehaviour
                 matChild.EnableKeyword("_EMISSION");
             }
 
-            yield return new WaitForSeconds(fTimeWaitFlashDamaged);
+            yield return new WaitForSeconds(fTimeDeltaWaitFlashDamaged);
 
             foreach (Material matChild in matListChildren)
             {
                 matChild.DisableKeyword("_EMISSION");
             }
 
-            yield return new WaitForSeconds(fTimeWaitFlashDamaged);
+            yield return new WaitForSeconds(fTimeDeltaWaitFlashDamaged);
         }
         bTriggeredFlashDamagedContinuous = false;
     }

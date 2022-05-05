@@ -10,19 +10,15 @@ public class EnemyController : MonoBehaviour
     private GameManager gameManager;
     private SpawnManager spawnManager;
     private AudioManager audioManager;
+    private GameObject goPlayer;
 
-    // Movement:
+    private float fDegreesToRadians = Mathf.PI / 180f;
+
+    // ------------------------------------------------------------------------------------------------
+    // - Movement -
+
     private NavMeshAgent navEnemy;
 
-    private bool bPositionTargetArrived = false;
-    private bool bRotationTargetArrived = false;
-    private bool bWaitAtPosition = false;
-    private bool bWaitAtRotation = false;
-    private float fTimeWaitAtPosition;
-    private float fTimeWaitAtRotation;
-    public bool bSyncPattern = true;
-
-    private Vector3 v3TransformForwardLastFrame = new Vector3();
     public float fMetresPerSecMoveMaxDefault = 100f;
     public float fDegreesPerSecMoveMaxDefault = 360f;
     private float fRadiansPerSecMoveMaxDefault;
@@ -30,27 +26,30 @@ public class EnemyController : MonoBehaviour
     private float fRadiansPerSecMoveMax;
     private float fDegreesPerSecMove;
 
+    private Vector3 v3TransformForwardLastFrame = new Vector3();
     private Vector3 v3PositionRelativePlayer = new Vector3();
-    private float fDistToPlayer;
-    private float fDegreesRotationYToPlayer;
-    private float fDegreesRotationYToTarget;
+    private Vector3 v3PositionRelativeTarget;
+    private Vector3 v3PositionRelativeTargetNow;
 
-    private float fTimeStop = 0.5f;
-    private float fDegreesRotationYStop = 1f;
+    private float fMetresDeltaToPlayer;
+    private float fDegreesDeltaRotationYToPlayer;
+    private float fDegreesDeltaRotationYToTarget;
+    private float fDegreesDeltaRotationYToStopMax = 1f;
+    private float fTimeDeltaToStopMax = 0.5f;
 
     public enum MoveMode {constant, constanthover, oscillatehorz, oscillatevert, pattern, player};
     public MoveMode moveMode;
+    public enum LookMode {constant, pattern, player};
+    public LookMode lookMode;
+    public bool bSyncMoveLookPatterns = true;
 
     public Vector3 v3PositionConstant = new Vector3(0f, 0f, 0f);
     private Vector2 v2PositionRandom;
     private Vector3 v3PositionRandom;
     private bool bDirectionLowerLeft = true;
-    // These tuples are ([fMetresPosX,fMetresPosY,fMetresPosZ,fMetresPerSec], fTimeWait):
+    // These tuples are ([fMetresPosX,fMetresPosY,fMetresPosZ,fMetresPerSec], fTimeDeltaWait). Note
+    // that the speed is optional, so the arrays can be 3 or 4 elements long:
     private List<(float[], float)> ListPositionPattern = new List<(float[], float)>(){
-        // (new Vector3(-50f, 0f,  0f), 2f),
-        // (new Vector3(+50f, 0f,  0f), 2f),
-        // (new Vector3(+50f, 0f,+50f), 2f),
-        // (new Vector3(-50f, 0f,+50f), 2f)
         (new float[]{-50f, 0f,  0f}, 2f),
         (new float[]{+50f, 0f,  0f}, 2f),
         (new float[]{+50f, 0f,+50f}, 2f),
@@ -58,22 +57,14 @@ public class EnemyController : MonoBehaviour
     };
     private int iIdx_ListPositionPattern = 0;
 
-    public enum LookMode {constant, pattern, player};
-    public LookMode lookMode;
-
     // Looking down from the positive y-axis, angles are clockwise from the positive z-axis
     public float fDegreesRotationYConstant = 0f;
     private float fRadiansRotationYConstant = 0f;
     private float fDegreesRotationYTarget = 0f;
     private float fRadiansRotationYTarget = 0f;
-    private Vector3 v3PositionRelativeTarget;
-    private Vector3 v3PositionRelativeTargetNow;
-    // These tuples are ([fDegreesRotY,fDegreesPerSec], fTimeWait):
+    // These tuples are ([fDegreesRotationY,fDegreesPerSec], fTimeDeltaWait). Note that the speed is
+    // optional, so the arrays can be 1 or 2 elements long:
     private List<(float[], float)> ListRotationPattern = new List<(float[], float)>(){
-        // (180f, 2f),
-        // (90f, 2f),
-        // (0f, 2f),
-        // (270f, 2f)
         (new float[]{180f}, 2f),
         (new float[]{90f}, 2f),
         (new float[]{0f}, 2f),
@@ -97,21 +88,34 @@ public class EnemyController : MonoBehaviour
     //     (new float[]{-40f, 0f,+80f}, new float[]{}, 2f),
     // };
 
-    // Appearance:
+    private bool bPositionTargetArrived = false;
+    private bool bRotationTargetArrived = false;
+    private bool bWaitAtPositionTarget = false;
+    private bool bWaitAtRotationTarget = false;
+    private float fTimeDeltaWaitAtPositionTarget;
+    private float fTimeDeltaWaitAtRotationTarget;
+
+    // ------------------------------------------------------------------------------------------------
+    // - Appearance -
+
     private Material matEnemy;
     private List<LineRenderer> lineListEngine = new List<LineRenderer>();
-    public float fPositionZBase_lineEngine = -2f;
-    public float fPositionZDelta_lineEngine = 0.25f;
+    private float fPositionZBase_lineEngine = -2f;
+    private float fPositionZDelta_lineEngine = 0.25f;
     private float fPositionZLower_lineEngine;
     private float fPositionZUpper_lineEngine;
 
-    // Health:
+    // ------------------------------------------------------------------------------------------------
+    // - Health -
+
     private Health healthEnemy;
     private RectTransform rtCanvasHealth;
-    public float fTimeWaitFlashDamaged = 0.1f;
+    private float fTimeDeltaWaitFlashDamaged = 0.1f;
     private bool bTriggeredDestroy = false;
 
-    // Damage:
+    // ------------------------------------------------------------------------------------------------
+    // - Damage -
+
     private RaycastHit rayHit;
     public GameObject goProjectile;
     private GameObject goLaser;
@@ -121,12 +125,11 @@ public class EnemyController : MonoBehaviour
 
     public enum AttackMode1 {projectile, laser};
     public AttackMode1 attackMode1;
-
     public enum AttackMode2 {constant, burst, pattern};
     public AttackMode2 attackMode2;
 
-    public float fDistToPlayerAttack = 100f; // 200f for projectile, 100f for laser
-    public float fDegreesRotationYToPlayerAttack = 5f;
+    public float fMetresDeltaToPlayerAttack = 100f; // 200f for projectile, 100f for laser
+    public float fDegreesDeltaRotationYToPlayerAttack = 5f;
     public bool bAttackOnlyIfPlayerInRange = false;
     public bool bAttackOnlyIfPlayerInSight = false;
 
@@ -146,28 +149,34 @@ public class EnemyController : MonoBehaviour
     private bool bLaserDamagePlayerLastFrame = false;
     private bool bLaserDamagePlayerThisFrame = false;
 
-    // Score:
-    public int iScoreDelta = 10;
+    // ------------------------------------------------------------------------------------------------
+    // - Score -
 
-    // From other objects:
-    private GameObject goPlayer;
+    public int iScoreDelta = 10;
 
     // ------------------------------------------------------------------------------------------------
 
     void Start()
     {
+        // ------------------------------------------------------------------------------------------------
+
         gameManager = GameObject.Find("Game Manager").GetComponent<GameManager>();
         spawnManager = GameObject.Find("Spawn Manager").GetComponent<SpawnManager>();
         audioManager = GameObject.Find("Audio Manager").GetComponent<AudioManager>();
+        goPlayer = GameObject.FindWithTag("Player");
+
+        // ------------------------------------------------------------------------------------------------
+        // - Movement -
 
         navEnemy = GetComponent<NavMeshAgent>();
         navEnemy.speed = fMetresPerSecMoveMaxDefault;
         navEnemy.updateRotation = false; // This is true by default, but that causes issues with the explicit rotation handling herein, so toggle off
-
-        fRadiansPerSecMoveMaxDefault = fDegreesPerSecMoveMaxDefault * Mathf.PI/180f;
+        fRadiansPerSecMoveMaxDefault = fDegreesPerSecMoveMaxDefault * fDegreesToRadians;
         fRadiansPerSecMoveMax = fRadiansPerSecMoveMaxDefault;
-
         v3TransformForwardLastFrame = transform.forward;
+
+        // ------------------------------------------------------------------------------------------------
+        // - Appearance -
 
         matEnemy = transform.Find("Chasis").gameObject.GetComponent<Renderer>().material;
         foreach (Transform trn in transform.Find("Engine"))
@@ -177,10 +186,16 @@ public class EnemyController : MonoBehaviour
         fPositionZLower_lineEngine = fPositionZBase_lineEngine - fPositionZDelta_lineEngine;
         fPositionZUpper_lineEngine = fPositionZBase_lineEngine + fPositionZDelta_lineEngine;
 
+        // ------------------------------------------------------------------------------------------------
+        // - Health -
+
         healthEnemy = gameObject.AddComponent<Health>();
         healthEnemy.sliHealth = transform.Find("Canvas : Health/Slider : Health").GetComponent<Slider>();
         healthEnemy.Change(healthEnemy.iHealthMax);
         rtCanvasHealth = transform.Find("Canvas : Health").GetComponent<RectTransform>();
+
+        // ------------------------------------------------------------------------------------------------
+        // - Damage -
 
         if (transform.Find("Weapons/Line : Laser"))
         {
@@ -192,10 +207,12 @@ public class EnemyController : MonoBehaviour
         iNumAttackBurst = Random.Range(1, iNumMaxAttackBurst+1);
         fTimeNextAttack = Time.time + Random.Range(fTimeDeltaMinAttackBurst, fTimeDeltaMaxAttackBurst);
 
-        goPlayer = GameObject.FindWithTag("Player");
+        // ------------------------------------------------------------------------------------------------
 
         SetPositionTarget();
         SetRotationTarget();
+
+        // ------------------------------------------------------------------------------------------------
     }
 
     // ------------------------------------------------------------------------------------------------
@@ -207,8 +224,7 @@ public class EnemyController : MonoBehaviour
         SetInfoThisFrame();
 
         // ------------------------------------------------------------------------------------------------
-
-        // Movement:
+        // - Movement -
 
         // Here we check both the remaining distance/angle to the target position/rotation, and the
         // remaining time to the target position/rotation at the current speed. This is important for
@@ -226,8 +242,7 @@ public class EnemyController : MonoBehaviour
         SetMovement();
 
         // ------------------------------------------------------------------------------------------------
-
-        // Appearance:
+        // - Appearance -
 
         // Randomise the engine exhaust for a flickering effect:
         foreach (LineRenderer line in lineListEngine)
@@ -236,15 +251,13 @@ public class EnemyController : MonoBehaviour
         }
 
         // ------------------------------------------------------------------------------------------------
-
-        // Health:
+        // - Health -
 
         rtCanvasHealth.position = transform.position + new Vector3(0f, 0f, 10f);
         rtCanvasHealth.LookAt(transform.position + new Vector3(0f, 0f, 20f));
 
         // ------------------------------------------------------------------------------------------------
-
-        // Damage:
+        // - Damage -
 
         SetAttack();
         SetHealthPlayer();
@@ -281,16 +294,16 @@ public class EnemyController : MonoBehaviour
         }
 
         v3PositionRelativePlayer = goPlayer.transform.position - transform.position;
-        fDistToPlayer = v3PositionRelativePlayer.magnitude;
+        fMetresDeltaToPlayer = v3PositionRelativePlayer.magnitude;
 
-        fDegreesRotationYToPlayer = Vector3.Angle(transform.forward, v3PositionRelativePlayer);
+        fDegreesDeltaRotationYToPlayer = Vector3.Angle(transform.forward, v3PositionRelativePlayer);
         if (lookMode == LookMode.player)
         {
-            fDegreesRotationYToTarget = fDegreesRotationYToPlayer;
+            fDegreesDeltaRotationYToTarget = fDegreesDeltaRotationYToPlayer;
         }
         else
         {
-            fDegreesRotationYToTarget = Vector3.Angle(transform.forward, v3PositionRelativeTarget);
+            fDegreesDeltaRotationYToTarget = Vector3.Angle(transform.forward, v3PositionRelativeTarget);
         }
     }
 
@@ -313,9 +326,9 @@ public class EnemyController : MonoBehaviour
         {
             CheckPositionTargetArrived();
             if (    (bPositionTargetArrived)
-                &&  (bWaitAtPosition) )
+                &&  (bWaitAtPositionTarget) )
             {
-                StartCoroutine(WaitAtPosition());
+                StartCoroutine(WaitAtPositionTarget());
             }
         }
 
@@ -324,30 +337,30 @@ public class EnemyController : MonoBehaviour
         {
             CheckRotationTargetArrived();
             if (    (bRotationTargetArrived)
-                &&  (bWaitAtRotation) )
+                &&  (bWaitAtRotationTarget) )
             {
-                StartCoroutine(WaitAtRotation());
+                StartCoroutine(WaitAtRotationTarget());
             }
         }
 
         // if (bTEST)
         // {
         //     if (    (bPositionTargetArrived)
-        //         &&  (!bWaitAtPosition)
+        //         &&  (!bWaitAtPositionTarget)
         //         &&  (bRotationTargetArrived)
-        //         &&  (!bWaitAtRotation) )
+        //         &&  (!bWaitAtRotationTarget) )
         //     {
         //         SetTEST();
         //     }
         // }
         if (    (moveMode == MoveMode.pattern)
             &&  (lookMode == LookMode.pattern)
-            &&  (bSyncPattern) )
+            &&  (bSyncMoveLookPatterns) )
         {
             if (    (bPositionTargetArrived)
-                &&  (!bWaitAtPosition)
+                &&  (!bWaitAtPositionTarget)
                 &&  (bRotationTargetArrived)
-                &&  (!bWaitAtRotation) )
+                &&  (!bWaitAtRotationTarget) )
             {
                 SetPositionTarget();
                 SetRotationTarget();
@@ -357,13 +370,13 @@ public class EnemyController : MonoBehaviour
         {
             if (    (moveMode != MoveMode.constant)
                 &&  (bPositionTargetArrived)
-                &&  (!bWaitAtPosition) )
+                &&  (!bWaitAtPositionTarget) )
             {
                 SetPositionTarget();
             }
             if (    (lookMode != LookMode.constant)
                 &&  (bRotationTargetArrived)
-                &&  (!bWaitAtRotation) )
+                &&  (!bWaitAtRotationTarget) )
             {
                 SetRotationTarget();
             }
@@ -382,7 +395,7 @@ public class EnemyController : MonoBehaviour
         if (navEnemy.remainingDistance <= navEnemy.stoppingDistance)
         {
             if (    (navEnemy.velocity.magnitude == 0f)
-                ||  (navEnemy.remainingDistance / navEnemy.velocity.magnitude <= fTimeStop) )
+                ||  (navEnemy.remainingDistance / navEnemy.velocity.magnitude <= fTimeDeltaToStopMax) )
             {
                 bPositionTargetArrived = true;
             }
@@ -393,11 +406,11 @@ public class EnemyController : MonoBehaviour
 
     private void CheckRotationTargetArrived()
     {
-        if (fDegreesRotationYToTarget <= fDegreesRotationYStop)
+        if (fDegreesDeltaRotationYToTarget <= fDegreesDeltaRotationYToStopMax)
         {
             fDegreesPerSecMove = Vector3.Angle(transform.forward, v3TransformForwardLastFrame) / Time.deltaTime;
             if (    (fDegreesPerSecMove == 0f)
-                ||  (fDegreesRotationYToTarget / fDegreesPerSecMove <= fTimeStop) )
+                ||  (fDegreesDeltaRotationYToTarget / fDegreesPerSecMove <= fTimeDeltaToStopMax) )
             {
                 bRotationTargetArrived = true;
             }
@@ -467,8 +480,8 @@ public class EnemyController : MonoBehaviour
                     navEnemy.speed = fMetresPerSecMoveMaxDefault;
                 }
             }
-            fTimeWaitAtPosition = ListPositionPattern[iIdx_ListPositionPattern].Item2;
-            bWaitAtPosition = fTimeWaitAtPosition > 0f;
+            fTimeDeltaWaitAtPositionTarget = ListPositionPattern[iIdx_ListPositionPattern].Item2;
+            bWaitAtPositionTarget = fTimeDeltaWaitAtPositionTarget > 0f;
             if (iIdx_ListPositionPattern < ListPositionPattern.Count-1)
             {
                 iIdx_ListPositionPattern++;
@@ -506,7 +519,7 @@ public class EnemyController : MonoBehaviour
         bRotationTargetArrived = false;
         if (lookMode == LookMode.constant)
         {
-            fRadiansRotationYConstant = fDegreesRotationYConstant * Mathf.PI/180f;
+            fRadiansRotationYConstant = fDegreesRotationYConstant * fDegreesToRadians;
             v3PositionRelativeTarget = new Vector3(
                 1000f * Mathf.Sin(fRadiansRotationYConstant),
                 0f,
@@ -519,7 +532,7 @@ public class EnemyController : MonoBehaviour
             if (ListRotationPattern[iIdx_ListRotationPattern].Item1.Length >= 1)
             {
                 fDegreesRotationYTarget = ListRotationPattern[iIdx_ListRotationPattern].Item1[0];
-                fRadiansRotationYTarget = fDegreesRotationYTarget * Mathf.PI/180f;
+                fRadiansRotationYTarget = fDegreesRotationYTarget * fDegreesToRadians;
                 v3PositionRelativeTarget = new Vector3(
                     1000f * Mathf.Sin(fRadiansRotationYTarget),
                     0f,
@@ -528,15 +541,15 @@ public class EnemyController : MonoBehaviour
                 if (ListRotationPattern[iIdx_ListRotationPattern].Item1.Length == 2)
                 {
                     fDegreesPerSecMoveMax = ListRotationPattern[iIdx_ListRotationPattern].Item1[1];
-                    fRadiansPerSecMoveMax = fDegreesPerSecMoveMax * Mathf.PI/180f;
+                    fRadiansPerSecMoveMax = fDegreesPerSecMoveMax * fDegreesToRadians;
                 }
                 else
                 {
                     fRadiansPerSecMoveMax = fRadiansPerSecMoveMaxDefault;
                 }
             }
-            fTimeWaitAtRotation = ListRotationPattern[iIdx_ListRotationPattern].Item2;
-            bWaitAtRotation = fTimeWaitAtRotation > 0f;
+            fTimeDeltaWaitAtRotationTarget = ListRotationPattern[iIdx_ListRotationPattern].Item2;
+            bWaitAtRotationTarget = fTimeDeltaWaitAtRotationTarget > 0f;
             if (iIdx_ListRotationPattern < ListRotationPattern.Count-1)
             {
                 iIdx_ListRotationPattern++;
@@ -581,7 +594,7 @@ public class EnemyController : MonoBehaviour
     //     if (TEST[iTEST].Item2.Length >= 1)
     //     {
     //         fDegreesRotationYTarget = TEST[iTEST].Item2[0];
-    //         fRadiansRotationYTarget = fDegreesRotationYTarget * Mathf.PI/180f;
+    //         fRadiansRotationYTarget = fDegreesRotationYTarget * fDegreesToRadians;
     //         v3PositionRelativeTarget = new Vector3(
     //             1000f * Mathf.Sin(fRadiansRotationYTarget),
     //             0f,
@@ -590,7 +603,7 @@ public class EnemyController : MonoBehaviour
     //         if (TEST[iTEST].Item2.Length == 2)
     //         {
     //             fDegreesPerSecMoveMax = TEST[iTEST].Item2[1];
-    //             fRadiansPerSecMoveMax = fDegreesPerSecMoveMax * Mathf.PI/180f;
+    //             fRadiansPerSecMoveMax = fDegreesPerSecMoveMax * fDegreesToRadians;
     //         }
     //         else
     //         {
@@ -598,10 +611,10 @@ public class EnemyController : MonoBehaviour
     //         }
     //     }
     //
-    //     fTimeWaitAtPosition = TEST[iTEST].Item3;
-    //     fTimeWaitAtRotation = fTimeWaitAtPosition;
-    //     bWaitAtPosition = fTimeWaitAtPosition > 0f;
-    //     bWaitAtRotation = bWaitAtPosition;
+    //     fTimeDeltaWaitAtPositionTarget = TEST[iTEST].Item3;
+    //     fTimeDeltaWaitAtRotationTarget = fTimeDeltaWaitAtPositionTarget;
+    //     bWaitAtPositionTarget = fTimeDeltaWaitAtPositionTarget > 0f;
+    //     bWaitAtRotationTarget = bWaitAtPositionTarget;
     //
     //     if (iTEST < TEST.Count-1)
     //     {
@@ -618,9 +631,9 @@ public class EnemyController : MonoBehaviour
     private void SetAttack()
     {
         if (    (   (!bAttackOnlyIfPlayerInRange)
-                ||  (fDistToPlayer <= fDistToPlayerAttack) )
+                ||  (fMetresDeltaToPlayer <= fMetresDeltaToPlayerAttack) )
             &&  (   (!bAttackOnlyIfPlayerInSight)
-                ||  (fDegreesRotationYToPlayer <= fDegreesRotationYToPlayerAttack) ) )
+                ||  (fDegreesDeltaRotationYToPlayer <= fDegreesDeltaRotationYToPlayerAttack) ) )
         {
             if (    (attackMode1 == AttackMode1.projectile)
                 &&  (goProjectile) )
@@ -744,18 +757,18 @@ public class EnemyController : MonoBehaviour
 
     // ------------------------------------------------------------------------------------------------
 
-    IEnumerator WaitAtPosition()
+    IEnumerator WaitAtPositionTarget()
     {
-        yield return new WaitForSeconds(fTimeWaitAtPosition);
-        bWaitAtPosition = false;
+        yield return new WaitForSeconds(fTimeDeltaWaitAtPositionTarget);
+        bWaitAtPositionTarget = false;
     }
 
     // ------------------------------------------------------------------------------------------------
 
-    IEnumerator WaitAtRotation()
+    IEnumerator WaitAtRotationTarget()
     {
-        yield return new WaitForSeconds(fTimeWaitAtRotation);
-        bWaitAtRotation = false;
+        yield return new WaitForSeconds(fTimeDeltaWaitAtRotationTarget);
+        bWaitAtRotationTarget = false;
     }
 
     // ------------------------------------------------------------------------------------------------
@@ -763,7 +776,7 @@ public class EnemyController : MonoBehaviour
     IEnumerator FlashDamaged()
     {
         matEnemy.EnableKeyword("_EMISSION");
-        yield return new WaitForSeconds(fTimeWaitFlashDamaged);
+        yield return new WaitForSeconds(fTimeDeltaWaitFlashDamaged);
         matEnemy.DisableKeyword("_EMISSION");
     }
 
