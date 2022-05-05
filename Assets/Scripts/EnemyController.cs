@@ -20,11 +20,15 @@ public class EnemyController : MonoBehaviour
     private bool bWaitAtRotation = false;
     private float fTimeWaitAtPosition;
     private float fTimeWaitAtRotation;
-    public bool bSyncPattern = false;
+    public bool bSyncPattern = true;
 
     private Vector3 v3TransformForwardLastFrame = new Vector3();
+    public float fMetresPerSecMoveMaxDefault = 100f;
+    public float fDegreesPerSecMoveMaxDefault = 360f;
+    private float fRadiansPerSecMoveMaxDefault;
+    private float fDegreesPerSecMoveMax;
+    private float fRadiansPerSecMoveMax;
     private float fDegreesPerSecMove;
-    public float fRadiansPerSecMoveMax = 5f;
 
     private Vector3 v3PositionRelativePlayer = new Vector3();
     private float fDistToPlayer;
@@ -66,6 +70,22 @@ public class EnemyController : MonoBehaviour
         (270f, 2f)
     }; // These tuples are (fDegreesRotationY, fTimeWait)
     private int iIdx_ffListRotationPattern = 0;
+
+    private bool bTEST = true;
+    private int iTEST = 0;
+    // private List<(float[], float[], float)> TEST = new List<(float[], float[], float)>(){
+    //     (new float[]{-50f, 0f,  0f}, new float[]{180f}, 2f),
+    //     (new float[]{+50f, 0f,  0f}, new float[]{ 90f}, 2f),
+    //     (new float[]{+50f, 0f,+50f}, new float[]{  0f}, 2f),
+    //     (new float[]{-50f, 0f,+50f, 10f}, new float[]{270f}, 2f)
+    // };
+    private List<(float[], float[], float)> TEST = new List<(float[], float[], float)>(){
+        (new float[]{-80f, 0f,+80f}, new float[]{180f}, 2f),
+        (new float[]{}, new float[]{90f, 18f}, 2f),
+        (new float[]{-40f, 0f,  0f}, new float[]{}, 2f),
+        (new float[]{}, new float[]{-45f}, 2f),
+        (new float[]{-40f, 0f,+80f}, new float[]{}, 2f),
+    };
 
     // Appearance:
     private Material matEnemy;
@@ -131,7 +151,11 @@ public class EnemyController : MonoBehaviour
         audioManager = GameObject.Find("Audio Manager").GetComponent<AudioManager>();
 
         navEnemy = GetComponent<NavMeshAgent>();
+        navEnemy.speed = fMetresPerSecMoveMaxDefault;
         navEnemy.updateRotation = false; // This is true by default, but that causes issues with the explicit rotation handling herein, so toggle off
+
+        fRadiansPerSecMoveMaxDefault = fDegreesPerSecMoveMaxDefault * Mathf.PI/180f;
+        fRadiansPerSecMoveMax = fRadiansPerSecMoveMaxDefault;
 
         v3TransformForwardLastFrame = transform.forward;
 
@@ -296,9 +320,19 @@ public class EnemyController : MonoBehaviour
             }
         }
 
-        if (    (moveMode == MoveMode.pattern)
-            &&  (lookMode == LookMode.pattern)
-            &&  (bSyncPattern) )
+        if (bTEST)
+        {
+            if (    (bPositionTargetArrived)
+                &&  (!bWaitAtPosition)
+                &&  (bRotationTargetArrived)
+                &&  (!bWaitAtRotation) )
+            {
+                SetTEST();
+            }
+        }
+        else if (   (moveMode == MoveMode.pattern)
+                &&  (lookMode == LookMode.pattern)
+                &&  (bSyncPattern) )
         {
             if (    (bPositionTargetArrived)
                 &&  (!bWaitAtPosition)
@@ -410,6 +444,14 @@ public class EnemyController : MonoBehaviour
             navEnemy.SetDestination(v3fListPositionPattern[iIdx_v3fListPositionPattern].Item1);
             fTimeWaitAtPosition = v3fListPositionPattern[iIdx_v3fListPositionPattern].Item2;
             bWaitAtPosition = fTimeWaitAtPosition > 0f;
+            if (iIdx_v3fListPositionPattern < v3fListPositionPattern.Count-1)
+            {
+                iIdx_v3fListPositionPattern++;
+            }
+            else
+            {
+                iIdx_v3fListPositionPattern = 0;
+            }
             return;
         }
         if (moveMode == MoveMode.player)
@@ -458,12 +500,79 @@ public class EnemyController : MonoBehaviour
             );
             fTimeWaitAtRotation = ffListRotationPattern[iIdx_ffListRotationPattern].Item2;
             bWaitAtRotation = fTimeWaitAtRotation > 0f;
+            if (iIdx_ffListRotationPattern < ffListRotationPattern.Count-1)
+            {
+                iIdx_ffListRotationPattern++;
+            }
+            else
+            {
+                iIdx_ffListRotationPattern = 0;
+            }
             return;
         }
         if (lookMode == LookMode.player)
         {
             v3PositionRelativeTarget = v3PositionRelativePlayer;
             return;
+        }
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
+    private void SetTEST()
+    {
+        bPositionTargetArrived = false;
+        bRotationTargetArrived = false;
+
+        if (TEST[iTEST].Item1.Length >= 3)
+        {
+            navEnemy.SetDestination(new Vector3(
+                TEST[iTEST].Item1[0],
+                TEST[iTEST].Item1[1],
+                TEST[iTEST].Item1[2]
+            ));
+            if (TEST[iTEST].Item1.Length == 4)
+            {
+                navEnemy.speed = TEST[iTEST].Item1[3];
+            }
+            else
+            {
+                navEnemy.speed = fMetresPerSecMoveMaxDefault;
+            }
+        }
+
+        if (TEST[iTEST].Item2.Length >= 1)
+        {
+            fDegreesRotationYTarget = TEST[iTEST].Item2[0];
+            fRadiansRotationYTarget = fDegreesRotationYTarget * Mathf.PI/180f;
+            v3PositionRelativeTarget = new Vector3(
+                1000f * Mathf.Sin(fRadiansRotationYTarget),
+                0f,
+                1000f * Mathf.Cos(fRadiansRotationYTarget)
+            );
+            if (TEST[iTEST].Item2.Length == 2)
+            {
+                fDegreesPerSecMoveMax = TEST[iTEST].Item2[1];
+                fRadiansPerSecMoveMax = fDegreesPerSecMoveMax * Mathf.PI/180f;
+            }
+            else
+            {
+                fRadiansPerSecMoveMax = fRadiansPerSecMoveMaxDefault;
+            }
+        }
+
+        fTimeWaitAtPosition = TEST[iTEST].Item3;
+        fTimeWaitAtRotation = fTimeWaitAtPosition;
+        bWaitAtPosition = fTimeWaitAtPosition > 0f;
+        bWaitAtRotation = bWaitAtPosition;
+
+        if (iTEST < TEST.Count-1)
+        {
+            iTEST++;
+        }
+        else
+        {
+            iTEST = 0;
         }
     }
 
@@ -601,14 +710,6 @@ public class EnemyController : MonoBehaviour
     IEnumerator WaitAtPosition()
     {
         yield return new WaitForSeconds(fTimeWaitAtPosition);
-        if (iIdx_v3fListPositionPattern < v3fListPositionPattern.Count-1)
-        {
-            iIdx_v3fListPositionPattern++;
-        }
-        else
-        {
-            iIdx_v3fListPositionPattern = 0;
-        }
         bWaitAtPosition = false;
     }
 
@@ -617,14 +718,6 @@ public class EnemyController : MonoBehaviour
     IEnumerator WaitAtRotation()
     {
         yield return new WaitForSeconds(fTimeWaitAtRotation);
-        if (iIdx_ffListRotationPattern < ffListRotationPattern.Count-1)
-        {
-            iIdx_ffListRotationPattern++;
-        }
-        else
-        {
-            iIdx_ffListRotationPattern = 0;
-        }
         bWaitAtRotation = false;
     }
 

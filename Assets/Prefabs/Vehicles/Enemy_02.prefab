@@ -1090,6 +1090,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 217f46a4132184e61b2817a966096218, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  bSyncPattern: 1
   fRadiansPerSecMoveMax: 5
   moveMode: 0
   v3PositionConstant: {x: 0, y: 0, z: 0}
@@ -1097,7 +1098,7 @@ MonoBehaviour:
   fDegreesRotationYConstant: 0
   fPositionZBase_lineEngine: -2
   fPositionZDelta_lineEngine: 0.25
-  fTimeFlashDamaged: 0.1
+  fTimeWaitFlashDamaged: 0.1
   goProjectile: {fileID: 3262308912846389460, guid: 92040474b5c7e457092c19efa9a9bd77, type: 3}
   attackMode1: 0
   attackMode2: 0
