@@ -43,7 +43,8 @@ public class EnemyController : MonoBehaviour
     public MoveMode moveMode;
     public enum LookMode {constant, pattern, player};
     public LookMode lookMode;
-    public bool bSyncMoveLookPatterns = false;
+    public bool bSyncMoveLookPatterns = true;
+    public bool bSyncMoveLookAttackPatterns = true;
 
     public Vector3 v3PositionConstant = new Vector3(0f, 0f, 0f);
     private Vector2 v2PositionRandom;
@@ -98,8 +99,10 @@ public class EnemyController : MonoBehaviour
     private bool bRotationTargetArrived = false;
     private bool bWaitAtPositionTarget = false;
     private bool bWaitAtRotationTarget = false;
+    private bool bWaitForAttackPattern = true;
     private float fTimeDeltaWaitAtPositionTarget;
     private float fTimeDeltaWaitAtRotationTarget;
+    private float fTimeDeltaWaitForAttackPattern;
 
     // ------------------------------------------------------------------------------------------------
     // - Appearance -
@@ -150,6 +153,13 @@ public class EnemyController : MonoBehaviour
     public int iNumMaxAttackBurst = 5;
     private int iNumMaxThisAttackBurst;
     private int iNumThisAttackBurst = 0;
+
+    private List<(float[], float[])> ListAttackPattern = new List<(float[], float[])>(){
+        (new float[]{1f, 2f, 3f, 4f}, new float[]{2f, 2f, 2f, 2f})
+    };
+    private int iIdx1_ListAttackPattern = 0;
+    private int iIdx2_ListAttackPattern = 0;
+    private bool bAttackPatternEnabled = true;
 
     private int iDamageLaser = 1;
     private bool bRayHitLastFrame = false;
@@ -215,6 +225,10 @@ public class EnemyController : MonoBehaviour
         }
         goGunMiddleProjectileSpawnPoint = transform.Find("Weapons/GunMiddleProjectileSpawnPoint").gameObject;
         ResetAttackBurst();
+        if (attackMode2 == AttackMode2.pattern)
+        {
+            fTimeNextAttack = 0f;
+        }
 
         // ------------------------------------------------------------------------------------------------
 
@@ -363,7 +377,33 @@ public class EnemyController : MonoBehaviour
         // }
         if (    (moveMode == MoveMode.pattern)
             &&  (lookMode == LookMode.pattern)
-            &&  (bSyncMoveLookPatterns) )
+            &&  (attackMode2 == AttackMode2.pattern)
+            &&  (bSyncMoveLookAttackPatterns) )
+        {
+            if (    (bPositionTargetArrived)
+                &&  (!bWaitAtPositionTarget)
+                &&  (bRotationTargetArrived)
+                &&  (!bWaitAtRotationTarget)
+                &&  (!bWaitForAttackPattern) )
+            {
+                SetPositionTarget();
+                SetRotationTarget();
+                fTimeNextAttack = Time.time;
+                bAttackPatternEnabled = true;
+                bWaitForAttackPattern = true;
+                if (iIdx1_ListAttackPattern < ListAttackPattern.Count-1)
+                {
+                    iIdx1_ListAttackPattern++;
+                }
+                else
+                {
+                    iIdx1_ListAttackPattern = 0;
+                }
+            }
+        }
+        else if (   (moveMode == MoveMode.pattern)
+                &&  (lookMode == LookMode.pattern)
+                &&  (bSyncMoveLookPatterns) )
         {
             if (    (bPositionTargetArrived)
                 &&  (!bWaitAtPositionTarget)
@@ -717,7 +757,7 @@ public class EnemyController : MonoBehaviour
                     goGunMiddleProjectileSpawnPoint.transform.rotation
                 );
                 audioManager.sfxclpvolListProjectileEnemy[Random.Range(0, audioManager.sfxclpvolListProjectileEnemy.Count)].PlayOneShot();
-                iNumThisAttackBurst += 1;
+                iNumThisAttackBurst++;
                 if (iNumThisAttackBurst < iNumMaxThisAttackBurst)
                 {
                     fTimeNextAttack = Time.time + fTimeDeltaAttackBurst;
@@ -759,7 +799,7 @@ public class EnemyController : MonoBehaviour
                     &&  (Time.time >= fTimeThisAttackStop) )
             {
                 StopLaser();
-                iNumThisAttackBurst += 1;
+                iNumThisAttackBurst++;
                 if (iNumThisAttackBurst < iNumMaxThisAttackBurst)
                 {
                     fTimeNextAttack = Time.time + fTimeDeltaAttackBurst;
@@ -773,6 +813,38 @@ public class EnemyController : MonoBehaviour
         }
         if (attackMode2 == AttackMode2.pattern)
         {
+            if (    (ListAttackPattern[iIdx1_ListAttackPattern].Item1.Length >= 1)
+                &&  (bAttackPatternEnabled) )
+            {
+                if (    (!lineLaser.enabled)
+                    &&  (Time.time >= fTimeNextAttack) )
+                {
+                    StartLaser();
+                    fTimeThisAttackStop = Time.time + ListAttackPattern[iIdx1_ListAttackPattern].Item1[iIdx2_ListAttackPattern];
+                }
+                else if (   (lineLaser.enabled)
+                        &&  (Time.time >= fTimeThisAttackStop) )
+                {
+                    StopLaser();
+                    fTimeDeltaWaitForAttackPattern = ListAttackPattern[iIdx1_ListAttackPattern].Item2[iIdx2_ListAttackPattern];
+                    fTimeNextAttack = Time.time + fTimeDeltaWaitForAttackPattern;
+                    if (iIdx2_ListAttackPattern < ListAttackPattern[iIdx1_ListAttackPattern].Item2.Length-1)
+                    {
+                        iIdx2_ListAttackPattern++;
+                    }
+                    else
+                    {
+                        iIdx2_ListAttackPattern = 0;
+                        if (    (moveMode == MoveMode.pattern)
+                            &&  (lookMode == LookMode.pattern)
+                            &&  (bSyncMoveLookAttackPatterns) )
+                        {
+                            bAttackPatternEnabled = false;
+                            StartCoroutine(WaitForAttackPattern());
+                        }
+                    }
+                }
+            }
             return;
         }
     }
@@ -849,6 +921,14 @@ public class EnemyController : MonoBehaviour
     {
         yield return new WaitForSeconds(fTimeDeltaWaitAtRotationTarget + fTimeDeltaToRotationTarget);
         bWaitAtRotationTarget = false;
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
+    IEnumerator WaitForAttackPattern()
+    {
+        yield return new WaitForSeconds(fTimeDeltaWaitForAttackPattern);
+        bWaitForAttackPattern = false;
     }
 
     // ------------------------------------------------------------------------------------------------

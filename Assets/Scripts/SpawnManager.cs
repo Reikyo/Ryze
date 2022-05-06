@@ -162,10 +162,10 @@ public class SpawnManager : MonoBehaviour
 
             EnemyController enemyController = goEnemyClone.GetComponent<EnemyController>();
             enemyController.v3PositionConstant = v3PositionConstant;
-            enemyController.moveMode = EnemyController.MoveMode.player;
-            enemyController.lookMode = EnemyController.LookMode.player;
+            enemyController.moveMode = EnemyController.MoveMode.pattern;
+            enemyController.lookMode = EnemyController.LookMode.pattern;
             enemyController.attackMode1 = EnemyController.AttackMode1.laser;
-            enemyController.attackMode2 = EnemyController.AttackMode2.burst;
+            enemyController.attackMode2 = EnemyController.AttackMode2.pattern;
 
             iNumEnemy += 1;
         }
