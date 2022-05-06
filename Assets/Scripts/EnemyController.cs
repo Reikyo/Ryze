@@ -27,13 +27,13 @@ public class EnemyController : MonoBehaviour
     private float fDegreesPerSecMove;
 
     private Vector3 v3TransformForwardLastFrame = new Vector3();
-    private Vector3 v3PositionRelativePlayer = new Vector3();
-    private Vector3 v3PositionRelativeTarget;
-    private Vector3 v3PositionRelativeTargetNow;
+    private Vector3 v3PositionDeltaToPlayer = new Vector3();
+    private Vector3 v3PositionDeltaToRotationTarget;
+    private Vector3 v3PositionDeltaToRotationTargetNow;
 
     private float fMetresDeltaToPlayer;
     private float fDegreesDeltaRotationYToPlayer;
-    private float fDegreesDeltaRotationYToTarget;
+    private float fDegreesDeltaRotationYToRotationTarget;
     private float fDegreesDeltaRotationYStopMax = 1f;
     private float fTimeDeltaToPositionTarget;
     private float fTimeDeltaToRotationTarget;
@@ -43,7 +43,7 @@ public class EnemyController : MonoBehaviour
     public MoveMode moveMode;
     public enum LookMode {constant, pattern, player};
     public LookMode lookMode;
-    public bool bSyncMoveLookPatterns = true;
+    public bool bSyncMoveLookPatterns = false;
 
     public Vector3 v3PositionConstant = new Vector3(0f, 0f, 0f);
     private Vector2 v2PositionRandom;
@@ -139,13 +139,17 @@ public class EnemyController : MonoBehaviour
     public bool bAttackOnlyIfPlayerInRange = false;
     public bool bAttackOnlyIfPlayerInSight = false;
 
-    private int iNumAttack = 0;
-    private int iNumAttackBurst;
-    public int iNumMaxAttackBurst = 5;
+    private float fTimeThisAttackStop; // Only relevant for laser
     private float fTimeNextAttack;
-    public float fTimeDeltaAttack = 0.5f;
+    public float fTimeDeltaAttackConstant = 0.5f; // Only relevant for projectile
+    public float fTimeDeltaAttackBurstStop = 0.25f; // Only relevant for laser (pulse duration)
+    public float fTimeDeltaAttackBurst = 0.25f; // 0.5f for projectile, 0.25f for laser (time between end of one pulse and start of next pulse)
     public float fTimeDeltaMinAttackBurst = 2f;
     public float fTimeDeltaMaxAttackBurst = 5f;
+    public int iNumMinAttackBurst = 1;
+    public int iNumMaxAttackBurst = 5;
+    private int iNumMaxThisAttackBurst;
+    private int iNumThisAttackBurst = 0;
 
     private int iDamageLaser = 1;
     private bool bRayHitLastFrame = false;
@@ -210,8 +214,7 @@ public class EnemyController : MonoBehaviour
             fPositionZBase_lineLaser = lineLaser.GetPosition(1).z;
         }
         goGunMiddleProjectileSpawnPoint = transform.Find("Weapons/GunMiddleProjectileSpawnPoint").gameObject;
-        iNumAttackBurst = Random.Range(1, iNumMaxAttackBurst+1);
-        fTimeNextAttack = Time.time + Random.Range(fTimeDeltaMinAttackBurst, fTimeDeltaMaxAttackBurst);
+        ResetAttackBurst();
 
         // ------------------------------------------------------------------------------------------------
 
@@ -299,17 +302,16 @@ public class EnemyController : MonoBehaviour
             }
         }
 
-        v3PositionRelativePlayer = goPlayer.transform.position - transform.position;
-        fMetresDeltaToPlayer = v3PositionRelativePlayer.magnitude;
-
-        fDegreesDeltaRotationYToPlayer = Vector3.Angle(transform.forward, v3PositionRelativePlayer);
+        v3PositionDeltaToPlayer = goPlayer.transform.position - transform.position;
+        fMetresDeltaToPlayer = v3PositionDeltaToPlayer.magnitude;
+        fDegreesDeltaRotationYToPlayer = Vector3.Angle(transform.forward, v3PositionDeltaToPlayer);
         if (lookMode == LookMode.player)
         {
-            fDegreesDeltaRotationYToTarget = fDegreesDeltaRotationYToPlayer;
+            fDegreesDeltaRotationYToRotationTarget = fDegreesDeltaRotationYToPlayer;
         }
         else
         {
-            fDegreesDeltaRotationYToTarget = Vector3.Angle(transform.forward, v3PositionRelativeTarget);
+            fDegreesDeltaRotationYToRotationTarget = Vector3.Angle(transform.forward, v3PositionDeltaToRotationTarget);
         }
     }
 
@@ -338,7 +340,7 @@ public class EnemyController : MonoBehaviour
             }
         }
 
-        if (    (lookMode != LookMode.constant)
+        if (    (lookMode == LookMode.pattern)
             &&  (!bRotationTargetArrived) )
         {
             CheckRotationTargetArrived();
@@ -380,18 +382,22 @@ public class EnemyController : MonoBehaviour
             {
                 SetPositionTarget();
             }
-            if (    (lookMode != LookMode.constant)
+            if (    (lookMode == LookMode.pattern)
                 &&  (bRotationTargetArrived)
                 &&  (!bWaitAtRotationTarget) )
             {
                 SetRotationTarget();
             }
+            else if (lookMode == LookMode.player)
+            {
+                SetRotationTarget();
+            }
         }
 
-        // Using v3PositionRelativeTarget in Quaternion.LookRotation() gives instant rotation towards the target
-        // Using v3PositionRelativeTargetNow in Quaternion.LookRotation() gives delayed rotation towards the target
-        v3PositionRelativeTargetNow = Vector3.RotateTowards(transform.forward, v3PositionRelativeTarget, fRadiansPerSecMoveMax * Time.deltaTime, 0f);
-        transform.rotation = Quaternion.LookRotation(v3PositionRelativeTargetNow);
+        // Using v3PositionDeltaToRotationTarget in Quaternion.LookRotation() gives instant rotation towards the target
+        // Using v3PositionDeltaToRotationTargetNow in Quaternion.LookRotation() gives delayed rotation towards the target
+        v3PositionDeltaToRotationTargetNow = Vector3.RotateTowards(transform.forward, v3PositionDeltaToRotationTarget, fRadiansPerSecMoveMax * Time.deltaTime, 0f);
+        transform.rotation = Quaternion.LookRotation(v3PositionDeltaToRotationTargetNow);
     }
 
     // ------------------------------------------------------------------------------------------------
@@ -419,7 +425,7 @@ public class EnemyController : MonoBehaviour
 
     private void CheckRotationTargetArrived()
     {
-        if (fDegreesDeltaRotationYToTarget <= fDegreesDeltaRotationYStopMax)
+        if (fDegreesDeltaRotationYToRotationTarget <= fDegreesDeltaRotationYStopMax)
         {
             fDegreesPerSecMove = Vector3.Angle(transform.forward, v3TransformForwardLastFrame) / Time.deltaTime;
             if (fDegreesPerSecMove == 0f)
@@ -428,7 +434,7 @@ public class EnemyController : MonoBehaviour
             }
             else
             {
-                fTimeDeltaToRotationTarget = fDegreesDeltaRotationYToTarget / fDegreesPerSecMove;
+                fTimeDeltaToRotationTarget = fDegreesDeltaRotationYToRotationTarget / fDegreesPerSecMove;
             }
             if (fTimeDeltaToRotationTarget <= fTimeDeltaStopMax)
             {
@@ -540,7 +546,7 @@ public class EnemyController : MonoBehaviour
         if (lookMode == LookMode.constant)
         {
             fRadiansRotationYConstant = fDegreesRotationYConstant * fDegreesToRadians;
-            v3PositionRelativeTarget = new Vector3(
+            v3PositionDeltaToRotationTarget = new Vector3(
                 1000f * Mathf.Sin(fRadiansRotationYConstant),
                 0f,
                 1000f * Mathf.Cos(fRadiansRotationYConstant)
@@ -553,7 +559,7 @@ public class EnemyController : MonoBehaviour
             {
                 fDegreesRotationYTarget = ListRotationPattern[iIdx_ListRotationPattern].Item1[0];
                 fRadiansRotationYTarget = fDegreesRotationYTarget * fDegreesToRadians;
-                v3PositionRelativeTarget = new Vector3(
+                v3PositionDeltaToRotationTarget = new Vector3(
                     1000f * Mathf.Sin(fRadiansRotationYTarget),
                     0f,
                     1000f * Mathf.Cos(fRadiansRotationYTarget)
@@ -582,7 +588,7 @@ public class EnemyController : MonoBehaviour
         }
         if (lookMode == LookMode.player)
         {
-            v3PositionRelativeTarget = v3PositionRelativePlayer;
+            v3PositionDeltaToRotationTarget = v3PositionDeltaToPlayer;
             return;
         }
     }
@@ -615,7 +621,7 @@ public class EnemyController : MonoBehaviour
     //     {
     //         fDegreesRotationYTarget = TEST[iTEST].Item2[0];
     //         fRadiansRotationYTarget = fDegreesRotationYTarget * fDegreesToRadians;
-    //         v3PositionRelativeTarget = new Vector3(
+    //         v3PositionDeltaToRotationTarget = new Vector3(
     //             1000f * Mathf.Sin(fRadiansRotationYTarget),
     //             0f,
     //             1000f * Mathf.Cos(fRadiansRotationYTarget)
@@ -666,10 +672,16 @@ public class EnemyController : MonoBehaviour
                 SetAttackLaser();
             }
         }
-        else if (lineLaser.enabled)
+        else
         {
-            lineLaser.enabled = false;
-            CancelInvoke("PlaySfxLaser");
+            if (attackMode2 == AttackMode2.burst)
+            {
+                ResetAttackBurst();
+            }
+            if (lineLaser.enabled)
+            {
+                StopLaser();
+            }
         }
     }
 
@@ -679,8 +691,7 @@ public class EnemyController : MonoBehaviour
     {
         if (lineLaser.enabled)
         {
-            lineLaser.enabled = false;
-            CancelInvoke("PlaySfxLaser");
+            StopLaser();
         }
         if (attackMode2 == AttackMode2.constant)
         {
@@ -692,7 +703,7 @@ public class EnemyController : MonoBehaviour
                     goGunMiddleProjectileSpawnPoint.transform.rotation
                 );
                 audioManager.sfxclpvolListProjectileEnemy[Random.Range(0, audioManager.sfxclpvolListProjectileEnemy.Count)].PlayOneShot();
-                fTimeNextAttack = Time.time + fTimeDeltaAttack;
+                fTimeNextAttack = Time.time + fTimeDeltaAttackConstant;
             }
             return;
         }
@@ -706,16 +717,14 @@ public class EnemyController : MonoBehaviour
                     goGunMiddleProjectileSpawnPoint.transform.rotation
                 );
                 audioManager.sfxclpvolListProjectileEnemy[Random.Range(0, audioManager.sfxclpvolListProjectileEnemy.Count)].PlayOneShot();
-                iNumAttack += 1;
-                if (iNumAttack < iNumAttackBurst)
+                iNumThisAttackBurst += 1;
+                if (iNumThisAttackBurst < iNumMaxThisAttackBurst)
                 {
-                    fTimeNextAttack = Time.time + fTimeDeltaAttack;
+                    fTimeNextAttack = Time.time + fTimeDeltaAttackBurst;
                 }
                 else
                 {
-                    iNumAttack = 0;
-                    iNumAttackBurst = Random.Range(1, iNumMaxAttackBurst+1);
-                    fTimeNextAttack = Time.time + Random.Range(fTimeDeltaMinAttackBurst, fTimeDeltaMaxAttackBurst);
+                    ResetAttackBurst();
                 }
             }
             return;
@@ -734,19 +743,70 @@ public class EnemyController : MonoBehaviour
         {
             if (!lineLaser.enabled)
             {
-                lineLaser.enabled = true;
-                InvokeRepeating("PlaySfxLaser", 0f, 0.1f);
+                StartLaser();
             }
             return;
         }
         if (attackMode2 == AttackMode2.burst)
         {
+            if (    (!lineLaser.enabled)
+                &&  (Time.time >= fTimeNextAttack) )
+            {
+                StartLaser();
+                fTimeThisAttackStop = Time.time + fTimeDeltaAttackBurstStop;
+            }
+            else if (   (lineLaser.enabled)
+                    &&  (Time.time >= fTimeThisAttackStop) )
+            {
+                StopLaser();
+                iNumThisAttackBurst += 1;
+                if (iNumThisAttackBurst < iNumMaxThisAttackBurst)
+                {
+                    fTimeNextAttack = Time.time + fTimeDeltaAttackBurst;
+                }
+                else
+                {
+                    ResetAttackBurst();
+                }
+            }
             return;
         }
         if (attackMode2 == AttackMode2.pattern)
         {
             return;
         }
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
+    private void StartLaser()
+    {
+        lineLaser.enabled = true;
+        InvokeRepeating("PlaySfxLaser", 0f, 0.1f);
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
+    private void StopLaser()
+    {
+        lineLaser.enabled = false;
+        CancelInvoke("PlaySfxLaser");
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
+    private void PlaySfxLaser()
+    {
+        audioManager.sfxclpvolLaserEnemy.PlayOneShot();
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
+    private void ResetAttackBurst()
+    {
+        iNumThisAttackBurst = 0;
+        iNumMaxThisAttackBurst = Random.Range(iNumMinAttackBurst, iNumMaxAttackBurst+1);
+        fTimeNextAttack = Time.time + Random.Range(fTimeDeltaMinAttackBurst, fTimeDeltaMaxAttackBurst);
     }
 
     // ------------------------------------------------------------------------------------------------
@@ -798,13 +858,6 @@ public class EnemyController : MonoBehaviour
         matEnemy.EnableKeyword("_EMISSION");
         yield return new WaitForSeconds(fTimeDeltaWaitFlashDamaged);
         matEnemy.DisableKeyword("_EMISSION");
-    }
-
-    // ------------------------------------------------------------------------------------------------
-
-    private void PlaySfxLaser()
-    {
-        audioManager.sfxclpvolLaserEnemy.PlayOneShot();
     }
 
     // ------------------------------------------------------------------------------------------------
