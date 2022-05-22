@@ -488,25 +488,36 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 217f46a4132184e61b2817a966096218, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fRadiansPerSecMoveMax: 5
+  fMetresPerSecMoveMaxDefault: 100
+  fDegreesPerSecMoveMaxDefault: 360
   moveMode: 0
-  v3PositionConstant: {x: 0, y: 0, z: 0}
   lookMode: 0
+  bSyncMoveLookPatterns: 1
+  bSyncMoveLookAttackPatterns: 1
+  v3PositionConstant: {x: 0, y: 0, z: 0}
   fDegreesRotationYConstant: 0
-  fPositionZBase_lineEngine: -2
-  fPositionZDelta_lineEngine: 0.25
-  fTimeFlashDamaged: 0.1
   goProjectile: {fileID: 3262308912846389460, guid: 92040474b5c7e457092c19efa9a9bd77, type: 3}
   attackMode1: 0
   attackMode2: 0
-  fDistToPlayerAttack: 100
-  fDegreesRotationYToPlayerAttack: 5
+  fMetresDeltaToPlayerAttack: 100
+  fDegreesDeltaRotationYToPlayerAttack: 5
   bAttackOnlyIfPlayerInRange: 0
   bAttackOnlyIfPlayerInSight: 0
-  iNumMaxAttackBurst: 5
-  fTimeDeltaAttack: 0.5
-  fTimeDeltaMinAttackBurst: 2
-  fTimeDeltaMaxAttackBurst: 5
+  iNumMinAttackProjectileBurst: 1
+  iNumMaxAttackProjectileBurst: 5
+  iNumMinAttackLaserBurst: 1
+  iNumMaxAttackLaserBurst: 5
+  fTimeDeltaAttackProjectileConstant: 0.5
+  fTimeDeltaMinAttackProjectileBurstInterBurst: 2
+  fTimeDeltaMaxAttackProjectileBurstInterBurst: 5
+  fTimeDeltaMinAttackProjectileBurstIntraBurst: 0.1
+  fTimeDeltaMaxAttackProjectileBurstIntraBurst: 0.3
+  fTimeDeltaMinAttackLaserBurstInterBurst: 2
+  fTimeDeltaMaxAttackLaserBurstInterBurst: 5
+  fTimeDeltaMinAttackLaserBurstIntraBurstOn: 0.1
+  fTimeDeltaMaxAttackLaserBurstIntraBurstOn: 1
+  fTimeDeltaMinAttackLaserBurstIntraBurstOff: 0.1
+  fTimeDeltaMaxAttackLaserBurstIntraBurstOff: 0.3
   iScoreDelta: 10
 --- !u!1 &1696986255939233298
 GameObject:

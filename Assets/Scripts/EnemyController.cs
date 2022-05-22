@@ -137,22 +137,32 @@ public class EnemyController : MonoBehaviour
     public enum AttackMode2 {constant, burst, pattern};
     public AttackMode2 attackMode2;
 
-    public float fMetresDeltaToPlayerAttack = 100f; // 200f for projectile, 100f for laser
-    public float fDegreesDeltaRotationYToPlayerAttack = 5f;
     public bool bAttackOnlyIfPlayerInRange = false;
     public bool bAttackOnlyIfPlayerInSight = false;
+    public float fMetresDeltaToPlayerAttackProjectile = 200f;
+    public float fMetresDeltaToPlayerAttackLaser = 100f;
+    public float fDegreesDeltaRotationYToPlayerAttackProjectile = 5f;
+    public float fDegreesDeltaRotationYToPlayerAttackLaser = 5f;
 
-    private float fTimeThisAttackStop; // Only relevant for laser
-    private float fTimeNextAttack;
-    public float fTimeDeltaAttackConstant = 0.5f; // Only relevant for projectile
-    public float fTimeDeltaAttackBurstStop = 0.25f; // Only relevant for laser (pulse duration)
-    public float fTimeDeltaAttackBurst = 0.25f; // 0.5f for projectile, 0.25f for laser (time between end of one pulse and start of next pulse)
-    public float fTimeDeltaMinAttackBurst = 2f;
-    public float fTimeDeltaMaxAttackBurst = 5f;
-    public int iNumMinAttackBurst = 1;
-    public int iNumMaxAttackBurst = 5;
+    public int iNumMinAttackProjectileBurst = 1;
+    public int iNumMaxAttackProjectileBurst = 5;
+    public int iNumMinAttackLaserBurst = 1;
+    public int iNumMaxAttackLaserBurst = 5;
     private int iNumMaxThisAttackBurst;
     private int iNumThisAttackBurst = 0;
+    private float fTimeThisAttackStop; // Only relevant for laser
+    private float fTimeNextAttack;
+    public float fTimeDeltaAttackProjectileConstant = 0.5f;
+    public float fTimeDeltaMinAttackProjectileBurstInterBurst = 2f;
+    public float fTimeDeltaMaxAttackProjectileBurstInterBurst = 5f;
+    public float fTimeDeltaMinAttackProjectileBurstIntraBurst = 0.1f;
+    public float fTimeDeltaMaxAttackProjectileBurstIntraBurst = 0.3f;
+    public float fTimeDeltaMinAttackLaserBurstInterBurst = 2f;
+    public float fTimeDeltaMaxAttackLaserBurstInterBurst = 5f;
+    public float fTimeDeltaMinAttackLaserBurstIntraBurstOn = 0.1f;
+    public float fTimeDeltaMaxAttackLaserBurstIntraBurstOn = 1f;
+    public float fTimeDeltaMinAttackLaserBurstIntraBurstOff = 0.1f;
+    public float fTimeDeltaMaxAttackLaserBurstIntraBurstOff = 0.3f;
 
     private List<(float[], float[])> ListAttackPattern = new List<(float[], float[])>(){
         (new float[]{1f, 2f, 3f, 4f}, new float[]{2f, 2f, 2f, 2f})
@@ -697,9 +707,9 @@ public class EnemyController : MonoBehaviour
     private void SetAttack()
     {
         if (    (   (!bAttackOnlyIfPlayerInRange)
-                ||  (fMetresDeltaToPlayer <= fMetresDeltaToPlayerAttack) )
+                ||  (fMetresDeltaToPlayer <= ((attackMode1 == AttackMode1.projectile) ? fMetresDeltaToPlayerAttackProjectile : fMetresDeltaToPlayerAttackLaser)) )
             &&  (   (!bAttackOnlyIfPlayerInSight)
-                ||  (fDegreesDeltaRotationYToPlayer <= fDegreesDeltaRotationYToPlayerAttack) ) )
+                ||  (fDegreesDeltaRotationYToPlayer <= ((attackMode1 == AttackMode1.projectile) ? fDegreesDeltaRotationYToPlayerAttackProjectile : fDegreesDeltaRotationYToPlayerAttackLaser)) ) )
         {
             if (    (attackMode1 == AttackMode1.projectile)
                 &&  (goProjectile) )
@@ -743,7 +753,7 @@ public class EnemyController : MonoBehaviour
                     goGunMiddleProjectileSpawnPoint.transform.rotation
                 );
                 audioManager.sfxclpvolListProjectileEnemy[Random.Range(0, audioManager.sfxclpvolListProjectileEnemy.Count)].PlayOneShot();
-                fTimeNextAttack = Time.time + fTimeDeltaAttackConstant;
+                fTimeNextAttack = Time.time + fTimeDeltaAttackProjectileConstant;
             }
             return;
         }
@@ -760,7 +770,7 @@ public class EnemyController : MonoBehaviour
                 iNumThisAttackBurst++;
                 if (iNumThisAttackBurst < iNumMaxThisAttackBurst)
                 {
-                    fTimeNextAttack = Time.time + fTimeDeltaAttackBurst;
+                    fTimeNextAttack = Time.time + Random.Range(fTimeDeltaMinAttackProjectileBurstIntraBurst, fTimeDeltaMaxAttackProjectileBurstIntraBurst);
                 }
                 else
                 {
@@ -793,7 +803,7 @@ public class EnemyController : MonoBehaviour
                 &&  (Time.time >= fTimeNextAttack) )
             {
                 StartLaser();
-                fTimeThisAttackStop = Time.time + fTimeDeltaAttackBurstStop;
+                fTimeThisAttackStop = Time.time + Random.Range(fTimeDeltaMinAttackLaserBurstIntraBurstOn, fTimeDeltaMaxAttackLaserBurstIntraBurstOn);
             }
             else if (   (lineLaser.enabled)
                     &&  (Time.time >= fTimeThisAttackStop) )
@@ -802,7 +812,7 @@ public class EnemyController : MonoBehaviour
                 iNumThisAttackBurst++;
                 if (iNumThisAttackBurst < iNumMaxThisAttackBurst)
                 {
-                    fTimeNextAttack = Time.time + fTimeDeltaAttackBurst;
+                    fTimeNextAttack = Time.time + Random.Range(fTimeDeltaMinAttackLaserBurstIntraBurstOff, fTimeDeltaMaxAttackLaserBurstIntraBurstOff);
                 }
                 else
                 {
@@ -877,8 +887,16 @@ public class EnemyController : MonoBehaviour
     private void ResetAttackBurst()
     {
         iNumThisAttackBurst = 0;
-        iNumMaxThisAttackBurst = Random.Range(iNumMinAttackBurst, iNumMaxAttackBurst+1);
-        fTimeNextAttack = Time.time + Random.Range(fTimeDeltaMinAttackBurst, fTimeDeltaMaxAttackBurst);
+        if (attackMode1 == AttackMode1.projectile)
+        {
+            iNumMaxThisAttackBurst = Random.Range(iNumMinAttackProjectileBurst, iNumMaxAttackProjectileBurst+1);
+            fTimeNextAttack = Time.time + Random.Range(fTimeDeltaMinAttackProjectileBurstInterBurst, fTimeDeltaMaxAttackProjectileBurstInterBurst);
+        }
+        else if (attackMode1 == AttackMode1.laser)
+        {
+            iNumMaxThisAttackBurst = Random.Range(iNumMinAttackLaserBurst, iNumMaxAttackLaserBurst+1);
+            fTimeNextAttack = Time.time + Random.Range(fTimeDeltaMinAttackLaserBurstInterBurst, fTimeDeltaMaxAttackLaserBurstInterBurst);
+        }
     }
 
     // ------------------------------------------------------------------------------------------------

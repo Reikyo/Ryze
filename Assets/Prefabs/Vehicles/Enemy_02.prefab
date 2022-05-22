@@ -1105,13 +1105,21 @@ MonoBehaviour:
   fDegreesDeltaRotationYToPlayerAttack: 5
   bAttackOnlyIfPlayerInRange: 0
   bAttackOnlyIfPlayerInSight: 0
-  fTimeDeltaAttackConstant: 0.5
-  fTimeDeltaAttackBurstStop: 0.25
-  fTimeDeltaAttackBurst: 0.25
-  fTimeDeltaMinAttackBurst: 2
-  fTimeDeltaMaxAttackBurst: 5
-  iNumMinAttackBurst: 1
-  iNumMaxAttackBurst: 5
+  iNumMinAttackProjectileBurst: 1
+  iNumMaxAttackProjectileBurst: 5
+  iNumMinAttackLaserBurst: 1
+  iNumMaxAttackLaserBurst: 5
+  fTimeDeltaAttackProjectileConstant: 0.5
+  fTimeDeltaMinAttackProjectileBurstInterBurst: 2
+  fTimeDeltaMaxAttackProjectileBurstInterBurst: 5
+  fTimeDeltaMinAttackProjectileBurstIntraBurst: 0.1
+  fTimeDeltaMaxAttackProjectileBurstIntraBurst: 0.3
+  fTimeDeltaMinAttackLaserBurstInterBurst: 2
+  fTimeDeltaMaxAttackLaserBurstInterBurst: 5
+  fTimeDeltaMinAttackLaserBurstIntraBurstOn: 0.1
+  fTimeDeltaMaxAttackLaserBurstIntraBurstOn: 1
+  fTimeDeltaMinAttackLaserBurstIntraBurstOff: 0.1
+  fTimeDeltaMaxAttackLaserBurstIntraBurstOff: 0.3
   iScoreDelta: 10
 --- !u!1 &8461826510934725445
 GameObject:
