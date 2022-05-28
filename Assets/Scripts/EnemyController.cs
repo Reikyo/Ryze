@@ -50,16 +50,11 @@ public class EnemyController : MonoBehaviour
     private Vector2 v2PositionRandom;
     private Vector3 v3PositionRandom;
     private bool bDirectionLowerLeft = true;
-    // These tuples are ([fMetresPosX,fMetresPosY,fMetresPosZ,fMetresPerSec], fTimeDeltaWait).
+    // These tuples are ([fMetresPosX,fMetresPosY,fMetresPosZ,fMetresPerSec], fTimeDeltaWait)
     // Note that the position arrays are optional. If one is empty, then the previous non-empty one
     // remains in effect. As such, at least the first position array must be non-empty for a default.
     // Note that the speed is optional, so the position arrays can be 3 or 4 elements long.
-    private List<(float[], float)> ListPositionPattern = new List<(float[], float)>(){
-        (new float[]{-50f, 0f,  0f}, 2f),
-        (new float[]{+50f, 0f,  0f}, 2f),
-        (new float[]{+50f, 0f,+50f}, 2f),
-        (new float[]{-50f, 0f,+50f, 10f}, 2f)
-    };
+    private List<(float[], float)> ListPositionPattern;
     private int iIdx_ListPositionPattern = 0;
 
     // Looking down from the positive y-axis, angles are clockwise from the positive z-axis
@@ -67,16 +62,11 @@ public class EnemyController : MonoBehaviour
     private float fRadiansRotationYConstant = 0f;
     private float fDegreesRotationYTarget = 0f;
     private float fRadiansRotationYTarget = 0f;
-    // These tuples are ([fDegreesRotationY,fDegreesPerSec], fTimeDeltaWait).
+    // These tuples are ([fDegreesRotationY,fDegreesPerSec], fTimeDeltaWait)
     // Note that the rotation arrays are optional. If one is empty, then the previous non-empty one
     // remains in effect. As such, at least the first rotation array must be non-empty for a default.
     // Note that the speed is optional, so the rotation arrays can be 1 or 2 elements long.
-    private List<(float[], float)> ListRotationPattern = new List<(float[], float)>(){
-        (new float[]{180f}, 2f),
-        (new float[]{90f}, 2f),
-        (new float[]{0f}, 2f),
-        (new float[]{270f}, 2f)
-    };
+    private List<(float[], float)> ListRotationPattern;
     private int iIdx_ListRotationPattern = 0;
 
     // private bool bTEST = true;
@@ -99,7 +89,7 @@ public class EnemyController : MonoBehaviour
     private bool bRotationTargetArrived = false;
     private bool bWaitAtPositionTarget = false;
     private bool bWaitAtRotationTarget = false;
-    private bool bWaitForAttackPattern = true;
+    private bool bWaitForAttackPattern = false;
     private float fTimeDeltaWaitAtPositionTarget;
     private float fTimeDeltaWaitAtRotationTarget;
     private float fTimeDeltaWaitForAttackPattern;
@@ -164,12 +154,11 @@ public class EnemyController : MonoBehaviour
     public float fTimeDeltaMinAttackLaserBurstIntraBurstOff = 0.1f;
     public float fTimeDeltaMaxAttackLaserBurstIntraBurstOff = 0.3f;
 
-    private List<(float[], float[])> ListAttackPattern = new List<(float[], float[])>(){
-        (new float[]{1f, 2f, 3f, 4f}, new float[]{2f, 2f, 2f, 2f})
-    };
-    private int iIdx1_ListAttackPattern = 0;
+    // These tuples are ([fTimeDeltaAttackLaserOn], [fTimeDeltaAttackLaserOff])
+    private List<(float[], float[])> ListAttackPattern;
+    private int iIdx1_ListAttackPattern = -1; // This is initialised at -1 as the first reset will add 1 and bring it to 0
     private int iIdx2_ListAttackPattern = 0;
-    private bool bAttackPatternEnabled = true;
+    private bool bAttackPatternCompleted = false;
 
     private int iDamageLaser = 1;
     private bool bRayHitLastFrame = false;
@@ -194,6 +183,47 @@ public class EnemyController : MonoBehaviour
         spawnManager = GameObject.Find("Spawn Manager").GetComponent<SpawnManager>();
         audioManager = GameObject.Find("Audio Manager").GetComponent<AudioManager>();
         goPlayer = GameObject.FindWithTag("Player");
+
+        // ------------------------------------------------------------------------------------------------
+
+        // ListPositionPattern = new List<(float[], float)>(){
+        //     (new float[]{-50f, 0f,  0f}, 2f),
+        //     (new float[]{+50f, 0f,  0f}, 2f),
+        //     (new float[]{+50f, 0f,+50f}, 2f),
+        //     (new float[]{-50f, 0f,+50f, 10f}, 2f)
+        // };
+        //
+        // ListRotationPattern = new List<(float[], float)>(){
+        //     (new float[]{180f}, 2f),
+        //     (new float[]{90f}, 2f),
+        //     (new float[]{0f}, 2f),
+        //     (new float[]{270f}, 2f)
+        // };
+        //
+        // ListAttackPattern = new List<(float[], float[])>(){
+        //     (new float[]{1f, 2f, 3f, 4f}, new float[]{2f, 2f, 2f, 2f})
+        // };
+
+        ListPositionPattern = new List<(float[], float)>(){
+            (new float[]{-80f, 0f,+80f}, 2f),
+            (new float[]{}, 2f),
+            (new float[]{-80f, 0f,  0f, 20f}, 2f),
+            (new float[]{-80f, 0f,+80f, 20f}, 0f),
+        };
+
+        ListRotationPattern = new List<(float[], float)>(){
+            (new float[]{180f}, 2f),
+            (new float[]{110f, 20f}, 2f),
+            (new float[]{}, 2f),
+            (new float[]{}, 2f),
+        };
+
+        ListAttackPattern = new List<(float[], float[])>(){
+            (new float[]{}, new float[]{}),
+            (new float[]{4f}, new float[]{0f}),
+            (new float[]{4f}, new float[]{0f}),
+            (new float[]{4f}, new float[]{0f}),
+        };
 
         // ------------------------------------------------------------------------------------------------
         // - Movement -
@@ -234,10 +264,13 @@ public class EnemyController : MonoBehaviour
             fPositionZBase_lineLaser = lineLaser.GetPosition(1).z;
         }
         goGunMiddleProjectileSpawnPoint = transform.Find("Weapons/GunMiddleProjectileSpawnPoint").gameObject;
-        ResetAttackBurst();
-        if (attackMode2 == AttackMode2.pattern)
+        if (attackMode2 == AttackMode2.burst)
         {
-            fTimeNextAttack = 0f;
+            ResetAttackBurst();
+        }
+        else if (attackMode2 == AttackMode2.pattern)
+        {
+            ResetAttackPattern();
         }
 
         // ------------------------------------------------------------------------------------------------
@@ -394,21 +427,12 @@ public class EnemyController : MonoBehaviour
                 &&  (!bWaitAtPositionTarget)
                 &&  (bRotationTargetArrived)
                 &&  (!bWaitAtRotationTarget)
+                &&  (bAttackPatternCompleted)
                 &&  (!bWaitForAttackPattern) )
             {
                 SetPositionTarget();
                 SetRotationTarget();
-                fTimeNextAttack = Time.time;
-                bAttackPatternEnabled = true;
-                bWaitForAttackPattern = true;
-                if (iIdx1_ListAttackPattern < ListAttackPattern.Count-1)
-                {
-                    iIdx1_ListAttackPattern++;
-                }
-                else
-                {
-                    iIdx1_ListAttackPattern = 0;
-                }
+                ResetAttackPattern();
             }
         }
         else if (   (moveMode == MoveMode.pattern)
@@ -422,6 +446,12 @@ public class EnemyController : MonoBehaviour
             {
                 SetPositionTarget();
                 SetRotationTarget();
+            }
+            if (    (attackMode2 == AttackMode2.pattern)
+                &&  (bAttackPatternCompleted)
+                &&  (!bWaitForAttackPattern) )
+            {
+                ResetAttackPattern();
             }
         }
         else
@@ -441,6 +471,12 @@ public class EnemyController : MonoBehaviour
             else if (lookMode == LookMode.player)
             {
                 SetRotationTarget();
+            }
+            if (    (attackMode2 == AttackMode2.pattern)
+                &&  (bAttackPatternCompleted)
+                &&  (!bWaitForAttackPattern) )
+            {
+                ResetAttackPattern();
             }
         }
 
@@ -704,6 +740,39 @@ public class EnemyController : MonoBehaviour
 
     // ------------------------------------------------------------------------------------------------
 
+    private void ResetAttackBurst()
+    {
+        iNumThisAttackBurst = 0;
+        if (attackMode1 == AttackMode1.projectile)
+        {
+            iNumMaxThisAttackBurst = Random.Range(iNumMinAttackProjectileBurst, iNumMaxAttackProjectileBurst+1);
+            fTimeNextAttack = Time.time + Random.Range(fTimeDeltaMinAttackProjectileBurstInterBurst, fTimeDeltaMaxAttackProjectileBurstInterBurst);
+        }
+        else if (attackMode1 == AttackMode1.laser)
+        {
+            iNumMaxThisAttackBurst = Random.Range(iNumMinAttackLaserBurst, iNumMaxAttackLaserBurst+1);
+            fTimeNextAttack = Time.time + Random.Range(fTimeDeltaMinAttackLaserBurstInterBurst, fTimeDeltaMaxAttackLaserBurstInterBurst);
+        }
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
+    private void ResetAttackPattern()
+    {
+        fTimeNextAttack = 0f;
+        if (iIdx1_ListAttackPattern < ListAttackPattern.Count-1)
+        {
+            iIdx1_ListAttackPattern++;
+        }
+        else
+        {
+            iIdx1_ListAttackPattern = 0;
+        }
+        bAttackPatternCompleted = (ListAttackPattern[iIdx1_ListAttackPattern].Item1.Length == 0);
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
     private void SetAttack()
     {
         if (    (   (!bAttackOnlyIfPlayerInRange)
@@ -823,8 +892,7 @@ public class EnemyController : MonoBehaviour
         }
         if (attackMode2 == AttackMode2.pattern)
         {
-            if (    (ListAttackPattern[iIdx1_ListAttackPattern].Item1.Length >= 1)
-                &&  (bAttackPatternEnabled) )
+            if (!bAttackPatternCompleted)
             {
                 if (    (!lineLaser.enabled)
                     &&  (Time.time >= fTimeNextAttack) )
@@ -845,11 +913,10 @@ public class EnemyController : MonoBehaviour
                     else
                     {
                         iIdx2_ListAttackPattern = 0;
-                        if (    (moveMode == MoveMode.pattern)
-                            &&  (lookMode == LookMode.pattern)
-                            &&  (bSyncMoveLookAttackPatterns) )
+                        bAttackPatternCompleted = true;
+                        bWaitForAttackPattern = fTimeDeltaWaitForAttackPattern > 0f;
+                        if (bWaitForAttackPattern)
                         {
-                            bAttackPatternEnabled = false;
                             StartCoroutine(WaitForAttackPattern());
                         }
                     }
@@ -880,23 +947,6 @@ public class EnemyController : MonoBehaviour
     private void PlaySfxLaser()
     {
         audioManager.sfxclpvolLaserEnemy.PlayOneShot();
-    }
-
-    // ------------------------------------------------------------------------------------------------
-
-    private void ResetAttackBurst()
-    {
-        iNumThisAttackBurst = 0;
-        if (attackMode1 == AttackMode1.projectile)
-        {
-            iNumMaxThisAttackBurst = Random.Range(iNumMinAttackProjectileBurst, iNumMaxAttackProjectileBurst+1);
-            fTimeNextAttack = Time.time + Random.Range(fTimeDeltaMinAttackProjectileBurstInterBurst, fTimeDeltaMaxAttackProjectileBurstInterBurst);
-        }
-        else if (attackMode1 == AttackMode1.laser)
-        {
-            iNumMaxThisAttackBurst = Random.Range(iNumMinAttackLaserBurst, iNumMaxAttackLaserBurst+1);
-            fTimeNextAttack = Time.time + Random.Range(fTimeDeltaMinAttackLaserBurstInterBurst, fTimeDeltaMaxAttackLaserBurstInterBurst);
-        }
     }
 
     // ------------------------------------------------------------------------------------------------
