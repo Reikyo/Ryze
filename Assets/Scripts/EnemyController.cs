@@ -158,6 +158,7 @@ public class EnemyController : MonoBehaviour
     private List<(float[], float[])> ListAttackPattern;
     private int iIdx1_ListAttackPattern = -1; // This is initialised at -1 as the first reset will add 1 and bring it to 0
     private int iIdx2_ListAttackPattern = 0;
+    private bool bStartedAttack = false;
     private bool bAttackPatternCompleted = false;
 
     private int iDamageLaser = 1;
@@ -205,24 +206,30 @@ public class EnemyController : MonoBehaviour
         // };
 
         ListPositionPattern = new List<(float[], float)>(){
-            (new float[]{-80f, 0f,+80f}, 2f),
-            (new float[]{}, 2f),
-            (new float[]{-80f, 0f,  0f, 20f}, 2f),
-            (new float[]{-80f, 0f,+80f, 20f}, 0f),
+            (new float[]{-80f, 0f,+80f}, 1f),
+            (new float[]{}, 1f),
+            (new float[]{-80f, 0f,  0f, 20f}, 1f),
+            (new float[]{}, 1f),
+            (new float[]{-80f, 0f,+80f, 20f}, 1f),
+            (new float[]{}, 1f),
         };
 
         ListRotationPattern = new List<(float[], float)>(){
-            (new float[]{180f}, 2f),
-            (new float[]{110f, 20f}, 2f),
-            (new float[]{}, 2f),
-            (new float[]{}, 2f),
+            (new float[]{180f}, 1f),
+            (new float[]{110f, 20f}, 1f),
+            (new float[]{}, 1f),
+            (new float[]{70f, 20f}, 1f),
+            (new float[]{}, 1f),
+            (new float[]{180f, 20f}, 1f),
         };
 
         ListAttackPattern = new List<(float[], float[])>(){
             (new float[]{}, new float[]{}),
-            (new float[]{4f}, new float[]{0f}),
-            (new float[]{4f}, new float[]{0f}),
-            (new float[]{4f}, new float[]{0f}),
+            (new float[]{1f}, new float[]{0f}),
+            (new float[]{1f}, new float[]{0f}),
+            (new float[]{1f}, new float[]{0f}),
+            (new float[]{1f}, new float[]{0f}),
+            (new float[]{6f}, new float[]{1f}),
         };
 
         // ------------------------------------------------------------------------------------------------
@@ -894,18 +901,26 @@ public class EnemyController : MonoBehaviour
         {
             if (!bAttackPatternCompleted)
             {
-                if (    (!lineLaser.enabled)
+                if (    (!bStartedAttack)
                     &&  (Time.time >= fTimeNextAttack) )
                 {
-                    StartLaser();
+                    if (!lineLaser.enabled)
+                    {
+                        StartLaser();
+                    }
+                    bStartedAttack = true;
                     fTimeThisAttackStop = Time.time + ListAttackPattern[iIdx1_ListAttackPattern].Item1[iIdx2_ListAttackPattern];
                 }
-                else if (   (lineLaser.enabled)
+                else if (   (bStartedAttack)
                         &&  (Time.time >= fTimeThisAttackStop) )
                 {
-                    StopLaser();
+                    bStartedAttack = false;
                     fTimeDeltaWaitForAttackPattern = ListAttackPattern[iIdx1_ListAttackPattern].Item2[iIdx2_ListAttackPattern];
                     fTimeNextAttack = Time.time + fTimeDeltaWaitForAttackPattern;
+                    if (fTimeDeltaWaitForAttackPattern > 0)
+                    {
+                        StopLaser();
+                    }
                     if (iIdx2_ListAttackPattern < ListAttackPattern[iIdx1_ListAttackPattern].Item2.Length-1)
                     {
                         iIdx2_ListAttackPattern++;
