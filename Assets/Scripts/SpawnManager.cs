@@ -30,7 +30,7 @@ public class SpawnManager : MonoBehaviour
     // Enemies:
     public GameObject goEnemy;
     public int iNumEnemy = 0;
-    private int iNumEnemyPerWave = 1;
+    private int iNumEnemyPerWave = 2;
     private float fTimeNextSpawnEnemy;
     private float fTimeDeltaSpawnEnemy = 3f;
 
@@ -133,35 +133,103 @@ public class SpawnManager : MonoBehaviour
         for (int i=0; i<iNumEnemyPerWave; i++)
         {
             Vector3 v3PositionSpawn = new Vector3(0f, 0f, 0f);
-            Vector3 v3PositionConstant = new Vector3(0f, 0f, 0f);
 
             switch(i)
             {
                 case 0: v3PositionSpawn = new Vector3(-80f, 0f, gameManager.v3CamUpperRight.z + 10f);
-                        v3PositionConstant = new Vector3(-80f, 0f, 60f);
                         break;
-                case 1: v3PositionSpawn = new Vector3(-40f, 0f, gameManager.v3CamUpperRight.z + 10f);
-                        v3PositionConstant = new Vector3(-40f, 0f, 70f);
+                case 1: v3PositionSpawn = new Vector3(80f, 0f, gameManager.v3CamUpperRight.z + 10f);
                         break;
-                case 2: v3PositionSpawn = new Vector3(0f, 0f, gameManager.v3CamUpperRight.z + 10f);
-                        v3PositionConstant = new Vector3(0f, 0f, 80f);
-                        break;
-                case 3: v3PositionSpawn = new Vector3(40f, 0f, gameManager.v3CamUpperRight.z + 10f);
-                        v3PositionConstant = new Vector3(40f, 0f, 70f);
-                        break;
-                case 4: v3PositionSpawn = new Vector3(80f, 0f, gameManager.v3CamUpperRight.z + 10f);
-                        v3PositionConstant = new Vector3(80f, 0f, 60f);
-                        break;
+                // case 2: v3PositionSpawn = new Vector3(0f, 0f, gameManager.v3CamUpperRight.z + 10f);
+                //         break;
+                // case 3: v3PositionSpawn = new Vector3(-40f, 0f, gameManager.v3CamUpperRight.z + 10f);
+                //         break;
+                // case 4: v3PositionSpawn = new Vector3(40f, 0f, gameManager.v3CamUpperRight.z + 10f);
+                //         break;
             }
 
             GameObject goEnemyClone = Instantiate(
                 goEnemy,
                 v3PositionSpawn,
-                goEnemy.transform.rotation
+                Quaternion.LookRotation(new Vector3(0f, 0f, -1f))
             );
-
             EnemyController enemyController = goEnemyClone.GetComponent<EnemyController>();
-            enemyController.v3PositionConstant = v3PositionConstant;
+
+            if (i == 0)
+            {
+                enemyController.v3PositionConstant = new Vector3(-80f, 0f, 60f);
+                enemyController.ListPositionPattern = new List<(float[], float)>(){
+                    (new float[]{-80f, 0f,+80f}, 1f),
+                    (new float[]{}, 1f),
+                    (new float[]{}, 1f),
+                    (new float[]{-80f, 0f,  0f, 20f}, 1f),
+                    (new float[]{}, 1f),
+                    (new float[]{-80f, 0f,+80f, 20f}, 1f),
+                    (new float[]{}, 1f),
+                };
+                enemyController.ListRotationPattern = new List<(float[], float)>(){
+                    (new float[]{180f}, 1f),
+                    (new float[]{}, 1f),
+                    (new float[]{110f, 20f}, 1f),
+                    (new float[]{}, 1f),
+                    (new float[]{70f, 20f}, 1f),
+                    (new float[]{}, 1f),
+                    (new float[]{180f, 20f}, 1f),
+                };
+                enemyController.ListAttackPattern = new List<(float[], float[])>(){
+                    (new float[]{}, new float[]{}),
+                    (new float[]{5f}, new float[]{0f}),
+                    (new float[]{1f}, new float[]{0f}),
+                    (new float[]{1f}, new float[]{0f}),
+                    (new float[]{1f}, new float[]{0f}),
+                    (new float[]{1f}, new float[]{0f}),
+                    (new float[]{6f}, new float[]{1f}),
+                };
+            }
+            else if (i == 1)
+            {
+                enemyController.v3PositionConstant = new Vector3(80f, 0f, 60f);
+                enemyController.ListPositionPattern = new List<(float[], float)>(){
+                    (new float[]{+80f, 0f,+80f}, 1f),
+                    (new float[]{}, 1f),
+                    (new float[]{}, 1f),
+                    (new float[]{+80f, 0f,  0f, 20f}, 1f),
+                    (new float[]{}, 1f),
+                    (new float[]{+80f, 0f,+80f, 20f}, 1f),
+                    (new float[]{}, 1f),
+                };
+                enemyController.ListRotationPattern = new List<(float[], float)>(){
+                    (new float[]{180f}, 1f),
+                    (new float[]{}, 1f),
+                    (new float[]{250f, 20f}, 1f),
+                    (new float[]{}, 1f),
+                    (new float[]{290f, 20f}, 1f),
+                    (new float[]{}, 1f),
+                    (new float[]{180f, 20f}, 1f),
+                };
+                enemyController.ListAttackPattern = new List<(float[], float[])>(){
+                    (new float[]{}, new float[]{}),
+                    (new float[]{5f}, new float[]{0f}),
+                    (new float[]{1f}, new float[]{0f}),
+                    (new float[]{1f}, new float[]{0f}),
+                    (new float[]{1f}, new float[]{0f}),
+                    (new float[]{1f}, new float[]{0f}),
+                    (new float[]{6f}, new float[]{1f}),
+                };
+            }
+            // else if (i == 2)
+            // {
+            //     enemyController.v3PositionConstant = new Vector3(0f, 0f, 80f);
+            // }
+            // else if (i == 3)
+            // {
+            //     enemyController.v3PositionConstant = new Vector3(-40f, 0f, 70f);
+            // }
+            // else if (i == 4)
+            // {
+            //     enemyController.v3PositionConstant = new Vector3(40f, 0f, 70f);
+            // }
+
             enemyController.moveMode = EnemyController.MoveMode.pattern;
             enemyController.lookMode = EnemyController.LookMode.pattern;
             enemyController.attackMode1 = EnemyController.AttackMode1.laser;

@@ -54,7 +54,7 @@ public class EnemyController : MonoBehaviour
     // Note that the position arrays are optional. If one is empty, then the previous non-empty one
     // remains in effect. As such, at least the first position array must be non-empty for a default.
     // Note that the speed is optional, so the position arrays can be 3 or 4 elements long.
-    private List<(float[], float)> ListPositionPattern;
+    public List<(float[], float)> ListPositionPattern;
     private int iIdx_ListPositionPattern = 0;
 
     // Looking down from the positive y-axis, angles are clockwise from the positive z-axis
@@ -66,7 +66,7 @@ public class EnemyController : MonoBehaviour
     // Note that the rotation arrays are optional. If one is empty, then the previous non-empty one
     // remains in effect. As such, at least the first rotation array must be non-empty for a default.
     // Note that the speed is optional, so the rotation arrays can be 1 or 2 elements long.
-    private List<(float[], float)> ListRotationPattern;
+    public List<(float[], float)> ListRotationPattern;
     private int iIdx_ListRotationPattern = 0;
 
     // private bool bTEST = true;
@@ -155,7 +155,7 @@ public class EnemyController : MonoBehaviour
     public float fTimeDeltaMaxAttackLaserBurstIntraBurstOff = 0.3f;
 
     // These tuples are ([fTimeDeltaAttackLaserOn], [fTimeDeltaAttackLaserOff])
-    private List<(float[], float[])> ListAttackPattern;
+    public List<(float[], float[])> ListAttackPattern;
     private int iIdx1_ListAttackPattern = -1; // This is initialised at -1 as the first reset will add 1 and bring it to 0
     private int iIdx2_ListAttackPattern = 0;
     private bool bStartedAttack = false;
@@ -205,32 +205,32 @@ public class EnemyController : MonoBehaviour
         //     (new float[]{1f, 2f, 3f, 4f}, new float[]{2f, 2f, 2f, 2f})
         // };
 
-        ListPositionPattern = new List<(float[], float)>(){
-            (new float[]{-80f, 0f,+80f}, 1f),
-            (new float[]{}, 1f),
-            (new float[]{-80f, 0f,  0f, 20f}, 1f),
-            (new float[]{}, 1f),
-            (new float[]{-80f, 0f,+80f, 20f}, 1f),
-            (new float[]{}, 1f),
-        };
-
-        ListRotationPattern = new List<(float[], float)>(){
-            (new float[]{180f}, 1f),
-            (new float[]{110f, 20f}, 1f),
-            (new float[]{}, 1f),
-            (new float[]{70f, 20f}, 1f),
-            (new float[]{}, 1f),
-            (new float[]{180f, 20f}, 1f),
-        };
-
-        ListAttackPattern = new List<(float[], float[])>(){
-            (new float[]{}, new float[]{}),
-            (new float[]{1f}, new float[]{0f}),
-            (new float[]{1f}, new float[]{0f}),
-            (new float[]{1f}, new float[]{0f}),
-            (new float[]{1f}, new float[]{0f}),
-            (new float[]{6f}, new float[]{1f}),
-        };
+        // ListPositionPattern = new List<(float[], float)>(){
+        //     (new float[]{-80f, 0f,+80f}, 1f),
+        //     (new float[]{}, 1f),
+        //     (new float[]{-80f, 0f,  0f, 20f}, 1f),
+        //     (new float[]{}, 1f),
+        //     (new float[]{-80f, 0f,+80f, 20f}, 1f),
+        //     (new float[]{}, 1f),
+        // };
+        //
+        // ListRotationPattern = new List<(float[], float)>(){
+        //     (new float[]{180f}, 1f),
+        //     (new float[]{110f, 20f}, 1f),
+        //     (new float[]{}, 1f),
+        //     (new float[]{70f, 20f}, 1f),
+        //     (new float[]{}, 1f),
+        //     (new float[]{180f, 20f}, 1f),
+        // };
+        //
+        // ListAttackPattern = new List<(float[], float[])>(){
+        //     (new float[]{}, new float[]{}),
+        //     (new float[]{1f}, new float[]{0f}),
+        //     (new float[]{1f}, new float[]{0f}),
+        //     (new float[]{1f}, new float[]{0f}),
+        //     (new float[]{1f}, new float[]{0f}),
+        //     (new float[]{6f}, new float[]{1f}),
+        // };
 
         // ------------------------------------------------------------------------------------------------
         // - Movement -
