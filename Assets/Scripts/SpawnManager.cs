@@ -6,6 +6,7 @@ using UnityEngine;
 public class SpawnManager : MonoBehaviour
 {
     private GameManager gameManager;
+    private LevelManager levelManager;
     private AudioManager audioManager;
 
     public bool bSpawnStars = true;
@@ -41,7 +42,7 @@ public class SpawnManager : MonoBehaviour
     public List<EnemyController.LookMode> ListlookModeEnemy;
     public List<EnemyController.AttackMode1> ListattackMode1Enemy;
     public List<EnemyController.AttackMode2> ListattackMode2Enemy;
-    
+
     // PowerUps:
     public GameObject goPowerUpHealth;
     public GameObject goPowerUpCharge;
@@ -61,6 +62,7 @@ public class SpawnManager : MonoBehaviour
     void Start()
     {
         gameManager = GameObject.Find("Game Manager").GetComponent<GameManager>();
+        levelManager = GameObject.Find("Level Manager").GetComponent<LevelManager>();
         audioManager = GameObject.Find("Audio Manager").GetComponent<AudioManager>();
 
         fTimeNextSpawnStar = Time.time + Random.Range(fTimeDeltaMinSpawnStar, fTimeDeltaMaxSpawnStar);
@@ -90,6 +92,7 @@ public class SpawnManager : MonoBehaviour
             SpawnAsteroids();
         }
         if (    (bSpawnEnemies)
+            &&  (!levelManager.bLevelReady)
             &&  (iNumEnemy == 0)
             &&  (Time.time >= fTimeNextSpawnEnemy) )
         {
@@ -178,6 +181,11 @@ public class SpawnManager : MonoBehaviour
             enemyController.lookMode = ListlookModeEnemy[i];
             enemyController.attackMode1 = ListattackMode1Enemy[i];
             enemyController.attackMode2 = ListattackMode2Enemy[i];
+
+            if (i == ListiEnemy.Count-1)
+            {
+                levelManager.bLevelReady = true;
+            }
 
             // if (i == 0)
             // {

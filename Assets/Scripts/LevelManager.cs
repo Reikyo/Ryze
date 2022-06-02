@@ -7,9 +7,10 @@ public class LevelManager : MonoBehaviour
     private GameManager gameManager;
     private SpawnManager spawnManager;
 
-    private int iLevel = 1;
-    private bool bStartedLevel1 = false;
-    private bool bStartedLevel2 = false;
+    public int iLevel = 1;
+    public bool bLevelReady = false;
+    private bool bInitiatedLevel1 = false;
+    private bool bInitiatedLevel2 = false;
     private float fTimeDeltaWaitStartLevel1 = 10f;
     private float fTimeDeltaWaitStartLevel2 = 10f;
     private float fTimeDeltaLevel1 = 20f;
@@ -36,16 +37,17 @@ public class LevelManager : MonoBehaviour
             {
                 return;
             }
-            if (!bStartedLevel1)
+            if (!bInitiatedLevel1)
             {
                 spawnManager.bSpawnAsteroids = true;
-                bStartedLevel1 = true;
+                bInitiatedLevel1 = true;
                 return;
             }
             if (Time.time >= gameManager.fTimeStartLevel + fTimeDeltaWaitStartLevel1 + fTimeDeltaLevel1)
             {
                 gameManager.fTimeStartLevel = Time.time;
                 spawnManager.bSpawnAsteroids = false;
+                bLevelReady = false;
                 iLevel++;
                 return;
             }
@@ -56,7 +58,7 @@ public class LevelManager : MonoBehaviour
             {
                 return;
             }
-            if (!bStartedLevel2)
+            if (!bInitiatedLevel2)
             {
                 spawnManager.ListiEnemy = new List<int>{
                     1
@@ -77,7 +79,16 @@ public class LevelManager : MonoBehaviour
                     EnemyController.AttackMode2.burst
                 };
                 spawnManager.bSpawnEnemies = true;
-                bStartedLevel2 = true;
+                bInitiatedLevel2 = true;
+                return;
+            }
+            if (    (bLevelReady)
+                &&  (spawnManager.iNumEnemy == 0) )
+            {
+                gameManager.fTimeStartLevel = Time.time;
+                spawnManager.bSpawnEnemies = false;
+                bLevelReady = false;
+                iLevel++;
                 return;
             }
         }
@@ -88,8 +99,8 @@ public class LevelManager : MonoBehaviour
     public void Reset()
     {
         iLevel = 1;
-        bStartedLevel1 = false;
-        bStartedLevel2 = false;
+        bInitiatedLevel1 = false;
+        bInitiatedLevel2 = false;
     }
 
     // ------------------------------------------------------------------------------------------------
