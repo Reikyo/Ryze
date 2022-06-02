@@ -6,12 +6,14 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
+    private LevelManager levelManager;
     private SpawnManager spawnManager;
     private AudioManager audioManager;
 
     // Status:
     public bool bInPlay = false;
     public bool bPaused = false;
+    public float fTimeStartLevel;
 
     // UI:
     private GameObject goUICanvasTitle;
@@ -68,6 +70,7 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+        levelManager = GameObject.Find("Level Manager").GetComponent<LevelManager>();
         spawnManager = GameObject.Find("Spawn Manager").GetComponent<SpawnManager>();
         audioManager = GameObject.Find("Audio Manager").GetComponent<AudioManager>();
 
@@ -153,6 +156,7 @@ public class GameManager : MonoBehaviour
         // spawnManager.bSpawnEnemies = true;
         goUICanvasTitle.SetActive(false);
         goUICanvasHUD.SetActive(true);
+        fTimeStartLevel = Time.time;
         bInPlay = true;
     }
 
@@ -180,12 +184,14 @@ public class GameManager : MonoBehaviour
         spawnManager.bSpawnEnemies = true;
         goUICanvasGameOver.SetActive(false);
         bInPlay = true;
+        fTimeStartLevel = Time.time;
     }
 
     // ------------------------------------------------------------------------------------------------
 
     public void EndGame()
     {
+        levelManager.Reset();
         spawnManager.bSpawnAsteroids = false;
         spawnManager.bSpawnEnemies = false;
         spawnManager.DestroyAsteroids();

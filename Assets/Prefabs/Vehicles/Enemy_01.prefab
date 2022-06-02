@@ -488,7 +488,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 217f46a4132184e61b2817a966096218, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fMetresPerSecMoveMaxDefault: 100
+  fMetresPerSecMoveMaxDefault: 50
   fDegreesPerSecMoveMaxDefault: 360
   moveMode: 0
   lookMode: 0
@@ -499,10 +499,12 @@ MonoBehaviour:
   goProjectile: {fileID: 3262308912846389460, guid: 92040474b5c7e457092c19efa9a9bd77, type: 3}
   attackMode1: 0
   attackMode2: 0
-  fMetresDeltaToPlayerAttack: 100
-  fDegreesDeltaRotationYToPlayerAttack: 5
   bAttackOnlyIfPlayerInRange: 0
   bAttackOnlyIfPlayerInSight: 0
+  fMetresDeltaToPlayerAttackProjectile: 200
+  fMetresDeltaToPlayerAttackLaser: 100
+  fDegreesDeltaRotationYToPlayerAttackProjectile: 5
+  fDegreesDeltaRotationYToPlayerAttackLaser: 5
   iNumMinAttackProjectileBurst: 1
   iNumMaxAttackProjectileBurst: 5
   iNumMinAttackLaserBurst: 1

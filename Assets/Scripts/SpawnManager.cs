@@ -29,11 +29,19 @@ public class SpawnManager : MonoBehaviour
 
     // Enemies:
     public GameObject goEnemy;
+    public GameObject goEnemy1;
+    public GameObject goEnemy2;
     public int iNumEnemy = 0;
-    private int iNumEnemyPerWave = 2;
+    // public int iNumEnemyPerWave = 1;
     private float fTimeNextSpawnEnemy;
     private float fTimeDeltaSpawnEnemy = 3f;
-
+    public List<int> ListiEnemy;
+    public List<Vector3> Listv3PositionSpawnEnemy;
+    public List<EnemyController.MoveMode> ListmoveModeEnemy;
+    public List<EnemyController.LookMode> ListlookModeEnemy;
+    public List<EnemyController.AttackMode1> ListattackMode1Enemy;
+    public List<EnemyController.AttackMode2> ListattackMode2Enemy;
+    
     // PowerUps:
     public GameObject goPowerUpHealth;
     public GameObject goPowerUpCharge;
@@ -130,93 +138,109 @@ public class SpawnManager : MonoBehaviour
 
     private void SpawnEnemies()
     {
-        for (int i=0; i<iNumEnemyPerWave; i++)
+        for (int i=0; i<ListiEnemy.Count; i++)
         {
-            Vector3 v3PositionSpawn = new Vector3(0f, 0f, 0f);
+            // Vector3 v3PositionSpawn = Listv3PositionSpawn[i];
 
-            switch(i)
-            {
-                case 0: v3PositionSpawn = new Vector3(-80f, 0f, gameManager.v3CamUpperRight.z + 10f);
-                        break;
-                case 1: v3PositionSpawn = new Vector3(80f, 0f, gameManager.v3CamUpperRight.z + 10f);
-                        break;
+            // switch(i)
+            // {
+                // case 0: v3PositionSpawn = new Vector3(-80f, 0f, gameManager.v3CamUpperRight.z + 10f);
+                //         break;
+                // case 1: v3PositionSpawn = new Vector3(80f, 0f, gameManager.v3CamUpperRight.z + 10f);
+                //         break;
                 // case 2: v3PositionSpawn = new Vector3(0f, 0f, gameManager.v3CamUpperRight.z + 10f);
                 //         break;
                 // case 3: v3PositionSpawn = new Vector3(-40f, 0f, gameManager.v3CamUpperRight.z + 10f);
                 //         break;
                 // case 4: v3PositionSpawn = new Vector3(40f, 0f, gameManager.v3CamUpperRight.z + 10f);
                 //         break;
+            // }
+
+            if (ListiEnemy[i] == 1)
+            {
+                goEnemy = goEnemy1;
+            }
+            else if (ListiEnemy[i] == 2)
+            {
+                goEnemy = goEnemy2;
             }
 
             GameObject goEnemyClone = Instantiate(
                 goEnemy,
-                v3PositionSpawn,
+                Listv3PositionSpawnEnemy[i],
                 Quaternion.LookRotation(new Vector3(0f, 0f, -1f))
             );
+            iNumEnemy += 1;
+
             EnemyController enemyController = goEnemyClone.GetComponent<EnemyController>();
 
-            if (i == 0)
-            {
-                enemyController.v3PositionConstant = new Vector3(-80f, 0f, 60f);
-                enemyController.ListPositionPattern = new List<(float[], float)>(){
-                    (new float[]{-80f, 0f,+80f}, 1f),
-                    (new float[]{}, 1f),
-                    (new float[]{}, 1f),
-                    (new float[]{-80f, 0f,  0f, 20f}, 1f),
-                    (new float[]{}, 1f),
-                    (new float[]{-80f, 0f,+80f, 20f}, 1f),
-                    (new float[]{}, 1f),
-                };
-                enemyController.ListRotationPattern = new List<(float[], float)>(){
-                    (new float[]{180f}, 1f),
-                    (new float[]{}, 1f),
-                    (new float[]{110f, 20f}, 1f),
-                    (new float[]{}, 1f),
-                    (new float[]{70f, 20f}, 1f),
-                    (new float[]{}, 1f),
-                    (new float[]{180f, 20f}, 1f),
-                };
-                enemyController.ListAttackPattern = new List<(float[], float[])>(){
-                    (new float[]{}, new float[]{}),
-                    (new float[]{5f}, new float[]{0f}),
-                    (new float[]{1f}, new float[]{0f}),
-                    (new float[]{1f}, new float[]{0f}),
-                    (new float[]{1f}, new float[]{0f}),
-                    (new float[]{1f}, new float[]{0f}),
-                    (new float[]{6f}, new float[]{1f}),
-                };
-            }
-            else if (i == 1)
-            {
-                enemyController.v3PositionConstant = new Vector3(80f, 0f, 60f);
-                enemyController.ListPositionPattern = new List<(float[], float)>(){
-                    (new float[]{+80f, 0f,+80f}, 1f),
-                    (new float[]{}, 1f),
-                    (new float[]{}, 1f),
-                    (new float[]{+80f, 0f,  0f, 20f}, 1f),
-                    (new float[]{}, 1f),
-                    (new float[]{+80f, 0f,+80f, 20f}, 1f),
-                    (new float[]{}, 1f),
-                };
-                enemyController.ListRotationPattern = new List<(float[], float)>(){
-                    (new float[]{180f}, 1f),
-                    (new float[]{}, 1f),
-                    (new float[]{250f, 20f}, 1f),
-                    (new float[]{}, 1f),
-                    (new float[]{290f, 20f}, 1f),
-                    (new float[]{}, 1f),
-                    (new float[]{180f, 20f}, 1f),
-                };
-                enemyController.ListAttackPattern = new List<(float[], float[])>(){
-                    (new float[]{}, new float[]{}),
-                    (new float[]{5f}, new float[]{0f}),
-                    (new float[]{1f}, new float[]{0f}),
-                    (new float[]{1f}, new float[]{0f}),
-                    (new float[]{1f}, new float[]{0f}),
-                    (new float[]{1f}, new float[]{0f}),
-                    (new float[]{6f}, new float[]{1f}),
-                };
-            }
+            enemyController.moveMode = ListmoveModeEnemy[i];
+            enemyController.lookMode = ListlookModeEnemy[i];
+            enemyController.attackMode1 = ListattackMode1Enemy[i];
+            enemyController.attackMode2 = ListattackMode2Enemy[i];
+
+            // if (i == 0)
+            // {
+            //     enemyController.v3PositionConstant = new Vector3(-80f, 0f, 60f);
+            //     enemyController.ListPositionPattern = new List<(float[], float)>(){
+            //         (new float[]{-80f, 0f,+80f}, 1f),
+            //         (new float[]{}, 1f),
+            //         (new float[]{}, 1f),
+            //         (new float[]{-80f, 0f,  0f, 20f}, 1f),
+            //         (new float[]{}, 1f),
+            //         (new float[]{-80f, 0f,+80f, 20f}, 1f),
+            //         (new float[]{}, 1f),
+            //     };
+            //     enemyController.ListRotationPattern = new List<(float[], float)>(){
+            //         (new float[]{180f}, 1f),
+            //         (new float[]{}, 1f),
+            //         (new float[]{110f, 20f}, 1f),
+            //         (new float[]{}, 1f),
+            //         (new float[]{70f, 20f}, 1f),
+            //         (new float[]{}, 1f),
+            //         (new float[]{180f, 20f}, 1f),
+            //     };
+            //     enemyController.ListAttackPattern = new List<(float[], float[])>(){
+            //         (new float[]{}, new float[]{}),
+            //         (new float[]{5f}, new float[]{0f}),
+            //         (new float[]{1f}, new float[]{0f}),
+            //         (new float[]{1f}, new float[]{0f}),
+            //         (new float[]{1f}, new float[]{0f}),
+            //         (new float[]{1f}, new float[]{0f}),
+            //         (new float[]{6f}, new float[]{1f}),
+            //     };
+            // }
+            // else if (i == 1)
+            // {
+            //     enemyController.v3PositionConstant = new Vector3(80f, 0f, 60f);
+            //     enemyController.ListPositionPattern = new List<(float[], float)>(){
+            //         (new float[]{+80f, 0f,+80f}, 1f),
+            //         (new float[]{}, 1f),
+            //         (new float[]{}, 1f),
+            //         (new float[]{+80f, 0f,  0f, 20f}, 1f),
+            //         (new float[]{}, 1f),
+            //         (new float[]{+80f, 0f,+80f, 20f}, 1f),
+            //         (new float[]{}, 1f),
+            //     };
+            //     enemyController.ListRotationPattern = new List<(float[], float)>(){
+            //         (new float[]{180f}, 1f),
+            //         (new float[]{}, 1f),
+            //         (new float[]{250f, 20f}, 1f),
+            //         (new float[]{}, 1f),
+            //         (new float[]{290f, 20f}, 1f),
+            //         (new float[]{}, 1f),
+            //         (new float[]{180f, 20f}, 1f),
+            //     };
+            //     enemyController.ListAttackPattern = new List<(float[], float[])>(){
+            //         (new float[]{}, new float[]{}),
+            //         (new float[]{5f}, new float[]{0f}),
+            //         (new float[]{1f}, new float[]{0f}),
+            //         (new float[]{1f}, new float[]{0f}),
+            //         (new float[]{1f}, new float[]{0f}),
+            //         (new float[]{1f}, new float[]{0f}),
+            //         (new float[]{6f}, new float[]{1f}),
+            //     };
+            // }
             // else if (i == 2)
             // {
             //     enemyController.v3PositionConstant = new Vector3(0f, 0f, 80f);
@@ -230,12 +254,11 @@ public class SpawnManager : MonoBehaviour
             //     enemyController.v3PositionConstant = new Vector3(40f, 0f, 70f);
             // }
 
-            enemyController.moveMode = EnemyController.MoveMode.pattern;
-            enemyController.lookMode = EnemyController.LookMode.pattern;
-            enemyController.attackMode1 = EnemyController.AttackMode1.laser;
-            enemyController.attackMode2 = EnemyController.AttackMode2.pattern;
+            // enemyController.moveMode = EnemyController.MoveMode.pattern;
+            // enemyController.lookMode = EnemyController.LookMode.pattern;
+            // enemyController.attackMode1 = EnemyController.AttackMode1.laser;
+            // enemyController.attackMode2 = EnemyController.AttackMode2.pattern;
 
-            iNumEnemy += 1;
         }
         fTimeNextSpawnEnemy = Time.time + fTimeDeltaSpawnEnemy;
         bSpawnEnemies = true;
