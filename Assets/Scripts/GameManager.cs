@@ -174,6 +174,7 @@ public class GameManager : MonoBehaviour
 
     public void RestartLevel()
     {
+        levelManager.ResetLevel();
         spawnManager.DestroyAsteroids();
         spawnManager.DestroyEnemies();
         spawnManager.DestroyPowerUps();
@@ -191,7 +192,7 @@ public class GameManager : MonoBehaviour
 
     public void EndGame()
     {
-        levelManager.Reset();
+        levelManager.ResetGame();
         spawnManager.bSpawnAsteroids = false;
         spawnManager.bSpawnEnemies = false;
         spawnManager.DestroyAsteroids();
