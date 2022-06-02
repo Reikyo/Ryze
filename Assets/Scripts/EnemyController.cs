@@ -333,7 +333,10 @@ public class EnemyController : MonoBehaviour
         // - Damage -
 
         SetAttack();
-        SetHealthPlayer();
+        if (goLaser)
+        {
+            SetHealthPlayer();
+        }
 
         // ------------------------------------------------------------------------------------------------
 
@@ -346,23 +349,26 @@ public class EnemyController : MonoBehaviour
 
     private void SetInfoThisFrame()
     {
-        bRayHitThisFrame = Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out rayHit);
-        if (bRayHitThisFrame)
+        if (goLaser)
         {
-            Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.forward) * rayHit.distance, Color.yellow);
-            lineLaser.SetPosition(1, new Vector3(0f, 0f, rayHit.distance + 1f)); // Add 1 here to go further in than the collider edge and so get closer to the mesh
-            bRayHitPlayerThisFrame = rayHit.collider.attachedRigidbody.gameObject.CompareTag("Player");
-        }
-        else
-        {
-            Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.forward) * 1000f, Color.white);
-            if (bRayHitLastFrame)
+            bRayHitThisFrame = Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out rayHit);
+            if (bRayHitThisFrame)
             {
-                lineLaser.SetPosition(1, new Vector3(0f, 0f, fPositionZBase_lineLaser));
+                Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.forward) * rayHit.distance, Color.yellow);
+                lineLaser.SetPosition(1, new Vector3(0f, 0f, rayHit.distance + 1f)); // Add 1 here to go further in than the collider edge and so get closer to the mesh
+                bRayHitPlayerThisFrame = rayHit.collider.attachedRigidbody.gameObject.CompareTag("Player");
             }
-            if (bRayHitPlayerLastFrame)
+            else
             {
-                bRayHitPlayerThisFrame = false;
+                Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.forward) * 1000f, Color.white);
+                if (bRayHitLastFrame)
+                {
+                    lineLaser.SetPosition(1, new Vector3(0f, 0f, fPositionZBase_lineLaser));
+                }
+                if (bRayHitPlayerLastFrame)
+                {
+                    bRayHitPlayerThisFrame = false;
+                }
             }
         }
 
@@ -383,9 +389,12 @@ public class EnemyController : MonoBehaviour
 
     private void SetInfoLastFrame()
     {
-        bRayHitLastFrame = bRayHitThisFrame;
-        bRayHitPlayerLastFrame = bRayHitPlayerThisFrame;
-        bLaserDamagePlayerLastFrame = bLaserDamagePlayerThisFrame;
+        if (goLaser)
+        {
+            bRayHitLastFrame = bRayHitThisFrame;
+            bRayHitPlayerLastFrame = bRayHitPlayerThisFrame;
+            bLaserDamagePlayerLastFrame = bLaserDamagePlayerThisFrame;
+        }
         v3TransformForwardLastFrame = transform.forward;
     }
 
@@ -787,13 +796,13 @@ public class EnemyController : MonoBehaviour
             &&  (   (!bAttackOnlyIfPlayerInSight)
                 ||  (fDegreesDeltaRotationYToPlayer <= ((attackMode1 == AttackMode1.projectile) ? fDegreesDeltaRotationYToPlayerAttackProjectile : fDegreesDeltaRotationYToPlayerAttackLaser)) ) )
         {
-            if (    (attackMode1 == AttackMode1.projectile)
-                &&  (goProjectile) )
+            if (    (goProjectile)
+                &&  (attackMode1 == AttackMode1.projectile) )
             {
                 SetAttackProjectile();
             }
-            else if (   (attackMode1 == AttackMode1.laser)
-                    &&  (goLaser) )
+            else if (   (goLaser)
+                    &&  (attackMode1 == AttackMode1.laser) )
             {
                 SetAttackLaser();
             }
@@ -804,7 +813,8 @@ public class EnemyController : MonoBehaviour
             {
                 ResetAttackBurst();
             }
-            if (lineLaser.enabled)
+            if (    (goLaser)
+                &&  (lineLaser.enabled) )
             {
                 StopLaser();
             }
@@ -815,7 +825,8 @@ public class EnemyController : MonoBehaviour
 
     private void SetAttackProjectile()
     {
-        if (lineLaser.enabled)
+        if (    (goLaser)
+            &&  (lineLaser.enabled) )
         {
             StopLaser();
         }
